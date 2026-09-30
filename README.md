@@ -23,13 +23,51 @@ and against an exact MILP optimum.
 | **2. Mathematical optimization formulation** | Multi-objective MINLP: per-route vessel class (type & capacity), fleet size, speed, fuel pathway, shore power. Objectives min fuel / min WtW emissions / min cost (+ optional schedule risk). Constraints: demand, weekly frequency, on-time probability, fleet availability, CII ≥ C, FuelEU pooling, emission cap. See [docs/math_model.md](docs/math_model.md). |
 | **3. Quantum-inspired optimization algorithm** | **QMOEA-H**: qudit registers per route, superposition crossover, quantum memory register, δ-potential-well (QPSO) speed moves, Hadamard reset, elitist Pareto survival. Plus a **QUBO** formulation solved by a from-scratch **path-integral simulated quantum annealer** and exported unchanged for D-Wave. See [docs/algorithms.md](docs/algorithms.md). |
 | **4. Software platform / DSS** | FastAPI + React dashboard: live Pareto front streamed over SSE, fleet-allocation maps, emission profiles, scenario lab (2025–2050, fuel and carbon prices, Red Sea closure, monsoon, CSV upload), compliance views, downloadable decision report. |
-| **5. Demonstration** | India coastal & near-sea network (12 services, Sagarmala / Harit Sagar / green-hydrogen ports), EU FuelEU/ETS network, and a **synthetic 100-route, 750-ship network**. Benchmarks in [reports/](reports/). Implementation guide in [docs/implementation_guide.md](docs/implementation_guide.md). |
+| **5. Demonstration** | India coastal & near-sea network (12 services, Sagarmala / Harit Sagar / green-hydrogen ports), EU FuelEU/ETS network, and **MILP-certified synthetic networks of up to 100 routes / 1,250 ships**. Benchmarks in [reports/](reports/). Implementation guide in [docs/implementation_guide.md](docs/implementation_guide.md). |
 
 Deliverable-by-deliverable tracking: [docs/deliverables.md](docs/deliverables.md).
 
 ## Results at a glance
 
-<!-- RESULTS -->
+**Prediction** (held-out test data; physics-informed synthetic fleet, 20 ships, 10 vessel classes):
+
+| Scenario | Q-PHYS (ours) | Best conventional baseline | Notes |
+|---|---|---|---|
+| Known ships, future period | **3.29 % MAPE** | grey-box physics 3.41 %, LightGBM 5.28 % | Wilcoxon p ≤ 0.001 vs every baseline (better on 17–20 of 20 ships) |
+| Unseen ships of known classes | **5.64 %** | LightGBM 5.98 % | lead over LightGBM not significant (p = 0.35) |
+| Unseen vessel classes | **6.01 %** | physics 7.85 %; LightGBM 34.8 % | physics prior lets the hybrid extrapolate where pure ML fails |
+
+- **Uncertainty**: 90 % conformal intervals cover 0.89 of known-ship data; for brand-new ships they are conservative (0.98–0.998).
+- **Tuning**: at an equal budget, QPSO found the best hyperparameters (validation MAE 1.207, vs PSO 1.211, TPE 1.230, random 1.246). This is a single seed.
+
+**Fleet optimization** (8,000 plan evaluations per run, 3 seeds; hypervolume, higher is better):
+
+| Instance | QMOEA-H (ours) | MOPSO | NSGA-III | NSGA-II | Lowest-GHG plan found (ours vs best other) |
+|---|---|---|---|---|---|
+| India 2030 (12 services, tuning instance) | **0.797** | 0.692 | 0.542 | 0.091 | **670 kt** vs 740 kt |
+| EU 2030 (6 services, *not* used for tuning) | **0.866** | 0.823 | 0.789 | 0.754 | **202 kt** vs 223 kt |
+| Tight 100-route network (1,251 ships, MILP-certified feasible) | **feasible 2/2, HV 0.33** | feasible 1/2 | never feasible | never feasible | |
+
+Friedman tests: p = 0.004 (India) and p = 0.016 (EU), with QMOEA-H ranked first on both.
+
+**Against the exact optimum** (India 2030, speeds discretised, MILP solved in 1.4 s):
+
+| Algorithm | Fuel gap | GHG gap | Cost gap |
+|---|---|---|---|
+| **QMOEA-H** | **1.1 %** | **3.1 %** | **3.2 %** |
+| MOPSO | 1.0 % | 14.6 % | 4.8 % |
+| NSGA-III | 4.8 % | 13.0 % | 8.4 % |
+
+**QUBO + simulated quantum annealing**: every annealed plan is feasible and lands 1.6–7.5 % from the exact optimum.
+Our from-scratch path-integral SQA has the best median gap in 4 of 6 cases; OpenJij SQA edges it on India min-cost
+(effectively a tie) and on EU balanced.
+
+**Where QMOEA-H loses**: on loosely constrained synthetic networks with 50–100 routes, classical MOPSO converges
+further within the same budget (hypervolume 0.71 vs 0.15 at 50 routes). This is listed as future work in
+[docs/algorithms.md](docs/algorithms.md).
+
+**Impact (India 2030 recommended plan)**: about −60 % WtW GHG, −50 % fuel and −20 % cost vs current practice, with all
+CII, FuelEU and schedule constraints met. Against an already slow-steaming VLSFO fleet: about −34 % GHG and −15 % cost.
 
 Full tables, statistical tests and figures: [reports/prediction_benchmark.md](reports/prediction_benchmark.md) and
 [reports/optimization_benchmark.md](reports/optimization_benchmark.md).
@@ -69,7 +107,7 @@ suite, and `make bench-quick` to regenerate the benchmarks.
 
 ## Three-minute demo script
 
-1. **Overview**: the India network on the map. Current practice emits about 2.3 Mt CO₂e a year and fails CII on 11 of 12 services in 2030.
+1. **Overview**: the India network on the map. Current practice emits about 2.1 Mt CO₂e a year, fails CII on 11 of 12 services in 2030 and owes about $22 M a year in FuelEU penalties.
 2. **Fleet optimizer**: press *Run optimization*. The Pareto front streams in live, far from the grey reference plans. Click
    *Recommended*: roughly −60 % GHG, −50 % fuel and −20 % cost, all constraints satisfied. Read the explanation, hover the map,
    then click *Minimum emissions* to show the ammonia/methanol extreme. Download the decision report.
@@ -78,7 +116,7 @@ suite, and `make bench-quick` to regenerate the benchmarks.
    physics-only curve. Switch the fuel system to e-ammonia. Show the tensor-network entanglement chart.
 5. **Fuel & policy lab**: run the 2025→2050 pathway (conventional → LNG → e-ammonia), then the MACC. Anneal the QUBO and
    compare the gap to the exact MILP.
-6. **Benchmarks**: QMOEA-H vs NSGA-II/III, MOPSO and others (hypervolume, convergence, MILP gaps, scalability to 100 routes).
+6. **Benchmarks**: QMOEA-H vs NSGA-II/III, MOPSO and others (hypervolume, convergence, MILP gaps, scalability to 100 routes), including where it loses.
 
 ## Honest notes
 - Everything runs on classical hardware. "Quantum-inspired" names the algorithms' mechanics: tensor networks,

@@ -8,7 +8,7 @@ const DELIVERABLES = [
   ["4", "Software platform / decision support", "UI/API, scenario simulation, fleet allocation & emission visualisation, reports",
     "FastAPI + React dashboard, live Pareto streaming, scenario lab (year, prices, carbon, Red Sea, monsoon, CSV upload), maps, emission profiles, downloadable report"],
   ["5", "Demonstration", "Large-scale real or simulated scenario; algorithm details; implementation guide; results",
-    "India coastal & near-sea network (12 services), EU FuelEU/ETS network, synthetic 100-route / 750-ship network; benchmark reports; docs/implementation_guide.md"],
+    "India coastal & near-sea network (12 services), EU FuelEU/ETS network, MILP-certified synthetic networks up to 100 routes / 1,250 ships; benchmark reports; docs/implementation_guide.md"],
 ];
 
 export default function About() {

@@ -26,7 +26,15 @@ def _fmt(v, nd=3):
     if v is None:
         return "-"
     if isinstance(v, float):
+        if not np.isfinite(v):
+            return "-"
+        if abs(v) >= 1000:
+            return f"{v:,.0f}"
+        if abs(v) >= 100:
+            return f"{v:.1f}"
         return f"{v:.{nd}f}"
+    if isinstance(v, int) and not isinstance(v, bool) and abs(v) >= 10000:
+        return f"{v:,}"
     return str(v)
 
 
