@@ -362,6 +362,13 @@ def run_qubo(job, sc: Scenario, weights: dict, solver: str) -> dict:
             "dwave_ready": {"variables": fq.n_vars, "format": "dimod.BinaryQuadraticModel (QB.export_bqm)"}}
 
 
+def run_qaoa(job, sc: Scenario, weights: dict, services: int, options: int, layers: int) -> dict:
+    from greenfleet.quantum import qaoa as Q
+
+    job.emit({"type": "progress", "stage": f"training QAOA circuits ({services * options} qubits, p = 1..{layers})"})
+    return Q.run_qaoa(get_problem(sc), weights, services, options, layers)
+
+
 def benchmarks() -> dict:
     out = {}
     for name in ("prediction_benchmark", "optimization_benchmark"):

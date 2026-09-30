@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Plot from "../components/Plot";
+import QaoaCard from "../components/QaoaCard";
 import ScenarioPanel from "../components/ScenarioPanel";
 import { api, followJob } from "../lib/api";
 import { compact, fmt, pct } from "../lib/format";
@@ -179,6 +180,7 @@ export default function Lab() {
           ) : <div className="empty" style={{ minHeight: 120, marginTop: 12 }}>Anneal the fleet QUBO and compare with the exact MILP.</div>}
         </div>
       </div>
+      <QaoaCard />
     </div>
   );
 }

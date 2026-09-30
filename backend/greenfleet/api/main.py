@@ -77,6 +77,12 @@ def submit_qubo(sc: Scenario, weights: dict, solver: str, pinned: bool = False):
                        key=_job_key("qubo", sc, weights=weights, solver=solver), pinned=pinned)
 
 
+def submit_qaoa(sc: Scenario, weights: dict, services: int, options: int, layers: int, pinned: bool = False):
+    return jobs.submit("qaoa", lambda j: S.run_qaoa(j, sc, weights, services, options, layers),
+                       key=_job_key("qaoa", sc, weights=weights, services=services, options=options, layers=layers),
+                       pinned=pinned)
+
+
 def default_scenario() -> Scenario:
     """The scenario the dashboard opens with (see frontend/src/lib/store.tsx)."""
     return Scenario.from_dict({**Scenario().to_dict(), "network": "india", "year": 2030})
@@ -91,6 +97,7 @@ def warm_up() -> None:
         submit_optimize(sc, "QMOEA-H", 6000, 0, pinned=True)
         submit_timeline(sc, DEFAULT_YEARS, 3000, "cost", pinned=True)
         S.macc(sc)
+        submit_qaoa(sc, {"emissions": 0.5, "cost": 0.5}, 4, 3, 3, pinned=True)
         submit_qubo(sc, {"emissions": 0.5, "cost": 0.5}, "pi_sqa", pinned=True)
         log.info("warm-up submitted")
     except Exception:  # warm-up is best effort; the endpoints still compute on demand
@@ -163,6 +170,13 @@ class ExactIn(ScenarioIn):
 class QuboIn(ScenarioIn):
     weights: dict[str, float] = {"fuel": 1 / 3, "emissions": 1 / 3, "cost": 1 / 3}
     solver: str = "pi_sqa"
+
+
+class QaoaIn(ScenarioIn):
+    weights: dict[str, float] = {"emissions": 0.5, "cost": 0.5}
+    services: int = Field(4, ge=2, le=5)
+    options: int = Field(3, ge=2, le=3)
+    layers: int = Field(3, ge=1, le=4)
 
 
 class PredictIn(BaseModel):
@@ -248,6 +262,16 @@ def post_qubo(body: QuboIn):
     if body.solver not in ("pi_sqa", "openjij_sqa", "openjij_sa"):
         raise HTTPException(422, "solver must be pi_sqa, openjij_sqa or openjij_sa")
     job, reused = submit_qubo(sc, body.weights, body.solver)
+    return {**job.summary(), "reused": reused}
+
+
+@app.post("/api/qaoa")
+def post_qaoa(body: QaoaIn):
+    """Gate-model QAOA on a small fleet sub-problem (exact state-vector simulation, OpenQASM 2.0 export)."""
+    sc = body.build()
+    if body.services * body.options > 16:
+        raise HTTPException(422, "at most 16 qubits (services x options)")
+    job, reused = submit_qaoa(sc, body.weights, body.services, body.options, body.layers)
     return {**job.summary(), "reused": reused}
 
 

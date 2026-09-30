@@ -33,6 +33,8 @@ export const api = {
     req<JobSummary>("/timeline", { scenario, years, budget, preference }),
   qubo: (scenario: Scenario, weights: Record<string, number>, solver: string) =>
     req<JobSummary>("/qubo", { scenario, weights, solver }),
+  qaoa: (scenario: Scenario, weights: Record<string, number>, services = 4, options = 3, layers = 3) =>
+    req<JobSummary>("/qaoa", { scenario, weights, services, options, layers }),
   job: <T>(id: string) => req<JobSummary & { result?: T }>(`/jobs/${id}`),
 };
 

@@ -125,3 +125,35 @@ def test_bqm_export_matches_energy():
     bqm = to_bqm(Q)
     x = np.array([1, 0, 1, 1, 0])
     assert bqm.energy({i: int(v) for i, v in enumerate(x)}) == pytest.approx(qubo_energy(Q, x)[0])
+
+
+def test_qaoa_xy_mixer_stays_one_hot_and_qasm_matches_simulation():
+    from greenfleet.optimization.problem import FleetProblem
+    from greenfleet.quantum import qaoa as Q
+    from greenfleet.scenarios.scenario import Scenario, resolve
+
+    prob = FleetProblem(resolve(Scenario(network="india", year=2030)))
+    sub = Q.build_subproblem(prob, {"emissions": 0.5, "cost": 0.5}, n_routes=3, k=3)
+    bits = Q._basis_bits(sub.n)
+    sim = Q.QAOASimulator(sub.n, Q.cost_vector(sub.h, sub.P, bits), "xy", 3)
+    gammas, betas = [0.7, 1.1], [0.4, 0.9]
+    psi = sim.state(gammas, betas)
+    one_hot = Q.onehot_penalty(bits, 3) == 0
+    assert np.isclose((np.abs(psi[one_hot]) ** 2).sum(), 1.0)          # never leaves the valid-plan subspace
+    psi_qasm = Q.simulate_qasm(Q.to_qasm(sub, gammas, betas))           # the exported circuit is the same unitary
+    assert abs(np.vdot(psi_qasm, psi)) ** 2 > 1 - 1e-9
+
+
+def test_qaoa_beats_random_guessing_on_fleet_subproblem():
+    from greenfleet.optimization.problem import FleetProblem
+    from greenfleet.quantum import qaoa as Q
+    from greenfleet.scenarios.scenario import Scenario, resolve
+
+    prob = FleetProblem(resolve(Scenario(network="india", year=2030)))
+    out = Q.run_qaoa(prob, {"emissions": 0.5, "cost": 0.5}, n_routes=3, k=3, p_max=2)
+    xy = out["layers"]["xy"]
+    assert out["valid_plans"] == 27 and out["qubits"] == 9
+    assert xy[-1]["p_valid"] > 0.999 and xy[-1]["p_top3"] > 3 * out["random_guess_p_top3"]
+    assert max(layer["p_optimal"] for layer in xy) > 3 * out["random_guess_p_optimal"]
+    assert xy[-1]["energy"] <= xy[0]["energy"] + 1e-9
+    assert out["qasm"].startswith("OPENQASM 2.0;") and "measure q -> c;" in out["qasm"]

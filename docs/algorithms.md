@@ -85,8 +85,13 @@ A plan is obtained by measuring the registers and reading $u$.
    - 30 % of offspring (50 % above 25 routes) are archive members with $\max(1, R/12)$ routes re-measured (from memory) or speed-tunnelled.
    - The route is drawn with probability proportional to its own constraint violation (CII, schedule), and uniformly once the member is feasible.
    - In superposition crossover, a route the parent violates but the guide satisfies collapses to the guide with probability 0.9.
-7. **Elitist $(\mu+\lambda)$ survival** by constrained non-dominated sorting and crowding distance. An external archive keeps up to 100 non-dominated plans.
-8. **Hadamard reset**: after 15 generations without archive improvement, the worst 20 % of the population is replaced by fresh measurements of the uniform superposition.
+7. **Route-wise merge** (exploits the structure of the fleet model, not quantum mechanics):
+   - Fuel, emissions and cost are sums of per-route contributions; routes interact only through fleet availability and the FuelEU pool.
+   - On a large network a child that improves some routes and worsens others is usually dominated and discarded, so its good route changes are lost.
+   - After evaluation, each child is compared with its parent route by route, under a random trade-off direction $w$ (Dirichlet) on objectives normalised by their fleet totals. Fewer route violations (CII, schedule) win first.
+   - A merged plan takes, per route, whichever decision is better. It is a full plan, evaluated by the full model, and counted against the budget like any other evaluation.
+8. **Elitist $(\mu+\lambda)$ survival** by constrained non-dominated sorting and crowding distance. An external archive keeps up to 100 non-dominated plans.
+9. **Hadamard reset**: after 15 generations without archive improvement, the worst 20 % of the population is replaced by fresh measurements of the uniform superposition.
 
 ### Design journey and ablations (honest record)
 The algorithm was developed empirically on the India 2030 instance (hypervolume at 4,000 and 10,000 evaluations, 3–4 seeds).
@@ -101,6 +106,11 @@ The EU and synthetic networks were **not** used for tuning.
 | + absorbing δ-well walls | clip instead of reflect at speed bounds | ≈ 0.77 (vs MOPSO 0.72, NSGA-III 0.49) | fuel-optimal plans sit exactly on the minimum speed |
 | **+ violation-guided tunnelling** | routes to re-measure/tunnel are drawn ∝ their own CII/schedule violation; superposition collapses to the guide where the parent violates and the guide does not | **≈ 0.83** (vs MOPSO 0.72); on the MILP-certified 100-route network it reaches feasibility in every seed where NSGA-III never does | on large networks the few violating routes must be found; *how* a route changes stays quantum (measurement, δ-well), only *where* is guided by the route-separable violation |
 
+| **+ route-wise merge** | each child is merged with its parent route by route (per-route objective contributions come from the same evaluation) | India HV 0.69 → 0.88 at 8k evaluations (3 seeds, normalised across the variants compared) | the decisive change at scale: cost gap to the MILP on the 100-route sweep network fell from 28 % to 7 % (MOPSO 24 %); the merge rate (0.5 vs 1.0) was chosen on India, EU and the 50/100-route sweep networks |
+
+The ablation **QMOEA-H w/o route merge** is part of every benchmark table, so the operator's contribution is measured,
+not assumed.
+
 The MOQPSO ablation (QPSO on every gene with random-key decoding) shows the qudit registers matter: on the same budget
 it reaches HV ≈ 0.52.
 
@@ -108,14 +118,9 @@ it reaches HV ≈ 0.52.
 100 routes. A pure 1/n rule starves large networks of exploration. The final rule grows exploration and local tunnelling
 sub-linearly with the number of routes (as listed above), and leaves 12-route behaviour unchanged.
 
-**Known limitation.** In the scalability sweep (loosely constrained synthetic networks, one run per size), classical
-MOPSO reaches a higher hypervolume at 12, 50 and 100 routes and a smaller cost gap to the MILP at 50 and 100 routes;
-QMOEA-H leads only at 25 routes. QMOEA-H remains ahead on:
-- the real case-study networks (India, EU),
-- the exact-gap comparison,
-- the tightly constrained 100-route network, where it is the only method feasible in every seed.
-
-Closing the large-scale gap is future work, for example a velocity-style memory for speed genes or adaptive rates.
+**Scalability (after the route-wise merge).** See `reports/optimization_benchmark.md` for the 10-seed results. The
+per-evaluation cost of QMOEA-H is higher than MOPSO's (vectorised Python operators), so at equal *evaluations* it is
+slower in wall-clock time.
 
 ## 4. Exact MILP and QUBO (`optimization/options.py`, `milp.py`, `qubo.py`)
 
@@ -127,6 +132,33 @@ Closing the large-scale gap is future work, for example a velocity-style memory 
   - **Lazy constraints**: slack-encoded availability terms have couplings about 10⁴ times the objective differences and trap single-flip annealers. They are added only for classes the current annealed plan over-uses, cutting-plane style, with weight escalation if a violation persists.
   - **Lagrangian FuelEU price**: the pooled penalty max(0, deficit) × rate is convex and piecewise linear, so a QUBO can only carry it as a linear price. That price is bisected on [0, rate] until the pool balance is about zero, and the best plan under the *exact* fleet model is kept.
   - **Solvers**: from-scratch path-integral SQA, OpenJij SQA, and classical SA (OpenJij).
+
+### Gate-model QAOA (`quantum/qaoa.py`)
+Everything above runs on classical hardware. QAOA writes a piece of the fleet problem as a gate-based quantum circuit.
+
+- **Sub-problem**: $m$ services (default 4), each choosing one of $k$ options (default 3). Every other service keeps the exact MILP plan. Qubit $q = rk + j$ is 1 when service $r$ uses option $j$.
+  - Services are chosen greedily so that they compete for the ships left after the fixed services. Two options on different services that together need more ships of a class than remain are coupled by a penalty $P x_q x_{q'}$.
+- **Cost Hamiltonian** $H_C = \sum_q h_q x_q + \sum_{q<q'} P_{qq'} x_q x_{q'}$, with $h$ the weighted, normalised objective of each option (same scoring as the QUBO).
+- **Ansatz**: Quantum Alternating Operator Ansatz (Hadfield et al., 2019).
+  - Initial state: a W state per service (equal superposition of its one-hot states).
+  - Mixer: ring-XY, $\exp(-i\beta(X_aX_b+Y_aY_b)/2)$ on neighbouring qubits of a service. It only moves the excitation within a service, so **every measurement is a valid plan**.
+  - The textbook formulation ($|+\rangle^{\otimes n}$, X mixer, one-hot penalty) is simulated alongside for comparison.
+- **Training**: minimise $\langle H_C\rangle$. At $p=1$ a 14×14 grid then Nelder–Mead; deeper circuits start from interpolated angles (INTERP, Zhou et al., 2020).
+- **Ground truth**: all $k^m$ plans are evaluated with the full fleet model (FuelEU penalty, availability, CII, schedule).
+- **Export**: OpenQASM 2.0 using only `x, h, rx, ry, rz, cx`. `simulate_qasm` re-simulates the exported text (fidelity 1 − 10⁻¹⁴ in the tests). The file also loads unchanged in Qiskit 2.5, which reproduces the same measurement probabilities.
+- **Result (India 2030, emissions/cost 50/50, 12 qubits, 81 valid plans, 4 ship-sharing couplings)**:
+
+| depth p | best plan, XY mixer | one of 3 best, XY mixer | best plan, X mixer + penalty | one of 3 best, X mixer | valid plans, X mixer |
+|---|---|---|---|---|---|
+| 1 | 38.4 % | 45.4 % | 0.4 % | 1.1 % | 23 % |
+| 2 | 76.6 % | 82.2 % | 1.0 % | 3.0 % | 47 % |
+| 3 | 79.1 % | 84.3 % | 2.0 % | 6.0 % | 75 % |
+
+(The XY mixer gives 100 % valid plans at every depth.)
+
+Random guessing finds the best plan with 1.2 % probability (3.7 % for one of the three best). The circuit has depth 130
+with 192 CX gates. The state vector is simulated exactly on a classical computer; no quantum hardware was used and no speed-up is claimed.
+At shallow depth the circuit cannot separate near-tied plans; for example, shore power on a one-ship feeder changes the objective very little.
 
 ## 5. Classical baselines
 

@@ -132,3 +132,11 @@ def test_job_manager_reuse_and_eviction():
     while failing.status != "error":
         time.sleep(0.01)
     assert jm.submit("x", lambda j: 1, key="f")[1] is False   # a failed job is retried, not reused
+
+
+def test_qaoa_job():
+    j = client.post("/api/qaoa", json={"scenario": {"network": "india", "year": 2030}, "services": 2, "options": 3,
+                                        "layers": 1}).json()
+    res = _wait(j["id"])["result"]
+    assert res["qubits"] == 6 and res["top_plans"] and res["qasm"].startswith("OPENQASM 2.0;")
+    assert client.post("/api/qaoa", json={"scenario": {}, "services": 9}).status_code == 422

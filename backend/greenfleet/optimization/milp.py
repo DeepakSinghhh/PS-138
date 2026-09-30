@@ -25,6 +25,7 @@ class MILPResult:
     objective: float
     status: str
     seconds: float
+    choice: list[int] | None = None      # chosen option index per route
 
 
 class FleetMILP:
@@ -68,7 +69,7 @@ class FleetMILP:
             return MILPResult(None, float("nan"), status, secs)
         choice = [int(np.argmax([v.varValue or 0 for v in xr])) for xr in x]
         return MILPResult(options_to_genes(self.problem, self.options, choice), float(pulp.value(m.objective)),
-                          status, secs)
+                          status, secs, choice)
 
     def minimize(self, objective: str, bounds: dict[str, float] | None = None) -> MILPResult:
         m, x, exprs = self._model(f"min_{objective}")
