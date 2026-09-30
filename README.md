@@ -52,32 +52,43 @@ backgrounds, are in [docs/brand/](docs/brand/).
 - **Uncertainty**: 90 % conformal intervals cover 0.89 of known-ship data; for brand-new ships they are conservative (0.98–0.998).
 - **Tuning**: at an equal budget, QPSO found the best hyperparameters (validation MAE 1.207, vs PSO 1.211, TPE 1.230, random 1.246). This is a single seed.
 
-**Fleet optimization** (8,000 plan evaluations per run, 3 seeds; hypervolume, higher is better):
+**Fleet optimization** (8,000 plan evaluations per run, 10 seeds; hypervolume, higher is better):
 
-| Instance | QMOEA-H (ours) | MOPSO | NSGA-III | NSGA-II | Lowest-GHG plan found (ours vs best other) |
+| Instance | QMOEA-H (ours) | MOPSO | NSGA-III | NSGA-II | Lowest-GHG plan found (ours vs best baseline) |
 |---|---|---|---|---|---|
-| India 2030 (12 services, tuning instance) | **0.797** | 0.692 | 0.542 | 0.091 | **670 kt** vs 740 kt |
-| EU 2030 (6 services, *not* used for tuning) | **0.866** | 0.823 | 0.789 | 0.754 | **202 kt** vs 223 kt |
-| Tight 100-route network (1,251 ships, MILP-certified feasible) | **feasible 2/2, HV 0.33** | feasible 1/2 | never feasible | never feasible | |
+| India 2030 (12 services, tuning instance) | **0.871** ± 0.006 | 0.562 | 0.338 | 0.135 | **656 kt** vs 743 kt |
+| EU 2030 (6 services) | **0.882** ± 0.006 | 0.779 | 0.746 | 0.745 | **198 kt** vs 249 kt |
+| Tight 100-route network (1,251 ships, MILP-certified feasible) | **feasible 5/5**, HV 0.66 | feasible 3/5 | never feasible | never feasible | |
 
-Friedman tests: p = 0.004 (India) and p = 0.016 (EU), with QMOEA-H ranked first on both.
+Mann-Whitney U: QMOEA-H's hypervolume is higher than every other algorithm's on India and EU, p < 0.001 in each
+comparison, including its own ablation without the route-wise merge (0.640 and 0.825). Friedman p ≈ 10⁻¹³ on both.
 
-**Against the exact optimum** (India 2030, speeds discretised, MILP solved in 1.4 s):
+**Against the exact optimum** (India 2030, speeds discretised, MILP solved in about 1.5 s):
 
 | Algorithm | Fuel gap | GHG gap | Cost gap |
 |---|---|---|---|
-| **QMOEA-H** | **1.1 %** | **3.1 %** | **3.2 %** |
-| MOPSO | 1.0 % | 14.6 % | 4.8 % |
-| NSGA-III | 4.8 % | 13.0 % | 8.4 % |
+| **QMOEA-H** | **0.02 %** | **0.8 %** | **0.8 %** |
+| MOPSO | 1.0 % | 14.8 % | 4.9 % |
+| NSGA-III | 6.7 % | 15.8 % | 11.3 % |
 
-**QUBO + simulated quantum annealing**: every annealed plan is feasible and lands 1.6–7.5 % from the exact optimum.
-Our from-scratch path-integral SQA has the best median gap in 4 of 6 cases; OpenJij SQA edges it on India min-cost
-(effectively a tie) and on EU balanced.
+**QUBO + simulated quantum annealing**: every annealed plan is feasible. Our from-scratch path-integral SQA lands
+2.0–7.5 % (median) from the exact optimum and has the best median gap in 5 of 6 cases; OpenJij SQA edges it on India
+min-cost (2.6 % vs 2.9 %).
 
-**Where QMOEA-H loses**: in the scalability sweep (loosely constrained synthetic networks, one run per size), classical
-MOPSO reaches a higher hypervolume at 12, 50 and 100 routes (0.71 vs 0.15 at 50 routes) and a smaller cost gap to the MILP
-at 50 and 100 routes. QMOEA-H leads only at 25 routes, and its wall time per evaluation is 2–4× that of MOPSO. This is listed as
-future work in [docs/algorithms.md](docs/algorithms.md).
+**Gate-model QAOA** (12 qubits, simulated exactly): the trained depth-3 circuit returns the best plan in 79 % of shots,
+against 1.2 % for random guessing and 2 % for the textbook X-mixer formulation.
+
+**Scalability** (synthetic networks, 5 seeds per size): QMOEA-H's cheapest plan is 2.2 %, 7.6 %, 6.0 % and 6.7 % above
+the exact minimum cost at 12, 25, 50 and 100 routes, against 6.0 %, 13.0 %, 16.1 % and 23.1 % for MOPSO. NSGA-II/III
+find no feasible plan at 100 routes.
+
+**Where QMOEA-H falls short**:
+- At **200 routes** (1,840 ships) no metaheuristic, ours included, finds a plan that meets every constraint within
+  32,659 evaluations (nor within 120,000 in a separate check). Only the fleet-availability limit stays violated. The
+  exact MILP solves the discretised problem in about 2 s, so at this size the MILP (or a MILP warm start) is the tool to use.
+- At 12 routes one of five QMOEA-H runs ended without a feasible plan (MOPSO: 5 of 5).
+- Per evaluation it is 3–5× slower than MOPSO in wall-clock time (vectorised Python operators), so at equal evaluations
+  it takes longer.
 
 **Impact (India 2030 recommended plan)**: about −60 % WtW GHG, −50 % fuel and −20 % cost vs current practice, with all
 CII, FuelEU and schedule constraints met. Against an already slow-steaming VLSFO fleet: about −34 % GHG and −15 % cost.

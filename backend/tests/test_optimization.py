@@ -156,3 +156,19 @@ def test_scenario_levers_change_outcomes():
     assert sum(map(len, late.route_fuels)) > sum(map(len, early.route_fuels))   # more fuels bunkerable later
     g = base.baseline_genes("slow_steaming")
     assert Genes(g.cat, g.u).cat.shape == (1, base.n_cat)
+
+
+def test_route_violations_include_attributed_fleet_availability():
+    from greenfleet.optimization.problem import FleetProblem
+    from greenfleet.scenarios.instances import synthetic_scenario
+    from greenfleet.scenarios.scenario import resolve
+
+    prob = FleetProblem(resolve(synthetic_scenario(40, seed=3)))
+    g = prob.random_genes(64, np.random.default_rng(0))
+    F, CV, parts = prob.evaluate(g, return_parts=True)
+    v_avail = parts["cv_parts"][:, 1]
+    route_only = (np.maximum(prob.rs.scenario.on_time_min - parts["route"]["p_on"], 0) * 5.0
+                  + np.maximum(parts["route"]["cii_ratio"] / prob.cii_limit[parts["route"]["cls"]] - 1, 0))
+    attributed = (parts["route_cv"] - route_only).sum(axis=1)
+    assert v_avail.max() > 0                              # the random plans do over-use some class
+    assert np.allclose(attributed, v_avail)               # the per-route shares add up to the fleet-level violation

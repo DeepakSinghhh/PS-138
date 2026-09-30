@@ -83,12 +83,12 @@ A plan is obtained by measuring the registers and reading $u$.
    - The walls are **absorbing** (clip), not reflecting, because many optima sit exactly on a speed bound: slowest feasible or top speed.
 6. **Violation-guided local tunnelling**:
    - 30 % of offspring (50 % above 25 routes) are archive members with $\max(1, R/12)$ routes re-measured (from memory) or speed-tunnelled.
-   - The route is drawn with probability proportional to its own constraint violation (CII, schedule), and uniformly once the member is feasible.
+   - The route is drawn with probability proportional to its own constraint violation, and uniformly once the member is feasible. A route's violation is its CII and schedule shortfall plus its share of any fleet-availability excess: each over-used vessel class's excess is split over the routes using that class in proportion to their ships, so the shares add up to the fleet-level violation.
    - In superposition crossover, a route the parent violates but the guide satisfies collapses to the guide with probability 0.9.
 7. **Route-wise merge** (exploits the structure of the fleet model, not quantum mechanics):
    - Fuel, emissions and cost are sums of per-route contributions; routes interact only through fleet availability and the FuelEU pool.
    - On a large network a child that improves some routes and worsens others is usually dominated and discarded, so its good route changes are lost.
-   - After evaluation, each child is compared with its parent route by route, under a random trade-off direction $w$ (Dirichlet) on objectives normalised by their fleet totals. Fewer route violations (CII, schedule) win first.
+   - After evaluation, each child is compared with its parent route by route, under a random trade-off direction $w$ (Dirichlet) on objectives normalised by their fleet totals. Fewer route violations (CII, schedule, share of fleet-availability excess) win first.
    - A merged plan takes, per route, whichever decision is better. It is a full plan, evaluated by the full model, and counted against the budget like any other evaluation.
 8. **Elitist $(\mu+\lambda)$ survival** by constrained non-dominated sorting and crowding distance. An external archive keeps up to 100 non-dominated plans.
 9. **Hadamard reset**: after 15 generations without archive improvement, the worst 20 % of the population is replaced by fresh measurements of the uniform superposition.
@@ -108,6 +108,8 @@ The EU and synthetic networks were **not** used for tuning.
 
 | **+ route-wise merge** | each child is merged with its parent route by route (per-route objective contributions come from the same evaluation) | India HV 0.69 → 0.88 at 8k evaluations (3 seeds, normalised across the variants compared) | the decisive change at scale: cost gap to the MILP on the 100-route sweep network fell from 28 % to 7 % (MOPSO 24 %); the merge rate (0.5 vs 1.0) was chosen on India, EU and the 50/100-route sweep networks |
 
+| **+ route-attributed fleet availability** | availability excess is split over the routes using the over-used class, so tunnelling and the merge can target it | India unchanged (0.879 → 0.878); EU 0.862 → 0.876; tight 100-route network feasible in 3/3 seeds instead of 1/3 | availability is a coupling constraint that route-level operators could not see; decided on a 3-seed comparison over every benchmark network (disclosed in the report) |
+
 The ablation **QMOEA-H w/o route merge** is part of every benchmark table, so the operator's contribution is measured,
 not assumed.
 
@@ -118,20 +120,15 @@ it reaches HV ≈ 0.52.
 100 routes. A pure 1/n rule starves large networks of exploration. The final rule grows exploration and local tunnelling
 sub-linearly with the number of routes (as listed above), and leaves 12-route behaviour unchanged.
 
-**Scalability (after the route-wise merge).** See `reports/optimization_benchmark.md` for the 10-seed results. The
-per-evaluation cost of QMOEA-H is higher than MOPSO's (vectorised Python operators), so at equal *evaluations* it is
-slower in wall-clock time.
-
-## 4. Exact MILP and QUBO (`optimization/options.py`, `milp.py`, `qubo.py`)
-
-- **Options.** For each route: classes × fuels × OPS × extra ships × 5 speed levels. Options infeasible on their own (CII, schedule) are removed, and options dominated within the same class on (cost, GHG, fuel, ships, FuelEU excess, risk) are pruned.
-- **MILP (PuLP + CBC).** One-hot per route, ships per class ≤ availability, FuelEU pool (a linear compliance constraint in hard mode; the penalty is linearised in penalty mode). It gives exact extremes in milliseconds and an exact ε-constraint cost–emissions front.
-- **QUBO.**
-  - Energy: $E(x) = \sum s_{rj}x_{rj} + A\sum_r(\sum_j x_{rj}-1)^2 + B\sum_k(\sum n_{rj}x_{rj} + \sum_b 2^b s_{kb} - N_k)^2$.
-  - Per-route scores are shifted so each route's best option scores 0. Then dropping a route or picking two options can never undercut the one-hot penalty, which is set just above the largest per-route score range.
-  - **Lazy constraints**: slack-encoded availability terms have couplings about 10⁴ times the objective differences and trap single-flip annealers. They are added only for classes the current annealed plan over-uses, cutting-plane style, with weight escalation if a violation persists.
-  - **Lagrangian FuelEU price**: the pooled penalty max(0, deficit) × rate is convex and piecewise linear, so a QUBO can only carry it as a linear price. That price is bisected on [0, rate] until the pool balance is about zero, and the best plan under the *exact* fleet model is kept.
-  - **Solvers**: from-scratch path-integral SQA, OpenJij SQA, and classical SA (OpenJij).
+**Scalability (10-seed benchmark, 5 seeds per sweep size).** With the route-wise merge and route-attributed
+availability, QMOEA-H's cheapest plan is 2.2 / 7.6 / 6.0 / 6.7 % above the exact MILP minimum cost at 12 / 25 / 50 / 100
+routes, against 6.0 / 13.0 / 16.1 / 23.1 % for MOPSO. It is the only method feasible in every seed on the tight
+100-route network. Limitations:
+- at 200 routes no metaheuristic reaches feasibility, even with 120,000 evaluations: only fleet availability stays
+  violated (about 10 % over-use of one class). An availability repair (moving services to classes with spare ships) or a
+  MILP warm start are the obvious next steps; the MILP itself solves this size in about 2 s;
+- one of five 12-route runs ended infeasible;
+- per evaluation QMOEA-H is 3–5× slower than MOPSO in wall-clock time.
 
 ### Gate-model QAOA (`quantum/qaoa.py`)
 Everything above runs on classical hardware. QAOA writes a piece of the fleet problem as a gate-based quantum circuit.

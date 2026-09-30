@@ -6,6 +6,9 @@ import { useStore } from "../lib/store";
 import { algoColor, useTheme } from "../lib/theme";
 
 const f3 = (v: number | null | undefined) => (v === null || v === undefined ? "–" : v.toFixed(3));
+const pval = (p: number) => (p < 0.001 ? "< 0.001" : p.toFixed(3));
+// the "without route merge" ablation shares our hue (it is our algorithm minus one operator) with a dashed line
+const isAblationOfOurs = (name: string) => name.startsWith("QMOEA-H w/o");
 
 export default function Benchmarks() {
   const t = useTheme();
@@ -70,19 +73,21 @@ export default function Benchmarks() {
                   <thead><tr><th>Algorithm</th><th className="n">HV</th><th className="n">IGD+</th><th className="n">evals to 95 %</th><th className="n">best GHG t</th><th className="n">p (vs ours)</th></tr></thead>
                   <tbody>{Object.entries(I.table as Record<string, any>).sort((a, b) => b[1].hv_mean - a[1].hv_mean).map(([name, r]) => (
                     <tr key={name} className={name.includes("ours") ? "hl" : ""}>
-                      <td><i className="swatch" style={{ background: algoColor(t, name), marginRight: 6 }} />{name}</td>
+                      <td><i className="swatch" style={isAblationOfOurs(name)
+                        ? { background: "transparent", border: `2px dashed ${algoColor(t, name)}`, marginRight: 6 }
+                        : { background: algoColor(t, name), marginRight: 6 }} />{name}</td>
                       <td className="n">{f3(r.hv_mean)} <span className="muted">±{f3(r.hv_std)}</span></td>
                       <td className="n">{f3(r.igd_plus_mean)}</td>
                       <td className="n">{r.nfe_to_95pct_ref_hv ? fmt(r.nfe_to_95pct_ref_hv) : "–"}</td>
                       <td className="n">{fmt(r.best_objective_mean?.emissions)}</td>
-                      <td className="n">{I.mann_whitney_vs_ours?.[name] ? I.mann_whitney_vs_ours[name].p_value.toFixed(3) : "–"}</td>
+                      <td className="n">{I.mann_whitney_vs_ours?.[name] ? pval(I.mann_whitney_vs_ours[name].p_value) : "–"}</td>
                     </tr>))}</tbody></table></div>
               </div>
               <div className="card">
                 <div className="card-head"><h3>Convergence</h3><span className="muted small">mean hypervolume vs evaluations</span></div>
                 <Plot ariaLabel="Hypervolume convergence" height={330} data={Object.entries(I.curves as Record<string, any>).map(([name, c]) => ({
                   type: "scatter", mode: "lines", name, x: c.nfe, y: c.hv_mean,
-                  line: { color: algoColor(t, name), width: name.includes("ours") ? 2.5 : 1.5 },
+                  line: { color: algoColor(t, name), width: name.includes("ours") ? 2.5 : 1.5, dash: isAblationOfOurs(name) ? "dash" : "solid" },
                 }))} layout={{ xaxis: { title: { text: "fleet plans evaluated" } }, yaxis: { title: { text: "hypervolume" } }, legend: { orientation: "h", y: -0.3, font: { size: 10 } } }} />
               </div>
             </div>
@@ -110,20 +115,19 @@ export default function Benchmarks() {
           </div>
           {opt.scalability && (
             <div className="card">
-              <div className="card-head"><div><h3>Scalability</h3><p className="muted small">Synthetic networks on real ports, one run per size: hypervolume, cost gap vs the exact single-objective MILP, and wall time.</p></div></div>
+              <div className="card-head"><div><h3>Scalability</h3><p className="muted small">Synthetic networks on real ports, {opt.config.scal_seeds ?? 1} run(s) per size and method: feasibility, hypervolume, cost gap of the cheapest plan to the exact single-objective MILP, and wall time. A missing point means no run found a plan meeting every constraint.</p></div></div>
               <div className="grid cols-2">
-                <Plot ariaLabel="Scalability wall time" height={300} data={[
-                  ...Object.keys(opt.scalability.rows[0].algorithms).map((name) => ({
+                <Plot ariaLabel="Scalability: cost gap to the exact optimum" height={300} data={
+                  Object.keys(opt.scalability.rows[0].algorithms).map((name) => ({
                     type: "scatter" as const, mode: "lines+markers" as const, name, x: opt.scalability.rows.map((r: any) => r.routes),
-                    y: opt.scalability.rows.map((r: any) => r.algorithms[name].seconds_mean),
-                    line: { color: algoColor(t, name), width: name.includes("ours") ? 2.5 : 1.5 }, marker: { size: 8, line: { color: t["surface-1"], width: 2 } } })),
-                  { type: "scatter" as const, mode: "lines+markers" as const, name: "MILP (min cost)", x: opt.scalability.rows.map((r: any) => r.routes),
-                    y: opt.scalability.rows.map((r: any) => r.milp_min_cost_seconds), line: { color: t["text-muted"], width: 1.5, dash: "dot" } },
-                ]} layout={{ xaxis: { title: { text: "routes" } }, yaxis: { title: { text: "seconds" } } }} />
-                <div className="table-wrap"><table><thead><tr><th className="n">Routes</th><th className="n">Ships</th><th>Algorithm</th><th className="n">HV</th><th className="n">cost gap %</th><th className="n">s</th></tr></thead>
+                    y: opt.scalability.rows.map((r: any) => r.algorithms[name].cost_gap_pct_vs_milp ?? null),
+                    line: { color: algoColor(t, name), width: name.includes("ours") ? 2.5 : 1.5 }, marker: { size: 8, line: { color: t["surface-1"], width: 2 } },
+                    hovertemplate: `${name}<br>%{x} routes: %{y:.1f}% above the MILP cost<extra></extra>` }))
+                } layout={{ xaxis: { title: { text: "routes" } }, yaxis: { title: { text: "cost gap to exact optimum (%)" }, rangemode: "tozero" }, legend: { orientation: "h", y: -0.32 } }} />
+                <div className="table-wrap"><table><thead><tr><th className="n">Routes</th><th className="n">Ships</th><th>Algorithm</th><th className="n">feasible</th><th className="n">HV</th><th className="n">cost gap %</th><th className="n">s</th></tr></thead>
                   <tbody>{opt.scalability.rows.flatMap((r: any) => Object.entries(r.algorithms as Record<string, any>).map(([n, a]) => (
                     <tr key={r.routes + n} className={n.includes("ours") ? "hl" : ""}><td className="n">{r.routes}</td><td className="n">{r.ships_available}</td><td>{n}</td>
-                      <td className="n">{a.hv_mean.toFixed(2)}</td><td className="n">{a.cost_gap_pct_vs_milp?.toFixed(2) ?? "–"}</td><td className="n">{a.seconds_mean.toFixed(1)}</td></tr>)))}</tbody></table></div>
+                      <td className="n">{a.feasible_runs}/{opt.config.scal_seeds ?? 1}</td><td className="n">{a.hv_mean.toFixed(2)}</td><td className="n">{a.cost_gap_pct_vs_milp?.toFixed(2) ?? "–"}</td><td className="n">{a.seconds_mean.toFixed(1)}</td></tr>)))}</tbody></table></div>
               </div>
             </div>
           )}

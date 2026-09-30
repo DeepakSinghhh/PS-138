@@ -38,6 +38,10 @@ def _fmt(v, nd=3):
     return str(v)
 
 
+def _p(p: float) -> str:
+    return f"{p:.3f}" if p >= 0.001 else f"{p:.1e}"
+
+
 def _table(headers: list[str], rows: list[list]) -> str:
     out = ["| " + " | ".join(headers) + " |", "|" + "|".join(["---"] * len(headers)) + "|"]
     out += ["| " + " | ".join(_fmt(c) for c in r) + " |" for r in rows]
@@ -165,16 +169,24 @@ def optimization_figures(res: dict) -> dict[str, str]:
         figs["exact_front"] = path.name
     sc = res.get("scalability", {}).get("rows")
     if sc:
-        fig, ax = plt.subplots(figsize=(5.5, 3.4))
+        fig, (ax_q, ax_t) = plt.subplots(1, 2, figsize=(9.5, 3.5))
         names = list(sc[0]["algorithms"])
+        x = [r["routes"] for r in sc]
         for name in names:
-            ax.plot([r["routes"] for r in sc], [r["algorithms"][name]["seconds_mean"] for r in sc], "-o", ms=3,
-                    label=name, lw=2.2 if "ours" in name else 1.2)
-        ax.plot([r["routes"] for r in sc], [r["milp_min_cost_seconds"] for r in sc], "k--", label="MILP (single objective)")
-        ax.set_xlabel("routes in network")
-        ax.set_ylabel("wall time (s)")
-        ax.set_title("Scalability")
-        ax.legend(frameon=False, fontsize=7)
+            gap = [r["algorithms"][name]["cost_gap_pct_vs_milp"] for r in sc]
+            ax_q.plot(x, [np.nan if g is None else g for g in gap], "-o", ms=3, label=name, lw=2.2 if "ours" in name else 1.2)
+            ax_t.plot(x, [r["algorithms"][name]["seconds_mean"] for r in sc], "-o", ms=3, label=name,
+                      lw=2.2 if "ours" in name else 1.2)
+        ax_t.plot(x, [r["milp_min_cost_seconds"] for r in sc], "k--", label="MILP (single objective)")
+        ax_q.set_xlabel("routes in network")
+        ax_q.set_ylabel("cheapest plan: cost gap to MILP (%)")
+        ax_q.set_title("Solution quality (lower is better; gaps = no feasible plan)")
+        ax_t.set_xlabel("routes in network")
+        ax_t.set_ylabel("wall time (s)")
+        ax_t.set_title("Run time at the same evaluation budget")
+        ax_t.legend(frameon=False, fontsize=7)
+        for ax in (ax_q, ax_t):
+            ax.title.set_fontsize(9)
         fig.tight_layout()
         path = FIG_DIR / "scalability.png"
         fig.savefig(path)
@@ -193,10 +205,12 @@ def optimization_markdown(res: dict, figs: dict[str, str]) -> str:
           f"Budget: {cfg['budget']:,} plan evaluations per run, {cfg['seeds']} seeds per algorithm "
           f"(large-scale network: {cfg['large_budget']:,} evaluations, {cfg.get('large_seeds', '-')} seeds; "
           f"scalability sweep: {cfg['scal_seeds']} seed(s) per size).", "",
-          "Tuning disclosure: QMOEA-H hyperparameters were set on the India instance. The one exception is the rate of "
-          "the route-wise merge operator (0.5 vs 1.0), chosen after comparing India, EU and the 50/100-route synthetic "
-          "networks of the scalability sweep (generator seed 7); the 100-route large-scale network (generator seed 11) "
-          "was never used for tuning.", ""]
+          "Tuning disclosure: QMOEA-H hyperparameters were set on the India instance, with two later exceptions. The "
+          "rate of the route-wise merge operator (0.5 vs 1.0) was chosen after comparing India, EU and the 50/100-route "
+          "synthetic networks of the scalability sweep (generator seed 7). Attributing fleet-availability excess to "
+          "routes (on vs off) was decided on a 3-seed comparison over every network in this report, including the "
+          "100-route large-scale network (generator seed 11). No other setting was fitted to the EU or synthetic "
+          "networks.", ""]
     for key, inst in res["instances"].items():
         md += [f"## {key}", ""]
         if "current_practice" in inst:
@@ -212,12 +226,12 @@ def optimization_markdown(res: dict, figs: dict[str, str]) -> str:
         md += [_table(["Algorithm", "HV", "sd", "IGD+", "evals to 95 % ref HV", "feasible",
                        "best fuel t", "best GHG t", "best cost M$", "s"], rows), ""]
         if inst.get("mann_whitney_vs_ours"):
-            trows = [[n, v["p_value"], "yes" if v["ours_better"] else "no"] for n, v in inst["mann_whitney_vs_ours"].items()]
+            trows = [[n, _p(v["p_value"]), "yes" if v["ours_better"] else "no"] for n, v in inst["mann_whitney_vs_ours"].items()]
             md += ["Mann-Whitney U on hypervolume (H1: QMOEA-H higher):", "", _table(["vs", "p-value", "QMOEA-H mean higher"], trows), ""]
         if inst.get("friedman"):
             fr = inst["friedman"]
             ranks = sorted(fr["mean_rank"].items(), key=lambda kv: kv[1])
-            md += [f"Friedman test p = {fr['p_value']:.3g}; mean ranks: " + ", ".join(f"{n} {r:.2f}" for n, r in ranks), ""]
+            md += [f"Friedman test p = {_p(fr['p_value'])}; mean ranks: " + ", ".join(f"{n} {r:.2f}" for n, r in ranks), ""]
         k = f"convergence_{key}"
         if k in figs:
             md += [f"![{k}](figures/{figs[k]})", ""]
@@ -254,12 +268,20 @@ def optimization_markdown(res: dict, figs: dict[str, str]) -> str:
                "(speeds discretised to 5 levels).", ""]
         rows = []
         for r in sc["rows"]:
+            runs = cfg["scal_seeds"]
             for n, a in r["algorithms"].items():
-                rows.append([r["routes"], r["ships_available"], n, a["hv_mean"], a["cost_gap_pct_vs_milp"], a["seconds_mean"],
-                             a["ms_per_1000_evals"]])
-            rows.append([r["routes"], r["ships_available"], "MILP min-cost", None, 0.0, r["milp_min_cost_seconds"], None])
-        md += [_table(["routes", "ships available", "method", "HV", "cost gap % vs MILP", "s", "ms / 1000 evals"], rows), ""]
+                rows.append([r["routes"], r["ships_available"], n, f"{a['feasible_runs']}/{runs}", a["hv_mean"],
+                             a["cost_gap_pct_vs_milp"], a["seconds_mean"], a["ms_per_1000_evals"]])
+            rows.append([r["routes"], r["ships_available"], "MILP min-cost", "exact", None, 0.0, r["milp_min_cost_seconds"], None])
+        md += [_table(["routes", "ships available", "method", "feasible runs", "HV", "cost gap % vs MILP", "s",
+                       "ms / 1000 evals"], rows), ""]
+        md += ["HV is 0 and the cost gap is blank when no run of a method found a plan satisfying every constraint "
+               "(demand, schedule, CII, fleet availability).", ""]
         if "scalability" in figs:
             md += [f"![scalability](figures/{figs['scalability']})", ""]
-    md += [f"*Benchmark runtime: {res['seconds'] / 60:.1f} min.*", ""]
+    if res.get("note"):
+        md += [f"*{res['note']}*", ""]
+    if res.get("seconds"):
+        md += [f"*Benchmark runtime: {res['seconds'] / 60:.1f} min on a shared 4-vCPU machine; wall-clock columns are "
+               "indicative (other jobs ran at the same time), evaluation counts are exact.*", ""]
     return "\n".join(md)

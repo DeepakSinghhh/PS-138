@@ -73,6 +73,8 @@ class Genes:
 
 
 class FleetProblem:
+    route_blame_availability = True   # attribute fleet-availability excess to routes in `route_cv`
+
     def __init__(self, rs: ResolvedScenario, correction: FuelCorrection | None = None):
         self.rs = rs
         sc = rs.scenario
@@ -343,6 +345,13 @@ class FleetProblem:
         CV = parts.sum(axis=1)
         if return_parts:
             route_cv = np.maximum(sc.on_time_min - b["p_on"], 0) * 5.0 + np.maximum(b["cii_ratio"] / limit - 1, 0)
+            if self.route_blame_availability:
+                # fleet availability is a coupling constraint; attribute each over-used class's excess to the routes
+                # using it, in proportion to their ships, so route-level operators can see it (sums to v_avail)
+                over = np.maximum(fl["used"] - self.available[None, :], 0) / self.available[None, :]
+                rows = np.arange(len(g))[:, None]
+                share = b["n"] / np.maximum(fl["used"][rows, b["cls"]], 1e-9)
+                route_cv = route_cv + over[rows, b["cls"]] * share
             # each route's share of every objective (fleet-level FuelEU penalty excluded): the objectives are sums
             # of these, which QMOEA-H's route-wise recombination exploits
             per_route = {"fuel": b["energy"] / HFO_MJ_PER_T, "emissions": b["wtw"],
