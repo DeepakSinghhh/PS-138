@@ -293,3 +293,29 @@ tr.hl td { background: var(--accent-soft); }
   .cols-2, .cols-3, .cols-4 { grid-template-columns: 1fr; }
   .span-2 { grid-column: auto; }
 }
+
+.plain-list { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--text-primary); }
+
+/* guided tour */
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.tour-link {
+  margin: 18px 8px 12px; align-self: flex-start; background: transparent; border: 1px solid var(--sidebar-line);
+  color: var(--sidebar-text); border-radius: 8px; padding: 7px 11px; font: inherit; font-size: 13px; cursor: pointer;
+}
+.tour-link:hover { background: var(--sidebar-hover); }
+.tour-highlight {
+  position: fixed; z-index: 2000; border-radius: 12px; pointer-events: none; outline: 2px solid var(--accent);
+  box-shadow: 0 0 0 9999px rgba(6, 18, 24, 0.45); transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+.tour-callout {
+  position: fixed; z-index: 2001; background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; box-shadow: 0 12px 32px rgba(6, 18, 24, 0.28);
+}
+.tour-callout h4 {
+  font-family: var(--font-display); font-size: 18px; font-weight: 600; font-variation-settings: "opsz" 30;
+  margin: 4px 0 6px; color: var(--text-primary);
+}
+.tour-callout p { margin: 0 0 12px; font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); }
+.tour-count { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.tour-actions { display: flex; gap: 8px; align-items: center; }
+@media (max-width: 820px) { .tour-link { margin: 0 8px; } }

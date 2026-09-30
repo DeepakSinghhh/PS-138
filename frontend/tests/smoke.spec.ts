@@ -42,3 +42,26 @@ test("lab, compliance, benchmarks and methodology render", async ({ page }) => {
   await page.waitForTimeout(1500);
   await page.screenshot({ path: `${shots}/06_benchmarks.png`, fullPage: true });
 });
+
+test("guided tour visits every step and runs the optimizer", async ({ page }) => {
+  test.setTimeout(300_000);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Take the 2-minute tour" }).click();
+  const callout = page.locator(".tour-callout");
+  for (let i = 1; i <= 10; i++) {
+    await expect(callout).toContainText(`${i} / 10`);
+    const next = callout.getByRole("button", { name: i === 10 ? "Finish" : "Next" });
+    await expect(next).toBeEnabled({ timeout: 180_000 });
+    await expect(page.locator(".tour-highlight")).toBeVisible();
+    if (i === 5) await expect(page.getByText("Pareto-optimal plans ·")).toBeVisible();
+    await next.click();
+  }
+  await expect(callout).toHaveCount(0);
+});
+
+test("QAOA circuit trains and offers the OpenQASM download", async ({ page }) => {
+  await page.goto("/lab");
+  await page.getByRole("button", { name: "Run QAOA" }).click();
+  await expect(page.getByText("Best plan measured")).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByRole("button", { name: "Download OpenQASM" })).toBeVisible();
+});

@@ -8,6 +8,9 @@
 **Quantum-inspired fuel consumption prediction and green fleet optimization.**
 Built for Smart India Hackathon 2026, problem statement **26138** (Egreen Quanta · Clean & Green Technology).
 
+**Live demo: <https://q-greenfleet.onrender.com>**. It is on free hosting, so the first visit after a quiet spell can take
+about a minute to wake up. Press *Take the 2-minute tour* on the first page for a guided walk through every deliverable.
+
 Q-GreenFleet predicts ship fuel consumption with a quantum-inspired hybrid model, then optimizes a whole fleet's
 deployment for every service:
 - vessel type and capacity, fleet size and cruising speed;
@@ -26,8 +29,8 @@ and against an exact MILP optimum.
 |---|---|
 | **1. Fuel consumption prediction model** | **Q-PHYS**: physics prior (IMO Fourth GHG Study power model + Kwon weather + SFOC curve) + **Matrix-Product-State tensor network** (spin-coherent qudit feature encoding, DMRG-style training) + QPSO-tuned *certified-monotone* booster + QIEA feature selection + split-conformal intervals. Inputs are exactly the PS's: **speed, load, weather, vessel type**. |
 | **2. Mathematical optimization formulation** | Multi-objective MINLP: per-route vessel class (type & capacity), fleet size, speed, fuel pathway, shore power. Objectives min fuel / min WtW emissions / min cost (+ optional schedule risk). Constraints: demand, weekly frequency, on-time probability, fleet availability, CII ≥ C, FuelEU pooling, emission cap. See [docs/math_model.md](docs/math_model.md). |
-| **3. Quantum-inspired optimization algorithm** | **QMOEA-H**: qudit registers per route, superposition crossover, quantum memory register, δ-potential-well (QPSO) speed moves, Hadamard reset, elitist Pareto survival. Plus a **QUBO** formulation solved by a from-scratch **path-integral simulated quantum annealer** and exported unchanged for D-Wave. See [docs/algorithms.md](docs/algorithms.md). |
-| **4. Software platform / DSS** | FastAPI + React dashboard: live Pareto front streamed over SSE, fleet-allocation maps, emission profiles, scenario lab (2025–2050, fuel and carbon prices, Red Sea closure, monsoon, CSV upload), compliance views, downloadable decision report. |
+| **3. Quantum-inspired optimization algorithm** | **QMOEA-H**: qudit registers per route, superposition crossover, quantum memory register, δ-potential-well (QPSO) speed moves, route-wise merge, Hadamard reset, elitist Pareto survival. Plus a **QUBO** formulation solved by a from-scratch **path-integral simulated quantum annealer** and exported unchanged for D-Wave, and a gate-model **QAOA** circuit (12 qubits, one-hot-preserving XY mixer) trained on a fleet sub-problem and exported as **OpenQASM 2.0** (verified in Qiskit). See [docs/algorithms.md](docs/algorithms.md). |
+| **4. Software platform / DSS** | FastAPI + React dashboard: live Pareto front streamed over SSE, fleet-allocation maps, emission profiles, scenario lab (2025–2050, fuel and carbon prices, Red Sea closure, monsoon, CSV upload), compliance views, downloadable decision report, and a guided tour. |
 | **5. Demonstration** | India coastal & near-sea network (12 services, Sagarmala / Harit Sagar / green-hydrogen ports), EU FuelEU/ETS network, and **MILP-certified synthetic networks of up to 100 routes / 1,250 ships**. Benchmarks in [reports/](reports/). Implementation guide in [docs/implementation_guide.md](docs/implementation_guide.md). |
 
 Deliverable-by-deliverable tracking: [docs/deliverables.md](docs/deliverables.md).
@@ -131,12 +134,14 @@ suite, and `make bench-quick` to regenerate the benchmarks.
 4. **Fuel prediction**: move the speed and wave sliders. The conformal band tracks the prediction, which sits next to the
    physics-only curve. Switch the fuel system to e-ammonia. Show the tensor-network entanglement chart.
 5. **Fuel & policy lab**: run the 2025→2050 pathway (conventional → LNG → e-ammonia), then the MACC. Anneal the QUBO and
-   compare the gap to the exact MILP.
+   compare the gap to the exact MILP. Run the QAOA circuit: about 79 % of shots give the best plan, against 1.2 % for a
+   random guess. Download it as OpenQASM.
 6. **Benchmarks**: QMOEA-H vs NSGA-II/III, MOPSO and others (hypervolume, convergence, MILP gaps, scalability to 100 routes), including where it loses.
 
 ## Honest notes
 - Everything runs on classical hardware. "Quantum-inspired" names the algorithms' mechanics: tensor networks,
-  superposition/measurement, tunnelling, annealing. It is not a speed-up claim.
+  superposition/measurement, tunnelling, annealing. It is not a speed-up claim. The QAOA circuit is simulated exactly
+  (state vector) on a classical computer; the exported OpenQASM file is what would run on quantum hardware.
 - The build environment could not reach Hugging Face, Kaggle or EMSA, so prediction results use **physics-informed synthetic
   telemetry**. Loaders for FuelCast, EU MRV and the Kaggle set pick up real files from `data/raw/` automatically. See
   [docs/data_card.md](docs/data_card.md).

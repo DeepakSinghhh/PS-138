@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import FleetMap from "../components/FleetMap";
 import Stat from "../components/Stat";
+import { startTour } from "../components/Tour";
 import { fmt } from "../lib/format";
 import { useStore } from "../lib/store";
 
@@ -18,7 +19,10 @@ export default function Overview() {
           <p>Quantum-inspired decision support for green fleet deployment: predict fuel use, then choose vessel mix,
             capacity, speed, fuel and shore power per service to cut fuel, lifecycle emissions and cost.</p>
         </div>
-        <Link to="/optimize" className="btn primary">{result ? "Back to optimizer" : "Optimize this fleet"}</Link>
+        <div className="head-actions">
+          <button className="btn" onClick={startTour}>Take the 2-minute tour</button>
+          <Link to="/optimize" className="btn primary">{result ? "Back to optimizer" : "Optimize this fleet"}</Link>
+        </div>
       </div>
 
       <div className="grid split-hero">

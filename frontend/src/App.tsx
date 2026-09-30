@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { IconBook, IconChart, IconGauge, IconHome, IconLeaf, IconShield, IconShip } from "./components/Icons";
 import { Wordmark } from "./components/Logo";
+import Tour, { startTour } from "./components/Tour";
 import { useStore } from "./lib/store";
 import About from "./pages/About";
 import Benchmarks from "./pages/Benchmarks";
@@ -48,6 +49,7 @@ export default function App() {
         <nav className="nav">
           {NAV.map((n) => <NavLink key={n.to} to={n.to} end={n.to === "/"}>{n.icon}{n.label}</NavLink>)}
         </nav>
+        <button className="tour-link" onClick={startTour}>Guided tour (2 min)</button>
         <div className="sidebar-foot">
           <b>SIH 2026</b> · PS 26138<br />
           Egreen Quanta
@@ -71,6 +73,7 @@ export default function App() {
           <Route path="/about" element={<About />} />
         </Routes>
       </main>
+      <Tour />
     </div>
   );
 }
