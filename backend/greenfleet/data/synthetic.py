@@ -122,7 +122,7 @@ def generate_ship(
     # voyage structure: alternating sea passages and port stays
     at_sea = np.zeros(n, dtype=bool)
     commanded = np.zeros(n)
-    laden = np.zeros(n, dtype=bool)
+    load = np.zeros(n)
     i = 0
     is_laden = bool(rng.integers(0, 2))
     typical_passage_days = {"container": 4.0, "bulk": 7.0, "tanker": 5.0, "pax": 1.0}[vc.cargo]
@@ -131,18 +131,25 @@ def generate_ship(
         speed = rng.uniform(0.55, 1.0) * vc.design_speed_kn
         at_sea[i : i + passage] = True
         commanded[i : i + passage] = speed
-        laden[i : i + passage] = is_laden
+        # cargo load as a fraction of full load (PS input feature "load")
+        if vc.cargo in ("bulk", "tanker"):
+            voyage_load = rng.uniform(0.90, 1.0) if is_laden else 0.0
+        elif vc.cargo == "container":
+            voyage_load = rng.uniform(0.45, 1.0)
+        else:
+            voyage_load = rng.uniform(0.35, 1.0)
+        load[i : i + passage] = voyage_load
         i += passage
         i += int(rng.uniform(0.3, 1.5) * 24 / step_hours)  # port stay
-        is_laden = not is_laden if vc.cargo in ("bulk", "tanker") else bool(rng.random() < 0.8)
+        is_laden = not is_laden
 
     speed = np.clip(commanded + _ar1(rng, n, 0.8, 0.35), vc.min_speed_kn * 0.8, vc.max_speed_kn)
-    if vc.cargo in ("bulk", "tanker"):
-        draft = np.where(laden, vc.design_draft_m, vc.ballast_draft_m) * (1 + _ar1(rng, n, 0.99, 0.01))
-    elif vc.cargo == "container":
-        draft = vc.design_draft_m * np.clip(rng.uniform(0.72, 1.0) + _ar1(rng, n, 0.995, 0.02), 0.65, 1.02)
+    # draft follows cargo load (ballast draft at zero load, design draft at full load)
+    if vc.cargo == "pax":
+        draft = vc.design_draft_m * (0.93 + 0.07 * load)
     else:
-        draft = vc.design_draft_m * (0.95 + _ar1(rng, n, 0.99, 0.015))
+        draft = vc.ballast_draft_m + (vc.design_draft_m - vc.ballast_draft_m) * load**0.9
+    draft = draft * (1 + _ar1(rng, n, 0.99, 0.01))
     trim = trim_opt + _ar1(rng, n, 0.97, 0.6)
 
     # hull condition: days since cleaning, reset by a dry-dock when overdue
@@ -180,10 +187,12 @@ def generate_ship(
         {
             "ship_id": f"{vc.id}-{ship_idx + 1:02d}",
             "vessel_class": vc.id,
+            "vessel_type": vc.cargo,
             "timestamp": t,
             "source": "synthetic",
             "speed_kn": speed,
             "sog_kn": speed + current,
+            "load_ratio": np.clip(load + rng.normal(0, 0.01, n), 0.0, 1.0),
             "draft_ratio": draft / vc.design_draft_m,
             "trim_m": trim,
             "days_since_cleaning": days_clean,
