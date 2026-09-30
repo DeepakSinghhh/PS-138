@@ -3,8 +3,8 @@ name: Deploy to Hugging Face Spaces
 # Publishes the dashboard + API as a Docker Space (free CPU: 2 vCPU, 16 GB RAM).
 # One-time setup in GitHub -> Settings -> Secrets and variables -> Actions:
 #   secret   HF_TOKEN  = a Hugging Face access token with "Write" permission
-#   variable HF_SPACE  = <hf-username>/q-greenfleet   (the Space is created if it does not exist)
-# The live app is then at https://<hf-username>-q-greenfleet.hf.space
+#   variable HF_SPACE  = optional, defaults to Deepak1279/q-greenfleet (the Space is created if it does not exist)
+# The live app is then at https://deepak1279-q-greenfleet.hf.space
 
 on:
   push:
@@ -25,10 +25,10 @@ jobs:
         id: cfg
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE: ${{ vars.HF_SPACE }}
+          HF_SPACE: ${{ vars.HF_SPACE || 'Deepak1279/q-greenfleet' }}
         run: |
-          if [ -z "$HF_TOKEN" ] || [ -z "$HF_SPACE" ]; then
-            echo "::warning::Not deploying: set the HF_TOKEN secret and the HF_SPACE variable (see the top of this workflow)."
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::warning::Not deploying: add the HF_TOKEN secret (see the top of this workflow)."
             echo "ready=false" >> "$GITHUB_OUTPUT"
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -74,7 +74,7 @@ jobs:
         if: steps.cfg.outputs.ready == 'true'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE: ${{ vars.HF_SPACE }}
+          HF_SPACE: ${{ vars.HF_SPACE || 'Deepak1279/q-greenfleet' }}
         run: |
           pip install -q "huggingface_hub>=0.25"
           python - <<'EOF'

@@ -83,10 +83,9 @@ make web                           # http://localhost:5173  (dashboard)
 
 Or run everything in one container: `docker compose up --build`, then open http://localhost:8000.
 
-**Live deployment (Hugging Face Spaces, free).** `.github/workflows/deploy-hf.yml` publishes the app on every push.
-One-time setup: create a Hugging Face access token with *Write* permission, then in GitHub → Settings → Secrets and
-variables → Actions add the secret `HF_TOKEN` and the variable `HF_SPACE` = `<hf-username>/q-greenfleet`. The app is
-then served at `https://<hf-username>-q-greenfleet.hf.space`.
+**Live demo: https://deepak1279-q-greenfleet.hf.space** (Hugging Face Spaces, free CPU tier).
+`.github/workflows/deploy-hf.yml` redeploys it on every push; it needs one repository secret, `HF_TOKEN`
+(a Hugging Face access token with *Write* permission).
 
 A narrated walkthrough of the prototype is in [docs/demo/](docs/demo/) (`Q-GreenFleet_walkthrough.mp4`, 4½ min, with subtitles and a narration script).
 
