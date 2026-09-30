@@ -151,11 +151,12 @@ class Tracker:
     def exhausted(self) -> bool:
         return self.nfe >= self.budget
 
-    def evaluate(self, g: Genes, route_cv: bool = False):
-        """Evaluate (counted against the budget); optionally also return per-route violations."""
-        if route_cv:
+    def evaluate(self, g: Genes, route_cv: bool = False, route_f: bool = False):
+        """Evaluate (counted against the budget); optionally also return per-route violations and per-route
+        objective contributions (P x R x n_obj)."""
+        if route_cv or route_f:
             F, CV, parts = self.problem.evaluate(g, return_parts=True)
-            rcv = parts["route_cv"]
+            rcv, rf = parts["route_cv"], parts["route_f"]
         else:
             F, CV = self.problem.evaluate(g)
         start = self.nfe
@@ -169,4 +170,6 @@ class Tracker:
                 self.snapshots.append(snap)
                 if self.on_snapshot:
                     self.on_snapshot(snap)
+        if route_f:
+            return F, CV, rcv, rf
         return (F, CV, rcv) if route_cv else (F, CV)

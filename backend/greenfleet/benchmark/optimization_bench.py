@@ -26,7 +26,7 @@ from greenfleet.optimization.classical_moo import run_pymoo
 from greenfleet.optimization.milp import FleetMILP
 from greenfleet.optimization.options import enumerate_options, objective_scales
 from greenfleet.optimization.problem import FleetProblem
-from greenfleet.optimization.qmoea import QMOEAH, QMOEARegister
+from greenfleet.optimization.qmoea import QMOEAH, QMOEAHConfig, QMOEARegister
 from greenfleet.optimization.swarm import MOPSO, MOQPSO, RandomSearchMO
 from greenfleet.scenarios.instances import synthetic_scenario
 from greenfleet.scenarios.scenario import Scenario, resolve
@@ -34,6 +34,7 @@ from greenfleet.scenarios.scenario import Scenario, resolve
 OURS = "QMOEA-H (ours)"
 ALGORITHMS = {
     OURS: lambda p, t, s: QMOEAH(p, seed=s).run(t),
+    "QMOEA-H w/o route merge (ablation)": lambda p, t, s: QMOEAH(p, QMOEAHConfig(route_merge=0.0), seed=s).run(t),
     "MOQPSO (ablation)": lambda p, t, s: MOQPSO(p, seed=s).run(t),
     "QMOEA-R (ablation)": lambda p, t, s: QMOEARegister(p, seed=s).run(t),
     "MOPSO": lambda p, t, s: MOPSO(p, seed=s).run(t),
@@ -48,22 +49,23 @@ CORE = [OURS, "MOPSO", "NSGA-II", "NSGA-III"]
 
 @dataclass
 class OptBenchConfig:
-    seeds: int = 3
+    """Default = the published run (``make bench``, ~30 min); ``quick`` for smoke checks; ``full`` for 30 seeds."""
+    seeds: int = 10
     budget: int = 8000
     large_budget: int = 16000
-    scal_sizes: tuple[int, ...] = (12, 25, 50, 100)
-    scal_seeds: int = 1
-    qubo_seeds: int = 3
+    large_seeds: int = 5
+    scal_sizes: tuple[int, ...] = (12, 25, 50, 100, 200)
+    scal_seeds: int = 5
+    qubo_seeds: int = 5
     algorithms: list[str] = field(default_factory=lambda: list(ALGORITHMS))
 
     @classmethod
     def quick(cls) -> OptBenchConfig:
-        return cls()
+        return cls(seeds=3, large_seeds=2, scal_sizes=(12, 25, 50, 100), scal_seeds=1, qubo_seeds=3)
 
     @classmethod
     def full(cls) -> OptBenchConfig:
-        return cls(seeds=15, budget=20000, large_budget=40000, scal_sizes=(12, 25, 50, 100, 200), scal_seeds=3,
-                   qubo_seeds=5)
+        return cls(seeds=30, budget=20000, large_budget=40000, large_seeds=10, scal_seeds=10, qubo_seeds=10)
 
 
 def run_algorithms(problem: FleetProblem, names: list[str], seeds: int, budget: int) -> dict:
@@ -271,7 +273,7 @@ def run(cfg: OptBenchConfig | None = None, log=print) -> dict:
         _checkpoint(out)
     log("[optimization] large-scale synthetic network (100 routes)")
     big = FleetProblem(resolve(synthetic_scenario(100, seed=11)))
-    runs = run_algorithms(big, CORE, max(1, cfg.seeds // 2 + 1), cfg.large_budget)
+    runs = run_algorithms(big, CORE, cfg.large_seeds, cfg.large_budget)
     summ = summarise(runs, big)
     summ["ships_available"] = int(big.available.sum())
     out["instances"]["synthetic_100_routes"] = summ

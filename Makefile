@@ -1,7 +1,7 @@
 PY ?= backend/.venv/bin/python
 PIP ?= uv pip
 
-.PHONY: install install-web test lint data train bench-quick bench-full api web dev build-web smoke demo-tts-setup demo-video
+.PHONY: install install-web test lint data train bench bench-quick bench-full api web dev build-web smoke demo-tts-setup demo-video
 
 install:            ## create the backend virtualenv and install dependencies
 	cd backend && uv venv .venv --python 3.11 && . .venv/bin/activate && uv pip install -r requirements.txt
@@ -21,10 +21,13 @@ data:               ## build processed datasets (real files in data/raw are used
 train:              ## train prediction models and the optimizer's fuel surrogate
 	cd backend && ../$(PY) -m greenfleet.prediction.train
 
-bench-quick:        ## quick prediction + optimization benchmarks (minutes)
+bench:              ## published benchmarks (optimization: 10 seeds, scalability to 200 routes; ~35 min)
+	cd backend && ../$(PY) -m greenfleet.benchmark.run
+
+bench-quick:        ## smoke-run of the benchmarks (3 seeds, minutes)
 	cd backend && ../$(PY) -m greenfleet.benchmark.run --quick
 
-bench-full:         ## full statistical benchmarks (30 seeds, scalability sweep)
+bench-full:         ## extended statistics (30 seeds, larger budgets; several hours)
 	cd backend && ../$(PY) -m greenfleet.benchmark.run --full
 
 api:                ## start the FastAPI backend on :8000

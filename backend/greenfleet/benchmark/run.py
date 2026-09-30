@@ -1,4 +1,7 @@
-"""Benchmark runner: ``python -m greenfleet.benchmark.run --quick|--full [--only prediction|optimization]``."""
+"""Benchmark runner: ``python -m greenfleet.benchmark.run [--quick|--full] [--only prediction|optimization]``.
+
+Without a flag the optimization benchmark uses its published configuration (10 seeds); --quick is a smoke run.
+"""
 
 from __future__ import annotations
 
@@ -22,10 +25,11 @@ def run_prediction(full: bool) -> dict:
     return res
 
 
-def run_optimization(full: bool) -> dict:
+def run_optimization(full: bool, quick: bool = False) -> dict:
     from greenfleet.benchmark import optimization_bench as ob
 
-    res = ob.run(ob.OptBenchConfig.full() if full else ob.OptBenchConfig.quick())
+    cfg = ob.OptBenchConfig.full() if full else ob.OptBenchConfig.quick() if quick else ob.OptBenchConfig()
+    res = ob.run(cfg)
     figs = report.optimization_figures(res)
     with open(REPORTS_DIR / "optimization_benchmark.json", "w") as fh:
         json.dump(res, fh, indent=1, default=float)
@@ -43,7 +47,7 @@ def main() -> None:
     if args.only in (None, "prediction"):
         run_prediction(args.full)
     if args.only in (None, "optimization"):
-        run_optimization(args.full)
+        run_optimization(args.full, args.quick)
 
 
 if __name__ == "__main__":

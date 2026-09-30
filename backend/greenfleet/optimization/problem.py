@@ -343,7 +343,14 @@ class FleetProblem:
         CV = parts.sum(axis=1)
         if return_parts:
             route_cv = np.maximum(sc.on_time_min - b["p_on"], 0) * 5.0 + np.maximum(b["cii_ratio"] / limit - 1, 0)
-            return F, CV, {"route": b, "fleet": fl, "cv_parts": parts, "objectives_all": objs, "route_cv": route_cv}
+            # each route's share of every objective (fleet-level FuelEU penalty excluded): the objectives are sums
+            # of these, which QMOEA-H's route-wise recombination exploits
+            per_route = {"fuel": b["energy"] / HFO_MJ_PER_T, "emissions": b["wtw"],
+                         "cost": (b["charter"] + b["fuel_cost"] + b["elec_cost"] + b["ets_cost"] + b["levy_cost"]) / 1e6,
+                         "schedule_risk": (1 - b["p_on"]) * weights[None, :] * 100}
+            route_f = np.stack([per_route[o] for o in self.objectives], axis=2)
+            return F, CV, {"route": b, "fleet": fl, "cv_parts": parts, "objectives_all": objs, "route_cv": route_cv,
+                           "route_f": route_f}
         return F, CV
 
     # ------------------------------------------------------------------ reporting

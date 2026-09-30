@@ -202,6 +202,7 @@ class QMOEAHConfig:
     local_routes: int = 0             # routes perturbed per local offspring (0 = max(1, R // 12))
     coherent: float = 0.5             # share of offspring whose routes collapse coherently (all 4 registers)
     repair_prob: float = 0.9          # collapse-to-guide probability on routes the parent violates and the guide satisfies
+    route_merge: float = 1.0          # share of offspring followed by a route-wise merge with their parent (0 = off)
 
 
 class QMOEAH:
@@ -233,7 +234,7 @@ class QMOEAH:
         better_a = (rank[a] < rank[b]) | ((rank[a] == rank[b]) & (crowd[a] >= crowd[b]))
         return np.where(better_a, a, b)
 
-    def _survive(self, g: Genes, F: np.ndarray, CV: np.ndarray, n: int, RV: np.ndarray):
+    def _survive(self, g: Genes, F: np.ndarray, CV: np.ndarray, n: int, *extras: np.ndarray):
         from greenfleet.optimization.archive import crowding_distance, nondominated_sort
 
         fronts = nondominated_sort(F, CV)
@@ -249,7 +250,7 @@ class QMOEAH:
                 keep.extend(order[: n - len(keep)].tolist())
                 break
         idx = np.array(keep)
-        return g.take(idx), F[idx], CV[idx], rank[idx], crowd[idx], RV[idx]
+        return (g.take(idx), F[idx], CV[idx], rank[idx], crowd[idx], *(e[idx] for e in extras))
 
     def run(self, tracker: Tracker, callback=None) -> RunResult:
         cfg, prob, rng = self.cfg, self.problem, self.rng
@@ -263,13 +264,12 @@ class QMOEAH:
         archive = Archive(max_size=cfg.archive_size)
 
         pop = prob.random_genes(N, rng)            # measurement of the uniform superposition
-        F, CV, RV = tracker.evaluate(pop, route_cv=True)
+        F, CV, RV, RF = tracker.evaluate(pop, route_cv=True, route_f=True)
         archive.update(pop, F, CV, RV)
-        pop, F, CV, rank, crowd, RV = self._survive(pop, F, CV, N, RV)
-        gens_total = max(1, tracker.budget // N)
+        pop, F, CV, rank, crowd, RV, RF = self._survive(pop, F, CV, N, RV, RF)
         gen, since_improve, history = 0, 0, []
         while not tracker.exhausted:
-            frac = min(1.0, gen / max(1, gens_total - 1))
+            frac = min(1.0, tracker.nfe / max(1, tracker.budget - N))
             theta = cfg.theta_max - (cfg.theta_max - cfg.theta_min) * frac
             beta = cfg.beta_max - (cfg.beta_max - cfg.beta_min) * frac
             par = self._tournament(rank, crowd, N)
@@ -337,12 +337,36 @@ class QMOEAH:
                 child = np.vstack([child[: N - n_loc], lc])
                 u = np.vstack([u[: N - n_loc], lu])
             kids = Genes(child, u)
-            Fk, CVk, RVk = tracker.evaluate(kids, route_cv=True)
+            Fk, CVk, RVk, RFk = tracker.evaluate(kids, route_cv=True, route_f=True)
             improved = archive.update(kids, Fk, CVk, RVk)
+            pool = [(kids, Fk, CVk, RVk, RFk)]
+
+            # route-wise merge: the objectives are sums over routes, so a child that improves some routes and worsens
+            # others is usually dominated and lost. Compare child and parent route by route under a random trade-off
+            # direction and keep, per route, whichever decision is better (fewer violations first)
+            n_x = N - n_loc
+            if cfg.route_merge > 0 and n_x > 0 and not tracker.exhausted:
+                sel = np.flatnonzero(rng.random(n_x) < cfg.route_merge)
+                pa = par[sel]
+                diff = (child[sel] != pc[sel]).reshape(len(sel), R, 4).any(axis=2) | (np.abs(u[sel] - pu[sel]) > 1e-9)
+                w = rng.dirichlet(np.ones(prob.n_obj), size=len(sel))
+                scale = np.abs(F).mean(axis=0) + 1e-12
+                gain = (((RFk[sel] - RF[pa]) / scale) * w[:, None, :]).sum(axis=2)
+                dv = RVk[sel] - RV[pa]
+                take = (dv < -1e-12) | ((np.abs(dv) <= 1e-12) & (gain < 0))
+                mixed = (take & diff).any(axis=1) & (~take & diff).any(axis=1)
+                if mixed.any():
+                    sel, pa, take = sel[mixed], pa[mixed], take[mixed]
+                    mcat = np.where(np.repeat(take, 4, axis=1), child[sel], pc[sel])
+                    merged = Genes(mcat, np.where(take, u[sel], pu[sel]))
+                    Fm, CVm, RVm, RFm = tracker.evaluate(merged, route_cv=True, route_f=True)
+                    improved = archive.update(merged, Fm, CVm, RVm) or improved
+                    pool.append((merged, Fm, CVm, RVm, RFm))
             since_improve = 0 if improved else since_improve + 1
-            allg = Genes.concat([pop, kids])
-            pop, F, CV, rank, crowd, RV = self._survive(allg, np.vstack([F, Fk]), np.concatenate([CV, CVk]), N,
-                                                        np.vstack([RV, RVk]))
+            allg = Genes.concat([pop] + [x[0] for x in pool])
+            pop, F, CV, rank, crowd, RV, RF = self._survive(
+                allg, np.vstack([F] + [x[1] for x in pool]), np.concatenate([CV] + [x[2] for x in pool]), N,
+                np.vstack([RV] + [x[3] for x in pool]), np.vstack([RF] + [x[4] for x in pool]))
 
             # learn the global memory from the archive (rotation towards a random archive member)
             for m in archive.leaders(3, rng):
@@ -352,11 +376,11 @@ class QMOEAH:
                 n_reset = max(1, int(cfg.reset_fraction * N))
                 worst = np.argsort(rank * 1e6 - np.nan_to_num(crowd, posinf=1e5))[-n_reset:]
                 fresh = prob.random_genes(n_reset, rng)
-                Ff, CVf, RVf = tracker.evaluate(fresh, route_cv=True)
+                Ff, CVf, RVf, RFf = tracker.evaluate(fresh, route_cv=True, route_f=True)
                 archive.update(fresh, Ff, CVf, RVf)
                 pop.cat[worst], pop.u[worst] = fresh.cat, fresh.u
-                F[worst], CV[worst], RV[worst] = Ff, CVf, RVf
-                pop, F, CV, rank, crowd, RV = self._survive(pop, F, CV, N, RV)
+                F[worst], CV[worst], RV[worst], RF[worst] = Ff, CVf, RVf, RFf
+                pop, F, CV, rank, crowd, RV, RF = self._survive(pop, F, CV, N, RV, RF)
                 since_improve = 0
             rec = {"gen": gen, "nfe": tracker.nfe, "entropy": memory.entropy(), "archive": len(archive.F),
                    "feasible": archive.feasible, "theta": float(theta)}
