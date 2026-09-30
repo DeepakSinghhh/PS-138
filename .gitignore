@@ -16,6 +16,9 @@ data/processed/*
 # Model artifacts
 backend/artifacts/*
 !backend/artifacts/.gitkeep
+!backend/artifacts/fuel_surrogate.json
+!backend/artifacts/qphys_meta.json
+!backend/artifacts/qphys.joblib
 
 # Node
 node_modules/

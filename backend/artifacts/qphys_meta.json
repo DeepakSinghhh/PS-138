@@ -1,0 +1,241 @@
+{
+  "trained_seconds": 138.3379148060003,
+  "rows": {
+    "train": 28121,
+    "val": 7034,
+    "cal": 4687,
+    "test": 7042
+  },
+  "features": [
+    "speed_kn",
+    "load_ratio",
+    "draft_ratio",
+    "trim_m",
+    "days_since_cleaning",
+    "wind_speed_ms",
+    "head_wind_ms",
+    "cross_wind_ms",
+    "wave_height_m",
+    "head_wave_m",
+    "current_kn",
+    "design_speed_kn",
+    "mcr_kw",
+    "displacement_t",
+    "length_m",
+    "block_coefficient",
+    "aux_sea_kw",
+    "vt_container",
+    "vt_bulk",
+    "vt_tanker",
+    "vt_pax"
+  ],
+  "selected_features": [
+    "speed_kn",
+    "load_ratio",
+    "wind_speed_ms",
+    "wave_height_m",
+    "vt_container",
+    "vt_bulk",
+    "vt_tanker",
+    "vt_pax",
+    "draft_ratio",
+    "trim_m",
+    "days_since_cleaning",
+    "head_wind_ms",
+    "design_speed_kn",
+    "mcr_kw"
+  ],
+  "test_metrics": {
+    "MAE": 1.6305949135653839,
+    "RMSE": 3.9417027652940115,
+    "MAPE": 3.105409196323078,
+    "R2": 0.9897282273840459
+  },
+  "test_metrics_monotone": {
+    "MAE": 1.6465373616986279,
+    "RMSE": 3.8202436281532792,
+    "MAPE": 3.2178207494581184,
+    "R2": 0.9903515006275051
+  },
+  "test_metrics_by_vessel_type": {
+    "bulk": {
+      "MAE": 0.5740609109962854,
+      "RMSE": 0.9946607765641479,
+      "MAPE": 2.763131746523766,
+      "R2": 0.9888081662982867
+    },
+    "container": {
+      "MAE": 3.8729628593538368,
+      "RMSE": 6.900078180557626,
+      "MAPE": 4.01123144168852,
+      "R2": 0.9795287557847547
+    },
+    "pax": {
+      "MAE": 0.7027040818225826,
+      "RMSE": 1.1285372671940106,
+      "MAPE": 2.618146948225121,
+      "R2": 0.9972895034102371
+    },
+    "tanker": {
+      "MAE": 0.6143112470542472,
+      "RMSE": 0.8689488832723195,
+      "MAPE": 2.634941156320745,
+      "R2": 0.9918278013037081
+    }
+  },
+  "conformal": {
+    "target_coverage": 0.9,
+    "coverage": 0.8892360124964499,
+    "mean_width": 4.976808439256799,
+    "relative_half_width": 0.06026183093791109
+  },
+  "feature_importance": {
+    "log_prior": 0.5571455938299038,
+    "design_speed_kn": 0.06151640820644276,
+    "speed_kn": 0.05323580000232688,
+    "mcr_kw": 0.024792635579884176,
+    "load_ratio": 0.01127303973753404,
+    "days_since_cleaning": 0.01099886973511294,
+    "head_wind_ms": 0.007966567089939954,
+    "vt_bulk": 0.004347909971689147,
+    "draft_ratio": 0.002748223378994068,
+    "trim_m": 0.002634820220193368,
+    "vt_container": 0.0024922524168042846,
+    "wave_height_m": 0.0024915109396880745,
+    "wind_speed_ms": 0.001476201774235032,
+    "vt_pax": 0.0007684120228700572,
+    "vt_tanker": 0.00011506868840300253
+  },
+  "report": {
+    "feature_selection": {
+      "selected": [
+        "speed_kn",
+        "load_ratio",
+        "wind_speed_ms",
+        "wave_height_m",
+        "vt_container",
+        "vt_bulk",
+        "vt_tanker",
+        "vt_pax",
+        "draft_ratio",
+        "trim_m",
+        "days_since_cleaning",
+        "head_wind_ms",
+        "design_speed_kn",
+        "mcr_kw"
+      ],
+      "val_score": 1.2301834373984697,
+      "evaluations": 40
+    },
+    "gbm_tuning": {
+      "best_params": {
+        "num_leaves": 61,
+        "learning_rate": 0.0391900428844101,
+        "min_child_samples": 14,
+        "subsample": 0.6440674774099817,
+        "colsample_bytree": 0.9374619310719197,
+        "reg_lambda": 0.43248877979254274
+      },
+      "val_mae": 1.2153769549337519,
+      "history": [
+        1.264287961092797,
+        1.264287961092797,
+        1.2211704200588667,
+        1.2211704200588667,
+        1.2211704200588667,
+        1.2211704200588667,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519,
+        1.2153769549337519
+      ]
+    },
+    "mps_tuning": {
+      "val_mae": 1.2448922480516968
+    },
+    "mps": {
+      "best_params": {
+        "bond_dim": 6,
+        "local_dim_idx": 2,
+        "ridge": 4.4440093374735545e-06,
+        "local_dim": 7
+      },
+      "n_params": 3108,
+      "entanglement_entropy": [
+        1.4920365773267144,
+        1.4550804675294606,
+        1.542029894270382,
+        1.4133831444690526,
+        1.5480182267351426,
+        1.6778446674461511,
+        1.588387413677562,
+        1.5879900287066415,
+        1.5685268725671866,
+        1.520309785884641,
+        1.4675823231469165,
+        1.315571553393614,
+        0.9234307200047553
+      ],
+      "bond_features": [
+        "speed_kn | load_ratio",
+        "load_ratio | wind_speed_ms",
+        "wind_speed_ms | wave_height_m",
+        "wave_height_m | vt_container",
+        "vt_container | vt_bulk",
+        "vt_bulk | vt_tanker",
+        "vt_tanker | vt_pax",
+        "vt_pax | draft_ratio",
+        "draft_ratio | trim_m",
+        "trim_m | days_since_cleaning",
+        "days_since_cleaning | head_wind_ms",
+        "head_wind_ms | design_speed_kn",
+        "design_speed_kn | mcr_kw"
+      ],
+      "sweeps": [
+        {
+          "sweep": 1,
+          "train_rmse": 0.0326756761359958,
+          "val_rmse": 0.03755608706932623
+        },
+        {
+          "sweep": 2,
+          "train_rmse": 0.03206886256706629,
+          "val_rmse": 0.03683014522007849
+        },
+        {
+          "sweep": 3,
+          "train_rmse": 0.03173993453712449,
+          "val_rmse": 0.03653472683512031
+        },
+        {
+          "sweep": 4,
+          "train_rmse": 0.03154367768108477,
+          "val_rmse": 0.0364331771459163
+        }
+      ]
+    },
+    "blend_weight_gbm": 0.55,
+    "fleet_head": {
+      "calibration_ships": [
+        "HANDYSIZE-02",
+        "MR_TANKER-02",
+        "NEOPANAMAX_C-02",
+        "PANAMAX_C-01"
+      ],
+      "blend_weight_gbm": 1.0,
+      "conformal_half_width": 0.14594246291140825
+    },
+    "fit_seconds": 137.93616739299978
+  },
+  "data_source": "synthetic (physics-informed); FuelCast used when present in data/raw/fuelcast"
+}
