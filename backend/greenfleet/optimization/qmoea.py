@@ -253,7 +253,6 @@ class QMOEAH:
     def run(self, tracker: Tracker, callback=None) -> RunResult:
         cfg, prob, rng = self.cfg, self.problem, self.rng
         N, R = cfg.pop_size, prob.R
-        sizes = prob.cat_sizes.reshape(R, 4)
         memory = QuditRegister(1, prob.cat_sizes, p_floor=cfg.noise)
         archive = Archive(max_size=cfg.archive_size)
 

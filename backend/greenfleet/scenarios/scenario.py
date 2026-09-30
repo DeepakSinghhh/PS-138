@@ -93,7 +93,7 @@ class ResolvedScenario:
     notes: list[str] = field(default_factory=list)
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def _cape_distance(a: str, b: str) -> tuple[float, tuple]:
     import searoute
 
