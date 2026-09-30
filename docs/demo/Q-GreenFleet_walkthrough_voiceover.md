@@ -56,45 +56,45 @@ Timestamps match the edited video. The video already carries this narration (neu
 
 **2:23–2:28**  Rougher seas add fuel, and the ninety percent confidence band scales with the prediction.
 
-**2:31–2:36**  Switch the fuel to green ammonia, and the fuel mass and emissions update instantly.
+**2:30–2:35**  Switch the fuel to green ammonia, and the fuel mass and emissions update instantly.
 
-**2:37–2:45**  Inside the tensor network, entanglement entropy shows which inputs the model links together, an idea borrowed from quantum physics.
+**2:36–2:44**  Inside the tensor network, entanglement entropy shows which inputs the model links together, an idea borrowed from quantum physics.
 
 ## Title card
 
-**2:46–2:49**  Fourth, planning the transition to 2050.
+**2:45–2:48**  Fourth, planning the transition to 2050.
 
 ## Fuel & policy lab
 
-**2:50–2:57**  Each milestone year to 2050 is optimised under that year's rules, prices and fuel availability.
+**2:49–2:56**  Each milestone year to 2050 is optimised under that year's rules, prices and fuel availability.
 
-**2:58–3:03**  The fuel mix shifts decade by decade as the targets tighten, while emissions keep falling.
+**2:57–3:02**  The fuel mix shifts decade by decade as the targets tighten, while emissions keep falling.
 
-**3:05–3:11**  The abatement cost curve shows which measures save money, and which cost dollars per tonne of carbon avoided.
+**3:04–3:10**  The abatement cost curve shows which measures save money, and which cost dollars per tonne of carbon avoided.
 
-**3:11–3:18**  An exact mixed-integer program finds the true optimum in about a second. That is our yardstick for every heuristic.
+**3:11–3:17**  An exact mixed-integer program finds the true optimum in about a second. That is our yardstick for every heuristic.
 
-**3:19–3:28**  The same problem, written as a QUBO, is solved by our own simulated quantum annealer, and runs unchanged on D-Wave quantum hardware.
+**3:18–3:27**  The same problem, written as a QUBO, is solved by our own simulated quantum annealer, and runs unchanged on D-Wave quantum hardware.
 
-**3:28–3:33**  The annealed plan lands just 1.52 percent from the exact optimum.
+**3:28–3:32**  The annealed plan lands just 1.52 percent from the exact optimum.
 
 ## Title card
 
-**3:35–3:36**  Finally, the benchmarks.
+**3:34–3:35**  Finally, the benchmarks.
 
 ## Benchmarks
 
-**3:40–3:49**  Q-PHYS predicts fuel within 3.3 percent on known ships, ahead of LightGBM, random forests and neural networks on the same data.
+**3:39–3:48**  Q-PHYS predicts fuel within 3.3 percent on known ships, ahead of LightGBM, random forests and neural networks on the same data.
 
-**3:49–3:56**  Our optimiser ranks first against the classical algorithms, and lands within one to three percent of the exact optimum.
+**3:48–3:55**  Our optimiser ranks first against the classical algorithms, and lands within one to three percent of the exact optimum.
 
-**3:57–4:03**  And we show honestly where classical methods still win: on very large, loosely constrained networks.
+**3:56–4:02**  And we show honestly where classical methods still win: on very large, loosely constrained networks.
 
 ## What-if scenarios
 
-**4:08–4:17**  And what if the Red Sea closes? One click, and the Europe service reroutes around the Cape of Good Hope, adding about four thousand seven hundred nautical miles.
+**4:07–4:16**  And what if the Red Sea closes? One click, and the Europe service reroutes around the Cape of Good Hope, adding about four thousand seven hundred nautical miles.
 
 ## Title card
 
-**4:19–4:24**  Q-GreenFleet. Predict every tonne, optimise every voyage. Thank you.
+**4:18–4:23**  Q-GreenFleet. Predict every tonne, optimise every voyage. Thank you.
 
