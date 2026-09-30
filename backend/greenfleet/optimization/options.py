@@ -32,13 +32,15 @@ class RouteOptions:
     risk: np.ndarray         # 1 - P(on time)
     fe_excess: np.ndarray    # FuelEU: num - target * den   (sum <= 0 means pool compliant), gCO2e
     fe_energy: np.ndarray    # in-scope energy incl. OPS electricity, MJ
+    fallback: bool = False   # True when no option satisfies CII + schedule on its own (least-violating kept)
 
     def __len__(self):
         return len(self.u)
 
     def take(self, idx) -> RouteOptions:
         return RouteOptions(self.route, *(getattr(self, f)[idx] for f in
-                            ("cat", "u", "cls", "ships", "fuel_t", "wtw", "cost", "risk", "fe_excess", "fe_energy")))
+                            ("cat", "u", "cls", "ships", "fuel_t", "wtw", "cost", "risk", "fe_excess", "fe_energy")),
+                            fallback=self.fallback)
 
 
 def enumerate_options(problem: FleetProblem, speed_levels: int = 5, prune: bool = True) -> list[RouteOptions]:
@@ -78,6 +80,7 @@ def enumerate_options(problem: FleetProblem, speed_levels: int = 5, prune: bool 
                 fuel_t=col("energy") / HFO_MJ_PER_T, wtw=col("wtw"), cost=cost, risk=1 - col("p_on"),
                 fe_excess=num - problem.fe_target * den, fe_energy=e_in + ops_in,
             ).take(np.argsort(viol)[:5])
+            opt.fallback = True
         if prune and len(opt) > 1:
             keep = np.zeros(len(opt), dtype=bool)
             for c in np.unique(opt.cls):

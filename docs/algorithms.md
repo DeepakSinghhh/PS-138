@@ -81,7 +81,10 @@ A plan is obtained by measuring the registers and reading $u$.
 5. **δ-well speed move**:
    - $u = p \pm L\ln(1/r)$, with $p = \varphi u_{parent} + (1-\varphi)u_{guide}$ and $L = \beta|u_{guide} - u_{parent}| + \sigma_0$.
    - The walls are **absorbing** (clip), not reflecting, because many optima sit exactly on a speed bound: slowest feasible or top speed.
-6. **Local tunnelling**: 30 % of offspring are archive members with one route re-measured (from memory) or speed-tunnelled.
+6. **Violation-guided local tunnelling**:
+   - 30 % of offspring are archive members with one route re-measured (from memory) or speed-tunnelled.
+   - The route is drawn with probability proportional to its own constraint violation (CII, schedule), and uniformly once the member is feasible.
+   - In superposition crossover, a route the parent violates but the guide satisfies collapses to the guide with probability 0.9.
 7. **Elitist $(\mu+\lambda)$ survival** by constrained non-dominated sorting and crowding distance. An external archive keeps up to 100 non-dominated plans.
 8. **Hadamard reset**: after 15 generations without archive improvement, the worst 20 % of the population is replaced by fresh measurements of the uniform superposition.
 
@@ -95,7 +98,8 @@ The EU and synthetic networks were **not** used for tuning.
 | + Han–Kim differential rotation, entangled joint registers, Zeno persistence | variants of the register population | 0.0–0.2 | joint (entangled) route registers learn too slowly; persistence helps feasibility but not front quality |
 | QMOEA-H v2 | elitist survival + superposition crossover | ≈ 0.59 | survival of the fittest plans is essential; quantum mechanics belongs in *variation* |
 | + mutation fix | Hadamard noise per register was scaled by $K-1$ (22 % per fuel register) | ≈ 0.62 | over-mutation |
-| **+ absorbing δ-well walls** | clip instead of reflect at speed bounds | **≈ 0.77** (vs MOPSO 0.72, NSGA-III 0.49) | fuel-optimal plans sit exactly on the minimum speed |
+| + absorbing δ-well walls | clip instead of reflect at speed bounds | ≈ 0.77 (vs MOPSO 0.72, NSGA-III 0.49) | fuel-optimal plans sit exactly on the minimum speed |
+| **+ violation-guided tunnelling** | routes to re-measure/tunnel are drawn ∝ their own CII/schedule violation; superposition collapses to the guide where the parent violates and the guide does not | **≈ 0.83** (vs MOPSO 0.72); on the MILP-certified 100-route network it reaches feasibility in every seed where NSGA-III never does | on large networks the few violating routes must be found; *how* a route changes stays quantum (measurement, δ-well), only *where* is guided by the route-separable violation |
 
 The MOQPSO ablation (QPSO on every gene with random-key decoding) shows the qudit registers matter: on the same budget
 it reaches HV ≈ 0.52.

@@ -201,6 +201,7 @@ class QMOEAHConfig:
     local_fraction: float = 0.3       # offspring made by local tunnelling around archive members
     local_routes: int = 1             # routes perturbed per local offspring
     coherent: float = 0.5             # share of offspring whose routes collapse coherently (all 4 registers)
+    repair_prob: float = 0.9          # collapse-to-guide probability on routes the parent violates and the guide satisfies
 
 
 class QMOEAH:
@@ -232,7 +233,7 @@ class QMOEAH:
         better_a = (rank[a] < rank[b]) | ((rank[a] == rank[b]) & (crowd[a] >= crowd[b]))
         return np.where(better_a, a, b)
 
-    def _survive(self, g: Genes, F: np.ndarray, CV: np.ndarray, n: int):
+    def _survive(self, g: Genes, F: np.ndarray, CV: np.ndarray, n: int, RV: np.ndarray):
         from greenfleet.optimization.archive import crowding_distance, nondominated_sort
 
         fronts = nondominated_sort(F, CV)
@@ -248,7 +249,7 @@ class QMOEAH:
                 keep.extend(order[: n - len(keep)].tolist())
                 break
         idx = np.array(keep)
-        return g.take(idx), F[idx], CV[idx], rank[idx], crowd[idx]
+        return g.take(idx), F[idx], CV[idx], rank[idx], crowd[idx], RV[idx]
 
     def run(self, tracker: Tracker, callback=None) -> RunResult:
         cfg, prob, rng = self.cfg, self.problem, self.rng
@@ -257,9 +258,9 @@ class QMOEAH:
         archive = Archive(max_size=cfg.archive_size)
 
         pop = prob.random_genes(N, rng)            # measurement of the uniform superposition
-        F, CV = tracker.evaluate(pop)
-        archive.update(pop, F, CV)
-        pop, F, CV, rank, crowd = self._survive(pop, F, CV, N)
+        F, CV, RV = tracker.evaluate(pop, route_cv=True)
+        archive.update(pop, F, CV, RV)
+        pop, F, CV, rank, crowd, RV = self._survive(pop, F, CV, N, RV)
         gens_total = max(1, tracker.budget // N)
         gen, since_improve, history = 0, 0, []
         while not tracker.exhausted:
@@ -277,8 +278,13 @@ class QMOEAH:
             # superposition crossover, done jointly per route so a route's decision stays coherent:
             # P(route collapses to guide) = sin^2(theta), else to parent
             p_guide = np.sin(theta) ** 2
+            # violation-guided collapse: where the parent's route violates CII/schedule and the guide's does
+            # not, the route collapses to the guide with high probability
+            guide_rv = np.where(use_leader[:, None], archive.extra[lead], RV[mate])
+            fix = (RV[par] > 1e-12) & (guide_rv <= 1e-12)
+            p_route = np.where(fix, cfg.repair_prob, p_guide)
             coherent = rng.random(N) < cfg.coherent
-            route_mask = np.repeat(rng.random((N, R)) < p_guide, 4, axis=1)       # route-coherent collapse
+            route_mask = np.repeat(rng.random((N, R)) < p_route, 4, axis=1)       # route-coherent collapse
             reg_mask = rng.random((N, 4 * R)) < p_guide                          # register-wise collapse
             to_guide = np.where(coherent[:, None], route_mask, reg_mask)
             child = np.where(to_guide, guide_cat, pc)
@@ -303,11 +309,15 @@ class QMOEAH:
 
             # local tunnelling: copies of archive members with a few routes re-measured / speed-tunnelled
             n_loc = int(round(cfg.local_fraction * N))
-            if n_loc and archive.feasible:
+            if n_loc:
                 src = archive.leaders(n_loc, rng)
                 lc, lu = archive.genes.cat[src].copy(), archive.genes.u[src].copy()
+                src_rv = archive.extra[src]
                 for _ in range(cfg.local_routes):
-                    r_sel = rng.integers(0, R, n_loc)
+                    # violation-guided tunnelling: perturb a violating route with probability ~ its violation
+                    w = src_rv + 1e-3 * (src_rv.sum(axis=1, keepdims=True) <= 1e-12)
+                    w = w / w.sum(axis=1, keepdims=True)
+                    r_sel = (rng.random((n_loc, 1)) > np.cumsum(w, axis=1)).sum(axis=1).clip(0, R - 1)
                     mode = rng.random(n_loc)
                     rows = np.arange(n_loc)
                     # (a) speed tunnelling on the route
@@ -322,11 +332,12 @@ class QMOEAH:
                 child = np.vstack([child[: N - n_loc], lc])
                 u = np.vstack([u[: N - n_loc], lu])
             kids = Genes(child, u)
-            Fk, CVk = tracker.evaluate(kids)
-            improved = archive.update(kids, Fk, CVk)
+            Fk, CVk, RVk = tracker.evaluate(kids, route_cv=True)
+            improved = archive.update(kids, Fk, CVk, RVk)
             since_improve = 0 if improved else since_improve + 1
             allg = Genes.concat([pop, kids])
-            pop, F, CV, rank, crowd = self._survive(allg, np.vstack([F, Fk]), np.concatenate([CV, CVk]), N)
+            pop, F, CV, rank, crowd, RV = self._survive(allg, np.vstack([F, Fk]), np.concatenate([CV, CVk]), N,
+                                                        np.vstack([RV, RVk]))
 
             # learn the global memory from the archive (rotation towards a random archive member)
             for m in archive.leaders(3, rng):
@@ -336,11 +347,11 @@ class QMOEAH:
                 n_reset = max(1, int(cfg.reset_fraction * N))
                 worst = np.argsort(rank * 1e6 - np.nan_to_num(crowd, posinf=1e5))[-n_reset:]
                 fresh = prob.random_genes(n_reset, rng)
-                Ff, CVf = tracker.evaluate(fresh)
-                archive.update(fresh, Ff, CVf)
+                Ff, CVf, RVf = tracker.evaluate(fresh, route_cv=True)
+                archive.update(fresh, Ff, CVf, RVf)
                 pop.cat[worst], pop.u[worst] = fresh.cat, fresh.u
-                F[worst], CV[worst] = Ff, CVf
-                pop, F, CV, rank, crowd = self._survive(pop, F, CV, N)
+                F[worst], CV[worst], RV[worst] = Ff, CVf, RVf
+                pop, F, CV, rank, crowd, RV = self._survive(pop, F, CV, N, RV)
                 since_improve = 0
             rec = {"gen": gen, "nfe": tracker.nfe, "entropy": memory.entropy(), "archive": len(archive.F),
                    "feasible": archive.feasible, "theta": float(theta)}

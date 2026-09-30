@@ -342,7 +342,8 @@ class FleetProblem:
         parts = np.column_stack([v_sched, v_avail, v_cii, v_fe, v_cap])
         CV = parts.sum(axis=1)
         if return_parts:
-            return F, CV, {"route": b, "fleet": fl, "cv_parts": parts, "objectives_all": objs}
+            route_cv = np.maximum(sc.on_time_min - b["p_on"], 0) * 5.0 + np.maximum(b["cii_ratio"] / limit - 1, 0)
+            return F, CV, {"route": b, "fleet": fl, "cv_parts": parts, "objectives_all": objs, "route_cv": route_cv}
         return F, CV
 
     # ------------------------------------------------------------------ reporting

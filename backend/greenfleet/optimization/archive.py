@@ -90,13 +90,15 @@ class Archive:
     genes: Genes | None = None
     F: np.ndarray = field(default_factory=lambda: np.zeros((0, 0)))
     CV: np.ndarray = field(default_factory=lambda: np.zeros(0))
+    extra: np.ndarray | None = None     # optional per-member data kept aligned (e.g. per-route violations)
 
-    def update(self, g: Genes, F: np.ndarray, CV: np.ndarray) -> bool:
+    def update(self, g: Genes, F: np.ndarray, CV: np.ndarray, extra: np.ndarray | None = None) -> bool:
         if self.genes is None:
-            allg, allF, allCV = g, F, CV
+            allg, allF, allCV, allX = g, F, CV, extra
             before = None
         else:
             allg, allF, allCV = Genes.concat([self.genes, g]), np.vstack([self.F, F]), np.concatenate([self.CV, CV])
+            allX = np.vstack([self.extra, extra]) if (extra is not None and self.extra is not None) else None
             before = self.F.copy()
         feas = allCV <= 1e-12
         if feas.any():
@@ -110,6 +112,7 @@ class Archive:
         if len(idx) > self.max_size:
             idx = idx[truncate_by_crowding(allF[idx], self.max_size)]
         self.genes, self.F, self.CV = allg.take(idx), allF[idx], allCV[idx]
+        self.extra = allX[idx] if allX is not None else None
         return before is None or before.shape != self.F.shape or not np.allclose(before, self.F)
 
     def leaders(self, n: int, rng: np.random.Generator) -> np.ndarray:
@@ -148,8 +151,13 @@ class Tracker:
     def exhausted(self) -> bool:
         return self.nfe >= self.budget
 
-    def evaluate(self, g: Genes) -> tuple[np.ndarray, np.ndarray]:
-        F, CV = self.problem.evaluate(g)
+    def evaluate(self, g: Genes, route_cv: bool = False):
+        """Evaluate (counted against the budget); optionally also return per-route violations."""
+        if route_cv:
+            F, CV, parts = self.problem.evaluate(g, return_parts=True)
+            rcv = parts["route_cv"]
+        else:
+            F, CV = self.problem.evaluate(g)
         start = self.nfe
         self.nfe += len(g)
         self.best_cv = min(self.best_cv, float(CV.min()))
@@ -161,4 +169,4 @@ class Tracker:
                 self.snapshots.append(snap)
                 if self.on_snapshot:
                     self.on_snapshot(snap)
-        return F, CV
+        return (F, CV, rcv) if route_cv else (F, CV)

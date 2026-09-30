@@ -61,9 +61,37 @@ def synthetic_routes(n_routes: int, seed: int = 0) -> list[dict]:
     return routes
 
 
-def synthetic_scenario(n_routes: int, seed: int = 0, year: int = 2030, **kw) -> Scenario:
-    routes = synthetic_routes(n_routes, seed)
+def synthetic_scenario(n_routes: int, seed: int = 0, year: int = 2030, certify: bool = True, **kw) -> Scenario:
+    """Synthetic network with ``n_routes`` services, certified feasible by the exact MILP.
+
+    Routes with no individually feasible option (e.g. very long services that cannot meet the
+    on-time requirement with the allowed extra ships) are discarded, and fleet availability is
+    scaled up until the multiple-choice MILP finds a feasible fleet plan.
+    """
+    from dataclasses import replace
+
+    from greenfleet.optimization.milp import FleetMILP
+    from greenfleet.optimization.options import enumerate_options
+    from greenfleet.optimization.problem import FleetProblem
+    from greenfleet.scenarios.scenario import resolve
+
     base = {cid: vc.available for cid, vc in vessel_classes().items()}
     scale = max(1.0, n_routes / 12.0) * 1.25
     availability = {cid: int(math.ceil(n * scale)) for cid, n in base.items()}
-    return Scenario(network="synthetic", year=year, custom_routes=routes, fleet_availability=availability, **kw)
+    routes = synthetic_routes(n_routes if not certify else int(n_routes * 1.3) + 5, seed)
+    sc = Scenario(network="synthetic", year=year, custom_routes=routes, fleet_availability=availability, **kw)
+    if not certify:
+        return sc
+    probe = replace(sc, speed_levels=5)
+    opts = enumerate_options(FleetProblem(resolve(probe)), 5)
+    keep = [r for r, o in zip(routes, opts) if not o.fallback][:n_routes]
+    for i, r in enumerate(keep):
+        r["id"] = f"S{i + 1:03d}"
+    sc = replace(sc, custom_routes=keep)
+    for _ in range(6):
+        probe = replace(sc, speed_levels=5)
+        problem = FleetProblem(resolve(probe))
+        if FleetMILP(problem, enumerate_options(problem, 5), time_limit=120).minimize("cost").genes is not None:
+            break
+        sc = replace(sc, fleet_availability={k: int(math.ceil(v * 1.2)) for k, v in sc.fleet_availability.items()})
+    return sc
