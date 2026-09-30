@@ -41,6 +41,6 @@ export const ALGO_SLOT: Record<string, string> = {
   MOQPSO: "series-5", SPEA2: "series-6", "QMOEA-R": "series-7", "MOEA/D": "series-8", Random: "neutral-series",
 };
 export function algoColor(t: ThemeTokens, name: string): string {
-  const key = Object.keys(ALGO_SLOT).find((k) => name.startsWith(k));
-  return t[key ? ALGO_SLOT[key] : "neutral-series"];
+  // exact match on the first token: a prefix match would give NSGA-III the NSGA-II colour
+  return t[ALGO_SLOT[name.split(" ")[0]] ?? "neutral-series"];
 }

@@ -105,7 +105,7 @@ export default function Benchmarks() {
           </div>
           {opt.scalability && (
             <div className="card">
-              <div className="card-head"><div><h3>Scalability</h3><p className="muted small">Synthetic networks on real ports; wall time per run and cost gap vs the exact single-objective MILP.</p></div></div>
+              <div className="card-head"><div><h3>Scalability</h3><p className="muted small">Synthetic networks on real ports, one run per size: hypervolume, cost gap vs the exact single-objective MILP, and wall time.</p></div></div>
               <div className="grid cols-2">
                 <Plot ariaLabel="Scalability wall time" height={300} data={[
                   ...Object.keys(opt.scalability.rows[0].algorithms).map((name) => ({
@@ -115,10 +115,10 @@ export default function Benchmarks() {
                   { type: "scatter" as const, mode: "lines+markers" as const, name: "MILP (min cost)", x: opt.scalability.rows.map((r: any) => r.routes),
                     y: opt.scalability.rows.map((r: any) => r.milp_min_cost_seconds), line: { color: t["text-muted"], width: 1.5, dash: "dot" } },
                 ]} layout={{ xaxis: { title: { text: "routes" } }, yaxis: { title: { text: "seconds" } } }} />
-                <table><thead><tr><th className="n">Routes</th><th className="n">Ships</th><th>Algorithm</th><th className="n">cost gap %</th><th className="n">s</th></tr></thead>
+                <table><thead><tr><th className="n">Routes</th><th className="n">Ships</th><th>Algorithm</th><th className="n">HV</th><th className="n">cost gap %</th><th className="n">s</th></tr></thead>
                   <tbody>{opt.scalability.rows.flatMap((r: any) => Object.entries(r.algorithms as Record<string, any>).map(([n, a]) => (
                     <tr key={r.routes + n} className={n.includes("ours") ? "hl" : ""}><td className="n">{r.routes}</td><td className="n">{r.ships_available}</td><td>{n}</td>
-                      <td className="n">{a.cost_gap_pct_vs_milp?.toFixed(2) ?? "–"}</td><td className="n">{a.seconds_mean.toFixed(1)}</td></tr>)))}</tbody></table>
+                      <td className="n">{a.hv_mean.toFixed(2)}</td><td className="n">{a.cost_gap_pct_vs_milp?.toFixed(2) ?? "–"}</td><td className="n">{a.seconds_mean.toFixed(1)}</td></tr>)))}</tbody></table>
               </div>
             </div>
           )}

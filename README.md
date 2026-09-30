@@ -62,9 +62,10 @@ Friedman tests: p = 0.004 (India) and p = 0.016 (EU), with QMOEA-H ranked first 
 Our from-scratch path-integral SQA has the best median gap in 4 of 6 cases; OpenJij SQA edges it on India min-cost
 (effectively a tie) and on EU balanced.
 
-**Where QMOEA-H loses**: on loosely constrained synthetic networks with 50–100 routes, classical MOPSO converges
-further within the same budget (hypervolume 0.71 vs 0.15 at 50 routes). This is listed as future work in
-[docs/algorithms.md](docs/algorithms.md).
+**Where QMOEA-H loses**: in the scalability sweep (loosely constrained synthetic networks, one run per size), classical
+MOPSO reaches a higher hypervolume at 12, 50 and 100 routes (0.71 vs 0.15 at 50 routes) and a smaller cost gap to the MILP
+at 50 and 100 routes. QMOEA-H leads only at 25 routes, and its wall time per evaluation is 2–4× that of MOPSO. This is listed as
+future work in [docs/algorithms.md](docs/algorithms.md).
 
 **Impact (India 2030 recommended plan)**: about −60 % WtW GHG, −50 % fuel and −20 % cost vs current practice, with all
 CII, FuelEU and schedule constraints met. Against an already slow-steaming VLSFO fleet: about −34 % GHG and −15 % cost.

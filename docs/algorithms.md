@@ -108,8 +108,9 @@ it reaches HV ≈ 0.52.
 100 routes. A pure 1/n rule starves large networks of exploration. The final rule grows exploration and local tunnelling
 sub-linearly with the number of routes (as listed above), and leaves 12-route behaviour unchanged.
 
-**Known limitation.** On loosely constrained synthetic networks with 50–100 routes, classical MOPSO converges
-further within the same budget (higher hypervolume, smaller cost gap to the MILP). QMOEA-H remains ahead on:
+**Known limitation.** In the scalability sweep (loosely constrained synthetic networks, one run per size), classical
+MOPSO reaches a higher hypervolume at 12, 50 and 100 routes and a smaller cost gap to the MILP at 50 and 100 routes;
+QMOEA-H leads only at 25 routes. QMOEA-H remains ahead on:
 - the real case-study networks (India, EU),
 - the exact-gap comparison,
 - the tightly constrained 100-route network, where it is the only method feasible in every seed.
