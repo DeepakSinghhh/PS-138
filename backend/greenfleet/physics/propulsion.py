@@ -23,6 +23,7 @@ KN_TO_MS = 0.514444
 RHO_SEA = 1.025
 FOULING_EFFICIENCY = 0.917   # IMO GHG4 hull-fouling efficiency
 DRAFT_EXPONENT = 0.66        # IMO GHG4 draft-power exponent
+MAX_WEATHER_POWER_FACTOR = 1.5
 
 # Kwon (2008) speed-reduction coefficient C_U(Fn) per block coefficient
 # (normal/loaded condition, ballast condition).
@@ -123,8 +124,10 @@ def _weather_factor_cached(vc: VesselClass, speed_bin: float, bn_mean: float, la
     factors = []
     for bn in bns:
         loss = kwon_speed_loss(bn, speed_bin, vc, laden)
-        # to hold the commanded speed the engine must supply ~(1 / (1 - loss))^3 more power
-        factors.append(1.0 / (1.0 - loss) ** 3)
+        # to hold the commanded speed the engine must supply ~(1 / (1 - loss))^3 more power;
+        # beyond the engine/sea margin masters reduce speed instead (Kwon's fit is also least
+        # reliable for small ships in heavy weather), so the power factor is capped
+        factors.append(min(1.0 / (1.0 - loss) ** 3, MAX_WEATHER_POWER_FACTOR))
     return float(np.dot(w, factors))
 
 

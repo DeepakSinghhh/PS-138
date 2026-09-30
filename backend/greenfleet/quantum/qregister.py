@@ -64,6 +64,14 @@ class QuditRegister:
         idx = (u > cdf).sum(axis=2)
         return np.minimum(idx, self.sizes[None, :] - 1)
 
+    def sample(self, rng: np.random.Generator, n: int, individual: int = 0) -> np.ndarray:
+        """Measure ``n`` independent copies of one individual's state; shape (n, n_vars)."""
+        cdf = np.cumsum(self.probabilities()[individual], axis=1)
+        cdf /= cdf[:, -1:]
+        u = rng.random((n, self.n_vars, 1))
+        idx = (u > cdf[None, :, :]).sum(axis=2)
+        return np.minimum(idx, self.sizes[None, :] - 1)
+
     def rotate(self, targets: np.ndarray, dtheta: float | np.ndarray, individuals: np.ndarray | None = None) -> None:
         """Rotate registers of ``individuals`` towards the basis states ``targets`` (same shape)."""
         ind = np.arange(self.pop_size) if individuals is None else np.asarray(individuals, dtype=int)

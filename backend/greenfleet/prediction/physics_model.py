@@ -16,6 +16,7 @@ from scipy.optimize import nnls
 from greenfleet.config import fuel_library, vessel_classes
 from greenfleet.physics.propulsion import (
     KN_TO_MS,
+    MAX_WEATHER_POWER_FACTOR,
     kwon_speed_loss,
     propulsion_power_kw,
     sfoc_multiplier,
@@ -61,10 +62,10 @@ class NominalPhysics:
             bn = sub["beaufort"].to_numpy() if "beaufort" in sub else np.zeros(len(sub))
             rel = sub["wind_rel_deg"].fillna(90.0).to_numpy()
             laden = dr > 0.8
-            wf = np.array([
+            wf = np.minimum(np.array([
                 1.0 / (1.0 - kwon_speed_loss(b, s, vc, bool(ld), _direction_weights(r))) ** 3
                 for b, s, ld, r in zip(bn, v, laden, rel)
-            ])
+            ]), MAX_WEATHER_POWER_FACTOR)
             p = propulsion_power_kw(vc, v, draft_m=dr * vc.design_draft_m, weather_factor=wf)
             p = np.clip(p, 0.05 * vc.mcr_kw, 1.05 * vc.mcr_kw)
             out[idx] = energy_to_hfo_tpd(p, vc.aux_sea_kw, vc.mcr_kw)
@@ -94,7 +95,10 @@ def physics_basis(df: pd.DataFrame) -> np.ndarray:
         np.ones(len(df)),
         calm,
         calm * days / 365.0,
-        v_ms * head_wind * (wind + 2 * v_ms),
+        # wind: head-wind resistance grows with speed; the following-wind push is speed-independent,
+        # so every basis function is non-decreasing in speed (keeps the prior monotone)
+        v_ms * np.clip(head_wind, 0, None) * (wind + 2 * v_ms),
+        np.clip(head_wind, None, 0) * wind,
         v * wave**2 * (np.clip(np.cos(rel_w), 0, None) ** 2 + 0.15),
     ])
 
@@ -157,3 +161,44 @@ class PolySpeed:
 
 def hfo_equivalent_to_energy_mj(fuel_tpd: np.ndarray) -> np.ndarray:
     return np.asarray(fuel_tpd) * 1e6 * fuel_library().fuels["HFO"].lcv_mj_per_g
+
+
+class CalibratedPrior:
+    """Best available physics prior for every row.
+
+    * ship with training history  -> its own grey-box NNLS fit
+    * unseen ship of a known class -> nominal physics x class calibration factor
+      (median of observed / nominal over that class's training rows)
+    * unseen ship, unknown class   -> nominal physics (or pooled grey-box without classes)
+    """
+
+    name = "Physics (calibrated prior)"
+
+    def fit(self, df: pd.DataFrame, y: np.ndarray) -> CalibratedPrior:
+        y = np.asarray(y, dtype=float)
+        self.grey_ = GreyBoxPhysics().fit(df, y)
+        self.has_classes_ = "vessel_class" in df and df["vessel_class"].notna().all()
+        self.class_factor_: dict[str, float] = {}
+        if self.has_classes_:
+            self.nominal_ = NominalPhysics()
+            ratio = y / np.maximum(self.nominal_.predict(df), 1e-6)
+            for cls, idx in df.groupby("vessel_class").indices.items():
+                self.class_factor_[cls] = float(np.median(ratio[idx]))
+        return self
+
+    def seen(self, df: pd.DataFrame) -> np.ndarray:
+        """Rows belonging to ships that have their own grey-box fit."""
+        if "ship_id" not in df:
+            return np.zeros(len(df), bool)
+        return df["ship_id"].isin(list(self.grey_.coef_)).to_numpy()
+
+    def predict(self, df: pd.DataFrame, use_ship: bool = True) -> np.ndarray:
+        known_class = self.has_classes_ and "vessel_class" in df and df["vessel_class"].notna().all()
+        if known_class:
+            out = self.nominal_.predict(df) * df["vessel_class"].map(self.class_factor_).fillna(1.0).to_numpy()
+        else:
+            out = self.grey_.predict(df)
+        seen = self.seen(df) if use_ship else np.zeros(len(df), bool)
+        if seen.any():
+            out[seen] = self.grey_.predict(df[seen])
+        return np.maximum(out, 1e-3)
