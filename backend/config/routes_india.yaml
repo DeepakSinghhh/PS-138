@@ -1,0 +1,187 @@
+# India coastal & near-sea network (flagship case study).
+#
+# Each route is a two-port shuttle (round trip = 2 x one-way sea distance).
+# Distances are computed with the `searoute` maritime network unless
+# `distance_nm` is given.
+#   service: liner  -> demand is cargo units per WEEK and at least one sailing per week
+#            tramp  -> demand is cargo units per YEAR, laden out / ballast back
+#   port_hours:   total port + manoeuvring time per round trip
+#   beaufort:     mean sea state on the route (monsoon-weighted)
+#   delay_*:      schedule-disturbance model (fraction of sea time; port hours)
+#   eu_scope:     share of energy in FuelEU / EU ETS scope (1 intra-EU, 0.5 extra-EU)
+# Demand figures are illustrative, sized to represent realistic services.
+
+name: India coastal & near-sea network
+description: >
+  Twelve services linking Indian ports (Sagarmala coastal corridors, island
+  connectivity, and near-sea / Europe trades) with a mixed container, bulk,
+  tanker and passenger fleet.
+routes:
+  - id: R01
+    name: JNPT - Mundra coastal container
+    ports: [JNPT, MUNDRA]
+    service: liner
+    cargo: container
+    demand: 2500
+    load_factor: 0.85
+    port_hours: 36
+    beaufort: 4.0
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 6
+    eu_scope: 0.0
+    classes: [FEEDER, PANAMAX_C]
+  - id: R02
+    name: Mundra - Jebel Ali
+    ports: [MUNDRA, JEBEL_ALI]
+    service: liner
+    cargo: container
+    demand: 4000
+    load_factor: 0.85
+    port_hours: 40
+    beaufort: 4.0
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 8
+    eu_scope: 0.0
+    classes: [FEEDER, PANAMAX_C, NEOPANAMAX_C]
+  - id: R03
+    name: Chennai - Singapore
+    ports: [CHENNAI, SINGAPORE]
+    service: liner
+    cargo: container
+    demand: 5000
+    load_factor: 0.85
+    port_hours: 44
+    beaufort: 3.5
+    delay_mean: 0.02
+    delay_sd: 0.04
+    port_delay_sd_h: 8
+    eu_scope: 0.0
+    classes: [PANAMAX_C, NEOPANAMAX_C]
+  - id: R04
+    name: Haldia - Chittagong
+    ports: [HALDIA, CHITTAGONG]
+    service: liner
+    cargo: container
+    demand: 700
+    load_factor: 0.80
+    port_hours: 30
+    beaufort: 3.5
+    delay_mean: 0.03
+    delay_sd: 0.06
+    port_delay_sd_h: 10
+    eu_scope: 0.0
+    classes: [FEEDER]
+  - id: R05
+    name: Chennai - Port Blair (Ro-Pax)
+    ports: [CHENNAI, PORT_BLAIR]
+    service: liner
+    cargo: pax
+    demand: 1800
+    load_factor: 0.80
+    port_hours: 24
+    beaufort: 4.0
+    delay_mean: 0.03
+    delay_sd: 0.06
+    port_delay_sd_h: 4
+    eu_scope: 0.0
+    classes: [ROPAX, ISLAND_ROPAX]
+  - id: R06
+    name: Kochi - Kavaratti (Lakshadweep)
+    ports: [KOCHI, KAVARATTI]
+    service: liner
+    cargo: pax
+    demand: 600
+    load_factor: 0.75
+    port_hours: 20
+    beaufort: 4.0
+    delay_mean: 0.03
+    delay_sd: 0.07
+    port_delay_sd_h: 4
+    eu_scope: 0.0
+    classes: [ISLAND_ROPAX]
+  - id: R07
+    name: Paradip - Tuticorin coastal coal
+    ports: [PARADIP, TUTICORIN]
+    service: tramp
+    cargo: bulk
+    demand: 6000000
+    load_factor: 0.97
+    port_hours: 84
+    beaufort: 3.5
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 18
+    eu_scope: 0.0
+    classes: [HANDYSIZE, SUPRAMAX, PANAMAX_B]
+  - id: R08
+    name: Visakhapatnam - Paradip coastal bulk
+    ports: [VIZAG, PARADIP]
+    service: tramp
+    cargo: bulk
+    demand: 2500000
+    load_factor: 0.97
+    port_hours: 72
+    beaufort: 3.5
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 16
+    eu_scope: 0.0
+    classes: [HANDYSIZE, SUPRAMAX]
+  - id: R09
+    name: Mundra - Rotterdam (Europe trade)
+    ports: [MUNDRA, ROTTERDAM]
+    service: liner
+    cargo: container
+    demand: 9000
+    load_factor: 0.85
+    port_hours: 72
+    beaufort: 4.0
+    delay_mean: 0.03
+    delay_sd: 0.05
+    port_delay_sd_h: 12
+    eu_scope: 0.5
+    classes: [PANAMAX_C, NEOPANAMAX_C]
+  - id: R10
+    name: JNPT - Colombo
+    ports: [JNPT, COLOMBO]
+    service: liner
+    cargo: container
+    demand: 4500
+    load_factor: 0.85
+    port_hours: 36
+    beaufort: 4.0
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 8
+    eu_scope: 0.0
+    classes: [FEEDER, PANAMAX_C, NEOPANAMAX_C]
+  - id: R11
+    name: Ras Tanura - Vadinar crude
+    ports: [RAS_TANURA, VADINAR]
+    service: tramp
+    cargo: tanker
+    demand: 12000000
+    load_factor: 0.98
+    port_hours: 60
+    beaufort: 3.5
+    delay_mean: 0.02
+    delay_sd: 0.04
+    port_delay_sd_h: 12
+    eu_scope: 0.0
+    classes: [MR_TANKER, AFRAMAX]
+  - id: R12
+    name: JNPT - Kochi coastal container
+    ports: [JNPT, KOCHI]
+    service: liner
+    cargo: container
+    demand: 1500
+    load_factor: 0.85
+    port_hours: 30
+    beaufort: 4.0
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 6
+    eu_scope: 0.0
+    classes: [FEEDER, PANAMAX_C]

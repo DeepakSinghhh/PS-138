@@ -1,0 +1,63 @@
+# Scenario prices and grid factors. Values between listed years are linearly
+# interpolated; values outside the range are held constant. These are scenario
+# inputs (2026 snapshot + stylised trajectories), not forecasts: every value can
+# be overridden from the UI or the API.
+
+eur_to_usd: 1.10
+
+fuel_usd_per_t:
+  HFO:           {2025: 480,  2050: 480}
+  VLSFO:         {2025: 600,  2050: 600}
+  MGO:           {2025: 750,  2050: 750}
+  LNG_LP:        {2025: 650,  2050: 650}
+  LNG_HP:        {2025: 650,  2050: 650}
+  BIO_LNG:       {2025: 1450, 2030: 1350, 2050: 1200}
+  METHANOL_GREY: {2025: 420,  2050: 420}
+  METHANOL_BIO:  {2025: 1100, 2030: 1000, 2050: 950}
+  METHANOL_E:    {2025: 1800, 2030: 1250, 2040: 900, 2050: 750}
+  AMMONIA_GREY:  {2025: 450,  2050: 450}
+  AMMONIA_BLUE:  {2025: 620,  2030: 580, 2050: 550}
+  AMMONIA_E:     {2025: 1100, 2030: 780, 2040: 580, 2050: 480}
+  H2_GREY:       {2025: 2800, 2050: 2800}
+  H2_E:          {2025: 6500, 2030: 4800, 2040: 3200, 2050: 2600}
+
+# EU ETS allowance price (EUR/tCO2e)
+eu_ets_eur_per_t: {2025: 80, 2030: 130, 2040: 200, 2050: 250}
+
+# Optional global carbon levy on WtW emissions (USD/tCO2e); 0 = off.
+# Use it to emulate the IMO Net-Zero Framework remedial-unit price.
+global_levy_usd_per_t: {2025: 0, 2050: 0}
+
+# Grid emission factor (tCO2/MWh) for shore power, by country.
+# India: CEA CO2 Baseline Database (~0.71 in 2024) with a decline consistent
+# with the 500 GW non-fossil capacity target (scenario).
+grid_t_per_mwh:
+  IN: {2025: 0.71, 2030: 0.55, 2040: 0.35, 2050: 0.10}
+  AE: {2025: 0.40, 2050: 0.20}
+  SA: {2025: 0.55, 2050: 0.30}
+  SG: {2025: 0.41, 2050: 0.20}
+  LK: {2025: 0.55, 2050: 0.25}
+  BD: {2025: 0.60, 2050: 0.35}
+  NL: {2025: 0.30, 2030: 0.15, 2050: 0.02}
+  DE: {2025: 0.38, 2030: 0.20, 2050: 0.02}
+  ES: {2025: 0.15, 2050: 0.02}
+  SE: {2025: 0.02, 2050: 0.01}
+  GR: {2025: 0.35, 2050: 0.05}
+  IT: {2025: 0.27, 2050: 0.03}
+  US: {2025: 0.37, 2050: 0.10}
+
+# Shore-power electricity price (USD/kWh), by country
+electricity_usd_per_kwh:
+  IN: 0.10
+  AE: 0.08
+  SA: 0.06
+  SG: 0.18
+  LK: 0.14
+  BD: 0.10
+  NL: 0.20
+  DE: 0.22
+  ES: 0.18
+  SE: 0.12
+  GR: 0.18
+  IT: 0.22
+  US: 0.15

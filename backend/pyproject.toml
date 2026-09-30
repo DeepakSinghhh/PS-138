@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "greenfleet"
+version = "0.1.0"
+description = "Quantum-inspired fuel consumption prediction and green fleet optimization (SIH 2026, PS 26138)"
+requires-python = ">=3.11"
+readme = "../README.md"
+
+[tool.setuptools.packages.find]
+include = ["greenfleet*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["slow: long-running tests (deselect with -m 'not slow')"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501", "B008", "B905"]

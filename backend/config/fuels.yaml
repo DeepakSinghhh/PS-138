@@ -1,0 +1,248 @@
+# Fuel & energy-carrier library.
+#
+# Units
+#   lcv_mj_per_g      lower calorific value, MJ per gram of fuel
+#   cf_co2/ch4/n2o    tank-to-wake emission factors, g gas per g fuel
+#   wtt_g_per_mj      well-to-tank GHG intensity, gCO2e per MJ
+#   slip              methane slip, fraction of fuel mass emitted unburnt
+#   price_usd_per_t   scenario price (see prices.yaml for year trajectories)
+#
+# Sources
+#   Fossil fuels, fossil LNG, fossil methanol, grey H2, grey NH3: default values of
+#   Regulation (EU) 2023/1805 (FuelEU Maritime), Annex II. Cf_CO2 values match
+#   IMO MEPC.364(79) (HFO 3.114, LFO 3.151, MGO 3.206, LNG 2.750, methanol 1.375).
+#   Methane slip by engine: FuelEU Annex II (LNG Otto medium-speed 3.1 %,
+#   Otto slow-speed 1.7 %, Diesel slow-speed 0.2 %, LBSI 2.6 %).
+#   Bio/e/blue pathways have no regulatory default: WtT values here are scenario
+#   assumptions chosen so that WtW lands in the range reported in the literature
+#   (RFNBO must be >= 70 % below the 94 gCO2e/MJ fossil comparator).
+#   NH3 N2O slip has no regulatory default either; the value below is a
+#   conservative scenario assumption and is exposed in the UI.
+
+gwp100:            # FuelEU Maritime uses IPCC AR4 GWP100
+  ch4: 25
+  n2o: 298
+
+families:
+  # engine / fuel-system family -> ship-level consequences
+  conventional:
+    label: Conventional diesel (2-stroke)
+    bsec_mj_per_kwh: 7.00      # ~170 g/kWh HFO-equivalent at optimum load
+    load_curve: ice
+    charter_premium: 0.00      # fraction on top of the base day rate
+    capacity_loss: 0.000       # cargo capacity lost to larger tanks
+    range_nm: 20000
+  lng:
+    label: LNG dual-fuel
+    bsec_mj_per_kwh: 7.25
+    load_curve: ice
+    charter_premium: 0.12
+    capacity_loss: 0.020
+    range_nm: 12000
+  methanol:
+    label: Methanol dual-fuel
+    bsec_mj_per_kwh: 7.10
+    load_curve: ice
+    charter_premium: 0.08
+    capacity_loss: 0.025
+    range_nm: 9000
+  ammonia:
+    label: Ammonia dual-fuel
+    bsec_mj_per_kwh: 7.40
+    load_curve: ice
+    charter_premium: 0.18
+    capacity_loss: 0.040
+    range_nm: 7000
+  hydrogen:
+    label: Liquid-H2 fuel cell
+    bsec_mj_per_kwh: 7.60      # PEM ~50 % stack efficiency incl. electrical losses
+    load_curve: fuel_cell
+    charter_premium: 0.30
+    capacity_loss: 0.080
+    range_nm: 2500
+
+pilot_fuel: MGO                # pilot / ignition fuel for dual-fuel engines
+
+fuels:
+  HFO:
+    label: HFO (with scrubber)
+    family: conventional
+    pathway: fossil
+    lcv_mj_per_g: 0.0405
+    cf_co2: 3.114
+    cf_ch4: 0.00005
+    cf_n2o: 0.00018
+    wtt_g_per_mj: 13.5
+    slip: 0.0
+    pilot_share: 0.0
+    rfnbo: false
+    source: FuelEU Annex II
+  VLSFO:
+    label: VLSFO
+    family: conventional
+    pathway: fossil
+    lcv_mj_per_g: 0.0410
+    cf_co2: 3.151
+    cf_ch4: 0.00005
+    cf_n2o: 0.00018
+    wtt_g_per_mj: 13.2
+    slip: 0.0
+    pilot_share: 0.0
+    rfnbo: false
+    source: FuelEU Annex II (LFO)
+  MGO:
+    label: MGO
+    family: conventional
+    pathway: fossil
+    lcv_mj_per_g: 0.0427
+    cf_co2: 3.206
+    cf_ch4: 0.00005
+    cf_n2o: 0.00018
+    wtt_g_per_mj: 14.4
+    slip: 0.0
+    pilot_share: 0.0
+    rfnbo: false
+    source: FuelEU Annex II
+  LNG_LP:
+    label: LNG (low-pressure Otto, 2-stroke)
+    family: lng
+    pathway: fossil
+    lcv_mj_per_g: 0.0491
+    cf_co2: 2.750
+    cf_ch4: 0.0
+    cf_n2o: 0.00011
+    wtt_g_per_mj: 18.5
+    slip: 0.017
+    pilot_share: 0.01
+    rfnbo: false
+    source: FuelEU Annex II (Otto slow-speed slip 1.7 %)
+  LNG_HP:
+    label: LNG (high-pressure Diesel cycle)
+    family: lng
+    pathway: fossil
+    lcv_mj_per_g: 0.0491
+    cf_co2: 2.750
+    cf_ch4: 0.0
+    cf_n2o: 0.00011
+    wtt_g_per_mj: 18.5
+    slip: 0.002
+    pilot_share: 0.05
+    rfnbo: false
+    source: FuelEU Annex II (Diesel slow-speed slip 0.2 %)
+  BIO_LNG:
+    label: Bio-LNG
+    family: lng
+    pathway: bio
+    lcv_mj_per_g: 0.0491
+    cf_co2: 2.750
+    cf_ch4: 0.0
+    cf_n2o: 0.00011
+    wtt_g_per_mj: -40.0
+    slip: 0.017
+    pilot_share: 0.01
+    rfnbo: false
+    source: scenario assumption (biogenic CO2 credit in WtT)
+  METHANOL_GREY:
+    label: Methanol (fossil)
+    family: methanol
+    pathway: fossil
+    lcv_mj_per_g: 0.0199
+    cf_co2: 1.375
+    cf_ch4: 0.0
+    cf_n2o: 0.0
+    wtt_g_per_mj: 31.3
+    slip: 0.0
+    pilot_share: 0.05
+    rfnbo: false
+    source: FuelEU Annex II
+  METHANOL_BIO:
+    label: Bio-methanol
+    family: methanol
+    pathway: bio
+    lcv_mj_per_g: 0.0199
+    cf_co2: 1.375
+    cf_ch4: 0.0
+    cf_n2o: 0.0
+    wtt_g_per_mj: -52.0
+    slip: 0.0
+    pilot_share: 0.05
+    rfnbo: false
+    source: scenario assumption
+  METHANOL_E:
+    label: e-Methanol (RFNBO)
+    family: methanol
+    pathway: e-fuel
+    lcv_mj_per_g: 0.0199
+    cf_co2: 1.375
+    cf_ch4: 0.0
+    cf_n2o: 0.0
+    wtt_g_per_mj: -60.0
+    slip: 0.0
+    pilot_share: 0.05
+    rfnbo: true
+    source: scenario assumption (captured-CO2 credit in WtT)
+  AMMONIA_GREY:
+    label: Ammonia (grey)
+    family: ammonia
+    pathway: fossil
+    lcv_mj_per_g: 0.0186
+    cf_co2: 0.0
+    cf_ch4: 0.0
+    cf_n2o: 0.00010
+    wtt_g_per_mj: 121.0
+    slip: 0.0
+    pilot_share: 0.08
+    rfnbo: false
+    source: FuelEU Annex II (WtT); N2O scenario assumption
+  AMMONIA_BLUE:
+    label: Ammonia (blue, CCS)
+    family: ammonia
+    pathway: blue
+    lcv_mj_per_g: 0.0186
+    cf_co2: 0.0
+    cf_ch4: 0.0
+    cf_n2o: 0.00010
+    wtt_g_per_mj: 40.0
+    slip: 0.0
+    pilot_share: 0.08
+    rfnbo: false
+    source: scenario assumption
+  AMMONIA_E:
+    label: e-Ammonia (RFNBO)
+    family: ammonia
+    pathway: e-fuel
+    lcv_mj_per_g: 0.0186
+    cf_co2: 0.0
+    cf_ch4: 0.0
+    cf_n2o: 0.00010
+    wtt_g_per_mj: 5.0
+    slip: 0.0
+    pilot_share: 0.08
+    rfnbo: true
+    source: scenario assumption
+  H2_GREY:
+    label: Liquid H2 (grey)
+    family: hydrogen
+    pathway: fossil
+    lcv_mj_per_g: 0.1200
+    cf_co2: 0.0
+    cf_ch4: 0.0
+    cf_n2o: 0.0
+    wtt_g_per_mj: 132.0
+    slip: 0.0
+    pilot_share: 0.0
+    rfnbo: false
+    source: FuelEU Annex II
+  H2_E:
+    label: Liquid e-H2 (RFNBO)
+    family: hydrogen
+    pathway: e-fuel
+    lcv_mj_per_g: 0.1200
+    cf_co2: 0.0
+    cf_ch4: 0.0
+    cf_n2o: 0.0
+    wtt_g_per_mj: 8.0
+    slip: 0.0
+    pilot_share: 0.0
+    rfnbo: true
+    source: scenario assumption (incl. liquefaction)

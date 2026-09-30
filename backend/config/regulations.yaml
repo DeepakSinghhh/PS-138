@@ -1,0 +1,51 @@
+# Regulatory parameters.
+
+cii:
+  # Reference line CII_ref = a * Capacity^(-c)  (IMO MEPC.353(78), Table 1)
+  # Rating boundaries exp(d1..d4)                (IMO MEPC.354(78), Table 1)
+  # capacity: dwt or gt
+  ship_types:
+    container:        {a: 1984,  c: 0.489,  capacity: dwt, dd: [0.83, 0.94, 1.07, 1.19]}
+    bulk_carrier:     {a: 4745,  c: 0.622,  capacity: dwt, dd: [0.86, 0.94, 1.06, 1.18]}
+    tanker:           {a: 5247,  c: 0.610,  capacity: dwt, dd: [0.82, 0.93, 1.08, 1.28]}
+    general_cargo:    {a: 31948, c: 0.792,  capacity: dwt, dd: [0.83, 0.94, 1.06, 1.19]}
+    ro_ro_passenger:  {a: 2023,  c: 0.460,  capacity: gt,  dd: [0.76, 0.92, 1.14, 1.30]}
+    cruise_passenger: {a: 930,   c: 0.383,  capacity: gt,  dd: [0.87, 0.95, 1.06, 1.16]}
+  # Reduction factor Z (%) relative to 2019: MEPC.338(76) to 2026, MEPC.400(83) for 2027-2030.
+  # Years after 2030 are not yet set by IMO; they are extrapolated at the 2027-2030 slope
+  # (2.625 %-points/yr) and flagged as an assumption in the UI.
+  reduction_pct:
+    2023: 5.0
+    2024: 7.0
+    2025: 9.0
+    2026: 11.0
+    2027: 13.625
+    2028: 16.25
+    2029: 18.875
+    2030: 21.5
+  post_2030_slope_pct: 2.625
+  min_rating: C     # the optimizer requires every ship to rate C or better
+
+fueleu:
+  # Regulation (EU) 2023/1805
+  reference_g_per_mj: 91.16
+  reduction_pct:     # applies from the listed year until the next one
+    2025: 2.0
+    2030: 6.0
+    2035: 14.5
+    2040: 31.0
+    2045: 62.0
+    2050: 80.0
+  penalty_eur_per_t_vlsfo_eq: 2400
+  vlsfo_mj_per_t: 41000
+  rfnbo_reward_factor: 2.0
+  rfnbo_reward_until: 2033
+  ops_electricity_g_per_mj: 0.0   # OPS electricity counts as zero-emission under FuelEU
+
+eu_ets:
+  # share of verified emissions to surrender (Directive (EU) 2023/959)
+  phase_in:
+    2024: 0.40
+    2025: 0.70
+    2026: 1.00
+  non_co2_from: 2026   # CH4 and N2O included from 2026

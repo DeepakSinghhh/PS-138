@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Data (large / licensed files are dropped here by the user)
+data/raw/*
+!data/raw/README.md
+data/processed/*
+!data/processed/.gitkeep
+
+# Model artifacts
+backend/artifacts/*
+!backend/artifacts/.gitkeep
+
+# Node
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Local Claude Code settings
+.claude/settings.local.json

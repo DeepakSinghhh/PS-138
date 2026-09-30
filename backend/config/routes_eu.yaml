@@ -1,0 +1,91 @@
+# EU-trade scenario: exercises FuelEU Maritime pooling and EU ETS
+# (intra-EU voyages are 100 % in scope, extra-EU voyages 50 %).
+name: EU trade network
+description: >
+  Six services touching EU ports, mixing intra-EU short-sea (100 % FuelEU / ETS
+  scope) with extra-EU deep-sea trades (50 % scope).
+routes:
+  - id: E01
+    name: Rotterdam - Gothenburg feeder
+    ports: [ROTTERDAM, GOTHENBURG]
+    service: liner
+    cargo: container
+    demand: 1400
+    load_factor: 0.85
+    port_hours: 30
+    beaufort: 4.5
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 6
+    eu_scope: 1.0
+    classes: [FEEDER, PANAMAX_C]
+  - id: E02
+    name: Hamburg - Algeciras
+    ports: [HAMBURG, ALGECIRAS]
+    service: liner
+    cargo: container
+    demand: 4000
+    load_factor: 0.85
+    port_hours: 40
+    beaufort: 4.5
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 8
+    eu_scope: 1.0
+    classes: [PANAMAX_C, NEOPANAMAX_C]
+  - id: E03
+    name: Barcelona - Genoa (Ro-Pax)
+    ports: [BARCELONA, GENOA]
+    service: liner
+    cargo: pax
+    demand: 3000
+    load_factor: 0.80
+    port_hours: 20
+    beaufort: 3.5
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 3
+    eu_scope: 1.0
+    classes: [ROPAX]
+  - id: E04
+    name: Rotterdam - New York
+    ports: [ROTTERDAM, NEW_YORK]
+    service: liner
+    cargo: container
+    demand: 6000
+    load_factor: 0.85
+    port_hours: 60
+    beaufort: 5.0
+    delay_mean: 0.03
+    delay_sd: 0.06
+    port_delay_sd_h: 10
+    eu_scope: 0.5
+    classes: [PANAMAX_C, NEOPANAMAX_C]
+  - id: E05
+    name: Rotterdam - Singapore
+    ports: [ROTTERDAM, SINGAPORE]
+    service: liner
+    cargo: container
+    demand: 10000
+    load_factor: 0.85
+    port_hours: 72
+    beaufort: 4.0
+    delay_mean: 0.03
+    delay_sd: 0.05
+    port_delay_sd_h: 12
+    eu_scope: 0.5
+    classes: [NEOPANAMAX_C]
+  - id: E06
+    name: Piraeus - Rotterdam bulk
+    ports: [PIRAEUS, ROTTERDAM]
+    service: tramp
+    cargo: bulk
+    demand: 3000000
+    load_factor: 0.97
+    port_hours: 72
+    beaufort: 4.0
+    delay_mean: 0.02
+    delay_sd: 0.05
+    port_delay_sd_h: 16
+    eu_scope: 1.0
+    classes: [SUPRAMAX, PANAMAX_B]

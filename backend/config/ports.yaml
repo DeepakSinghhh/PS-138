@@ -1,0 +1,59 @@
+# Ports: coordinates (lon, lat), country (for grid factor / electricity price),
+# onshore power supply (OPS) availability year, and bunkering availability per fuel
+# (first year the fuel can be bunkered). Conventional fuels (HFO/VLSFO/MGO) are
+# available everywhere. Alternative-fuel years are scenario assumptions based on
+# announced projects (Singapore & Rotterdam multi-fuel hubs; India's green-hydrogen
+# hubs at Deendayal/Kandla, V.O. Chidambaranar/Tuticorin and Paradip; LNG terminals
+# at Kochi, Dahej and Mundra) and can be edited in the UI.
+
+default_bunkers:
+  HFO: 2020
+  VLSFO: 2020
+  MGO: 2020
+
+ports:
+  JNPT:        {name: "JNPT (Nhava Sheva)", lon: 72.95, lat: 18.95, country: IN, ops_from: 2027,
+                bunkers: {LNG_LP: 2028, LNG_HP: 2028, METHANOL_GREY: 2028, METHANOL_BIO: 2029}}
+  MUNDRA:      {name: "Mundra", lon: 69.70, lat: 22.74, country: IN, ops_from: 2028,
+                bunkers: {LNG_LP: 2027, LNG_HP: 2027, METHANOL_GREY: 2028, METHANOL_E: 2031, AMMONIA_E: 2031}}
+  KANDLA:      {name: "Deendayal (Kandla)", lon: 70.22, lat: 23.01, country: IN, ops_from: 2028,
+                bunkers: {METHANOL_GREY: 2027, METHANOL_E: 2030, AMMONIA_GREY: 2028, AMMONIA_E: 2030, H2_E: 2033}}
+  CHENNAI:     {name: "Chennai", lon: 80.30, lat: 13.10, country: IN, ops_from: 2027,
+                bunkers: {METHANOL_GREY: 2029}}
+  HALDIA:      {name: "Haldia (Kolkata)", lon: 88.06, lat: 22.03, country: IN, ops_from: 2029, bunkers: {}}
+  PORT_BLAIR:  {name: "Port Blair", lon: 92.73, lat: 11.67, country: IN, ops_from: 2030, bunkers: {}}
+  KOCHI:       {name: "Kochi", lon: 76.26, lat: 9.97, country: IN, ops_from: 2026,
+                bunkers: {LNG_LP: 2026, LNG_HP: 2026, BIO_LNG: 2030}}
+  KAVARATTI:   {name: "Kavaratti (Lakshadweep)", lon: 72.64, lat: 10.57, country: IN, ops_from: 2032, bunkers: {}}
+  PARADIP:     {name: "Paradip", lon: 86.68, lat: 20.26, country: IN, ops_from: 2029,
+                bunkers: {AMMONIA_GREY: 2029, AMMONIA_E: 2030, METHANOL_E: 2031}}
+  TUTICORIN:   {name: "V.O. Chidambaranar (Tuticorin)", lon: 78.20, lat: 8.75, country: IN, ops_from: 2025,
+                bunkers: {METHANOL_GREY: 2027, METHANOL_E: 2030, AMMONIA_GREY: 2028, AMMONIA_E: 2030, H2_E: 2032}}
+  VIZAG:       {name: "Visakhapatnam", lon: 83.29, lat: 17.69, country: IN, ops_from: 2029, bunkers: {}}
+  VADINAR:     {name: "Vadinar", lon: 69.88, lat: 22.43, country: IN, ops_from: 2030, bunkers: {}}
+  JEBEL_ALI:   {name: "Jebel Ali", lon: 55.03, lat: 25.01, country: AE, ops_from: 2027,
+                bunkers: {LNG_LP: 2025, LNG_HP: 2025, METHANOL_GREY: 2026, AMMONIA_BLUE: 2029}}
+  RAS_TANURA:  {name: "Ras Tanura", lon: 50.16, lat: 26.64, country: SA, ops_from: 2032,
+                bunkers: {AMMONIA_BLUE: 2028}}
+  SINGAPORE:   {name: "Singapore", lon: 103.82, lat: 1.26, country: SG, ops_from: 2026,
+                bunkers: {LNG_LP: 2020, LNG_HP: 2020, BIO_LNG: 2025, METHANOL_GREY: 2025, METHANOL_BIO: 2025,
+                          METHANOL_E: 2028, AMMONIA_GREY: 2027, AMMONIA_BLUE: 2028, AMMONIA_E: 2030, H2_GREY: 2030, H2_E: 2033}}
+  COLOMBO:     {name: "Colombo", lon: 79.85, lat: 6.95, country: LK, ops_from: 2030,
+                bunkers: {LNG_LP: 2029, LNG_HP: 2029}}
+  CHITTAGONG:  {name: "Chittagong", lon: 91.80, lat: 22.30, country: BD, ops_from: 2032, bunkers: {}}
+  ROTTERDAM:   {name: "Rotterdam", lon: 4.05, lat: 51.95, country: NL, ops_from: 2024,
+                bunkers: {LNG_LP: 2020, LNG_HP: 2020, BIO_LNG: 2022, METHANOL_GREY: 2023, METHANOL_BIO: 2023,
+                          METHANOL_E: 2027, AMMONIA_GREY: 2027, AMMONIA_BLUE: 2027, AMMONIA_E: 2029, H2_GREY: 2029, H2_E: 2031}}
+  HAMBURG:     {name: "Hamburg", lon: 9.93, lat: 53.54, country: DE, ops_from: 2024,
+                bunkers: {LNG_LP: 2022, LNG_HP: 2022, METHANOL_GREY: 2025, METHANOL_E: 2028}}
+  ALGECIRAS:   {name: "Algeciras", lon: -5.43, lat: 36.13, country: ES, ops_from: 2027,
+                bunkers: {LNG_LP: 2022, LNG_HP: 2022, METHANOL_GREY: 2026}}
+  GOTHENBURG:  {name: "Gothenburg", lon: 11.86, lat: 57.69, country: SE, ops_from: 2024,
+                bunkers: {LNG_LP: 2020, LNG_HP: 2020, BIO_LNG: 2022, METHANOL_GREY: 2020, METHANOL_E: 2026}}
+  PIRAEUS:     {name: "Piraeus", lon: 23.61, lat: 37.94, country: GR, ops_from: 2028,
+                bunkers: {LNG_LP: 2025, LNG_HP: 2025}}
+  BARCELONA:   {name: "Barcelona", lon: 2.16, lat: 41.35, country: ES, ops_from: 2026,
+                bunkers: {LNG_LP: 2022, LNG_HP: 2022}}
+  GENOA:       {name: "Genoa", lon: 8.90, lat: 44.40, country: IT, ops_from: 2026, bunkers: {}}
+  NEW_YORK:    {name: "New York / New Jersey", lon: -74.05, lat: 40.67, country: US, ops_from: 2030,
+                bunkers: {LNG_LP: 2027, LNG_HP: 2027}}

@@ -1,0 +1,223 @@
+# Vessel-class library used by the fleet optimizer and the synthetic data generator.
+#
+# Calm-water propulsion power at design speed and design draft is taken as
+# 75 % of MCR (a common sea-trial convention); in service, the weather and
+# fouling factors (see physics/propulsion.py) bring the engine to ~85-90 % MCR.
+# Dimensions and powers are representative values for each class, cross-checked
+# against typical EU-MRV fuel-per-distance figures; charter rates are 2026
+# scenario defaults (USD/day, conventional ship).
+#
+# capacity: cargo units the class carries (TEU, tonnes of cargo, or passengers)
+# cii_type: key into regulations.yaml -> cii.ship_types
+
+classes:
+  FEEDER:
+    label: Feeder container (1,700 TEU)
+    cargo: container
+    capacity: 1700
+    capacity_unit: TEU
+    dwt: 23000
+    gt: 17000
+    cii_type: container
+    design_speed_kn: 19.0
+    min_speed_kn: 10.0
+    max_speed_kn: 19.5
+    mcr_kw: 13000
+    design_draft_m: 9.5
+    ballast_draft_m: 7.0
+    displacement_t: 31000
+    length_m: 170
+    block_coefficient: 0.65
+    aux_sea_kw: 800
+    aux_berth_kw: 600
+    charter_usd_per_day: 15000
+    available: 10
+  PANAMAX_C:
+    label: Panamax container (4,500 TEU)
+    cargo: container
+    capacity: 4500
+    capacity_unit: TEU
+    dwt: 55000
+    gt: 50000
+    cii_type: container
+    design_speed_kn: 22.0
+    min_speed_kn: 11.0
+    max_speed_kn: 22.5
+    mcr_kw: 36000
+    design_draft_m: 12.5
+    ballast_draft_m: 9.0
+    displacement_t: 75000
+    length_m: 294
+    block_coefficient: 0.64
+    aux_sea_kw: 1500
+    aux_berth_kw: 1100
+    charter_usd_per_day: 30000
+    available: 14
+  NEOPANAMAX_C:
+    label: Neo-Panamax container (13,000 TEU)
+    cargo: container
+    capacity: 13000
+    capacity_unit: TEU
+    dwt: 140000
+    gt: 140000
+    cii_type: container
+    design_speed_kn: 22.0
+    min_speed_kn: 11.0
+    max_speed_kn: 22.5
+    mcr_kw: 60000
+    design_draft_m: 15.0
+    ballast_draft_m: 11.0
+    displacement_t: 190000
+    length_m: 366
+    block_coefficient: 0.66
+    aux_sea_kw: 2600
+    aux_berth_kw: 1800
+    charter_usd_per_day: 55000
+    available: 10
+  HANDYSIZE:
+    label: Handysize bulk (35,000 DWT)
+    cargo: bulk
+    capacity: 32500
+    capacity_unit: t
+    dwt: 35000
+    gt: 21000
+    cii_type: bulk_carrier
+    design_speed_kn: 14.0
+    min_speed_kn: 9.0
+    max_speed_kn: 14.5
+    mcr_kw: 7000
+    design_draft_m: 10.0
+    ballast_draft_m: 5.5
+    displacement_t: 43000
+    length_m: 180
+    block_coefficient: 0.82
+    aux_sea_kw: 450
+    aux_berth_kw: 300
+    charter_usd_per_day: 12000
+    available: 6
+  SUPRAMAX:
+    label: Supramax bulk (58,000 DWT)
+    cargo: bulk
+    capacity: 54000
+    capacity_unit: t
+    dwt: 58000
+    gt: 33000
+    cii_type: bulk_carrier
+    design_speed_kn: 14.0
+    min_speed_kn: 9.0
+    max_speed_kn: 14.5
+    mcr_kw: 9500
+    design_draft_m: 12.8
+    ballast_draft_m: 6.5
+    displacement_t: 70000
+    length_m: 199
+    block_coefficient: 0.84
+    aux_sea_kw: 550
+    aux_berth_kw: 350
+    charter_usd_per_day: 15000
+    available: 6
+  PANAMAX_B:
+    label: Panamax bulk (82,000 DWT)
+    cargo: bulk
+    capacity: 76000
+    capacity_unit: t
+    dwt: 82000
+    gt: 44000
+    cii_type: bulk_carrier
+    design_speed_kn: 14.0
+    min_speed_kn: 9.0
+    max_speed_kn: 14.5
+    mcr_kw: 11000
+    design_draft_m: 14.4
+    ballast_draft_m: 7.2
+    displacement_t: 97000
+    length_m: 229
+    block_coefficient: 0.86
+    aux_sea_kw: 600
+    aux_berth_kw: 400
+    charter_usd_per_day: 16500
+    available: 6
+  MR_TANKER:
+    label: MR product tanker (50,000 DWT)
+    cargo: tanker
+    capacity: 46500
+    capacity_unit: t
+    dwt: 50000
+    gt: 30000
+    cii_type: tanker
+    design_speed_kn: 14.5
+    min_speed_kn: 9.0
+    max_speed_kn: 15.0
+    mcr_kw: 9000
+    design_draft_m: 13.0
+    ballast_draft_m: 7.0
+    displacement_t: 60000
+    length_m: 183
+    block_coefficient: 0.82
+    aux_sea_kw: 700
+    aux_berth_kw: 1200
+    charter_usd_per_day: 25000
+    available: 6
+  AFRAMAX:
+    label: Aframax tanker (110,000 DWT)
+    cargo: tanker
+    capacity: 102000
+    capacity_unit: t
+    dwt: 110000
+    gt: 62000
+    cii_type: tanker
+    design_speed_kn: 14.5
+    min_speed_kn: 9.0
+    max_speed_kn: 15.0
+    mcr_kw: 14000
+    design_draft_m: 15.0
+    ballast_draft_m: 8.0
+    displacement_t: 128000
+    length_m: 245
+    block_coefficient: 0.84
+    aux_sea_kw: 900
+    aux_berth_kw: 2000
+    charter_usd_per_day: 35000
+    available: 6
+  ROPAX:
+    label: Ro-Pax ferry (1,200 pax)
+    cargo: pax
+    capacity: 1200
+    capacity_unit: pax
+    dwt: 7000
+    gt: 25000
+    cii_type: ro_ro_passenger
+    design_speed_kn: 20.0
+    min_speed_kn: 12.0
+    max_speed_kn: 20.5
+    mcr_kw: 20000
+    design_draft_m: 6.5
+    ballast_draft_m: 6.0
+    displacement_t: 16000
+    length_m: 186
+    block_coefficient: 0.60
+    aux_sea_kw: 1500
+    aux_berth_kw: 1200
+    charter_usd_per_day: 30000
+    available: 4
+  ISLAND_ROPAX:
+    label: Island passenger-cargo ship (400 pax)
+    cargo: pax
+    capacity: 400
+    capacity_unit: pax
+    dwt: 1500
+    gt: 7000
+    cii_type: ro_ro_passenger
+    design_speed_kn: 16.0
+    min_speed_kn: 10.0
+    max_speed_kn: 16.5
+    mcr_kw: 5000
+    design_draft_m: 5.0
+    ballast_draft_m: 4.5
+    displacement_t: 4500
+    length_m: 120
+    block_coefficient: 0.55
+    aux_sea_kw: 500
+    aux_berth_kw: 350
+    charter_usd_per_day: 9000
+    available: 5
