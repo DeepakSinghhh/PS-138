@@ -1,0 +1,9 @@
+services:
+  qgreenfleet:
+    build: .
+    image: qgreenfleet:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/raw:/app/data/raw:ro      # drop real datasets here
+    restart: unless-stopped

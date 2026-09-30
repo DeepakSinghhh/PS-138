@@ -16,6 +16,7 @@ include = ["greenfleet*"]
 testpaths = ["tests"]
 addopts = "-q"
 markers = ["slow: long-running tests (deselect with -m 'not slow')"]
+filterwarnings = ["ignore::DeprecationWarning:pulp.*", "ignore::UserWarning:lightgbm.*", "ignore::DeprecationWarning:fastapi.*", "ignore:Using `httpx`"]
 
 [tool.ruff]
 line-length = 120
