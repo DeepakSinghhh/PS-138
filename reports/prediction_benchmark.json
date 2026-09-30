@@ -1,0 +1,1210 @@
+{
+ "config": {
+  "tune_budget": 12,
+  "select_budget": 24,
+  "tuner_budget": 15,
+  "tuner_seeds": 1,
+  "fs_seeds": 1,
+  "max_train_rows": 15000,
+  "classes_out": [
+   "PANAMAX_C",
+   "SUPRAMAX",
+   "MR_TANKER"
+  ]
+ },
+ "features": [
+  "speed_kn",
+  "load_ratio",
+  "draft_ratio",
+  "trim_m",
+  "days_since_cleaning",
+  "wind_speed_ms",
+  "head_wind_ms",
+  "cross_wind_ms",
+  "wave_height_m",
+  "head_wave_m",
+  "current_kn",
+  "design_speed_kn",
+  "mcr_kw",
+  "displacement_t",
+  "length_m",
+  "block_coefficient",
+  "aux_sea_kw",
+  "vt_container",
+  "vt_bulk",
+  "vt_tanker",
+  "vt_pax"
+ ],
+ "scenarios": {
+  "A_known_ships": {
+   "scenario": "Known ships, future period",
+   "rows": {
+    "train": 15000,
+    "test": 7042
+   },
+   "ships_in_test": 20,
+   "results": [
+    {
+     "model": "Q-PHYS (quantum-inspired hybrid)",
+     "MAE": 1.7598906389142999,
+     "RMSE": 4.393866367171227,
+     "MAPE": 3.2931015121377762,
+     "R2": 0.9872364541849876,
+     "seconds": 85.09648153099988
+    },
+    {
+     "model": "Q-PHYS-M (certified monotone)",
+     "MAE": 1.7656176614740684,
+     "RMSE": 4.288048289686312,
+     "MAPE": 3.3306522100292204,
+     "R2": 0.9878438237589514,
+     "seconds": 85.09648153099988
+    },
+    {
+     "model": "Physics (grey-box / calibrated)",
+     "MAE": 1.8421592657272592,
+     "RMSE": 4.507152957644463,
+     "MAPE": 3.414125075134495,
+     "R2": 0.9865698072249024,
+     "seconds": 0.3889689699999508
+    },
+    {
+     "model": "LightGBM (default)",
+     "MAE": 1.8825531812083078,
+     "RMSE": 3.3051336541184697,
+     "MAPE": 5.2803739027214185,
+     "R2": 0.9927780295761348,
+     "seconds": 0.5308713439999337
+    },
+    {
+     "model": "MLP neural net",
+     "MAE": 2.2859134445159346,
+     "RMSE": 3.7865307468341016,
+     "MAPE": 6.315919923172228,
+     "R2": 0.9905210413616435,
+     "seconds": 3.275912937000612
+    },
+    {
+     "model": "Random forest",
+     "MAE": 2.298962079539157,
+     "RMSE": 3.8950060081969258,
+     "MAPE": 7.019344625792395,
+     "R2": 0.9899701620394373,
+     "seconds": 5.137907672999972
+    },
+    {
+     "model": "Physics (nominal, IMO GHG4 + Kwon)",
+     "MAE": 3.448546693405154,
+     "RMSE": 5.250563662958209,
+     "MAPE": 9.015146632181764,
+     "R2": 0.9817740778796415,
+     "seconds": 0.12084317000062583
+    },
+    {
+     "model": "MPS tensor network (stand-alone)",
+     "MAE": 4.239982100153015,
+     "RMSE": 7.8005552248265335,
+     "MAPE": 12.129637633236074,
+     "R2": 0.9597719774834408,
+     "seconds": 10.104290502999902
+    },
+    {
+     "model": "Polynomial speed (baseline)",
+     "MAE": 4.310511197546481,
+     "RMSE": 6.804613303877398,
+     "MAPE": 12.591012636126301,
+     "R2": 0.9693885041116942,
+     "seconds": 0.008703225000317616
+    },
+    {
+     "model": "Ridge regression",
+     "MAE": 7.188384374158558,
+     "RMSE": 8.975524430723848,
+     "MAPE": 32.18798762283423,
+     "R2": 0.9467404712224184,
+     "seconds": 0.0377516349999496
+    }
+   ],
+   "conformal": {
+    "target_coverage": 0.9,
+    "coverage": 0.8905140585061062,
+    "mean_width": 5.252391290925779,
+    "relative_half_width": 0.06337334804710897
+   },
+   "mape_by_vessel_type": {
+    "bulk": {
+     "Polynomial speed (baseline)": 18.901868433126094,
+     "Physics (grey-box / calibrated)": 2.8354590956271415,
+     "Physics (nominal, IMO GHG4 + Kwon)": 10.266150528000617,
+     "Ridge regression": 42.59800306794277,
+     "Random forest": 8.031133207898435,
+     "LightGBM (default)": 6.085239018573943,
+     "MLP neural net": 6.814767941806088,
+     "MPS tensor network (stand-alone)": 14.02830403950645,
+     "Q-PHYS (quantum-inspired hybrid)": 2.7464644589769356,
+     "Q-PHYS-M (certified monotone)": 2.8032154446816944
+    },
+    "container": {
+     "Polynomial speed (baseline)": 7.3113731233564625,
+     "Physics (grey-box / calibrated)": 4.540552827018691,
+     "Physics (nominal, IMO GHG4 + Kwon)": 7.7209700936665335,
+     "Ridge regression": 14.674980992200965,
+     "Random forest": 4.6933334711019326,
+     "LightGBM (default)": 4.258624011097852,
+     "MLP neural net": 4.806020032102257,
+     "MPS tensor network (stand-alone)": 9.623516843781779,
+     "Q-PHYS (quantum-inspired hybrid)": 4.378983650496395,
+     "Q-PHYS-M (certified monotone)": 4.425052707221263
+    },
+    "pax": {
+     "Polynomial speed (baseline)": 5.961517520593814,
+     "Physics (grey-box / calibrated)": 2.82240521275065,
+     "Physics (nominal, IMO GHG4 + Kwon)": 8.66705968294316,
+     "Ridge regression": 27.121804253296677,
+     "Random forest": 12.435686293269809,
+     "LightGBM (default)": 8.171682513840127,
+     "MLP neural net": 4.948488505903191,
+     "MPS tensor network (stand-alone)": 10.386308672989971,
+     "Q-PHYS (quantum-inspired hybrid)": 2.6037582391964023,
+     "Q-PHYS-M (certified monotone)": 2.663315864377374
+    },
+    "tanker": {
+     "Polynomial speed (baseline)": 14.679847266307775,
+     "Physics (grey-box / calibrated)": 3.0598560036560687,
+     "Physics (nominal, IMO GHG4 + Kwon)": 9.166746236683561,
+     "Ridge regression": 44.69072916399619,
+     "Random forest": 5.329856680996259,
+     "LightGBM (default)": 3.642476400599465,
+     "MLP neural net": 8.619836818616044,
+     "MPS tensor network (stand-alone)": 13.93499262747134,
+     "Q-PHYS (quantum-inspired hybrid)": 3.010805253969509,
+     "Q-PHYS-M (certified monotone)": 2.9916108347871155
+    }
+   },
+   "wilcoxon_vs_qphys": {
+    "Polynomial speed (baseline)": {
+     "p_value": 9.5367431640625e-07,
+     "ships": 20,
+     "qphys_better_on": 20
+    },
+    "Physics (grey-box / calibrated)": {
+     "p_value": 0.0007162094116210938,
+     "ships": 20,
+     "qphys_better_on": 17
+    },
+    "Physics (nominal, IMO GHG4 + Kwon)": {
+     "p_value": 0.00035381317138671875,
+     "ships": 20,
+     "qphys_better_on": 19
+    },
+    "Ridge regression": {
+     "p_value": 0.00016117095947265625,
+     "ships": 20,
+     "qphys_better_on": 19
+    },
+    "Random forest": {
+     "p_value": 0.00035381317138671875,
+     "ships": 20,
+     "qphys_better_on": 19
+    },
+    "LightGBM (default)": {
+     "p_value": 0.0005083084106445312,
+     "ships": 20,
+     "qphys_better_on": 18
+    },
+    "MLP neural net": {
+     "p_value": 0.00035381317138671875,
+     "ships": 20,
+     "qphys_better_on": 19
+    },
+    "MPS tensor network (stand-alone)": {
+     "p_value": 0.00024127960205078125,
+     "ships": 20,
+     "qphys_better_on": 19
+    }
+   },
+   "qphys_report": {
+    "feature_selection": {
+     "selected": [
+      "speed_kn",
+      "load_ratio",
+      "wind_speed_ms",
+      "wave_height_m",
+      "vt_container",
+      "vt_bulk",
+      "vt_tanker",
+      "vt_pax",
+      "draft_ratio",
+      "trim_m",
+      "days_since_cleaning",
+      "head_wind_ms",
+      "mcr_kw",
+      "displacement_t",
+      "length_m"
+     ],
+     "val_score": 1.237562880542423,
+     "evaluations": 24
+    },
+    "mps_tuning": {
+     "val_mae": 1.2712010159318146
+    },
+    "mps": {
+     "best_params": {
+      "bond_dim": 7,
+      "local_dim_idx": 2,
+      "ridge": 2.562818517617751e-07,
+      "local_dim": 7
+     },
+     "n_params": 4557,
+     "entanglement_entropy": [
+      1.524187131034643,
+      1.7461882825005777,
+      1.7370975893823415,
+      1.7024268584018554,
+      1.7944966651632557,
+      1.8404385635377036,
+      1.7823560062930515,
+      1.791731219969594,
+      1.855878285658023,
+      1.8489538202303157,
+      1.847493756865504,
+      1.7630750228299314,
+      1.6910843848898054,
+      1.2140272656734474
+     ],
+     "bond_features": [
+      "speed_kn | load_ratio",
+      "load_ratio | wind_speed_ms",
+      "wind_speed_ms | wave_height_m",
+      "wave_height_m | vt_container",
+      "vt_container | vt_bulk",
+      "vt_bulk | vt_tanker",
+      "vt_tanker | vt_pax",
+      "vt_pax | draft_ratio",
+      "draft_ratio | trim_m",
+      "trim_m | days_since_cleaning",
+      "days_since_cleaning | head_wind_ms",
+      "head_wind_ms | mcr_kw",
+      "mcr_kw | displacement_t",
+      "displacement_t | length_m"
+     ],
+     "sweeps": [
+      {
+       "sweep": 1,
+       "train_rmse": 0.03252058966186877,
+       "val_rmse": 0.03893490554092932
+      },
+      {
+       "sweep": 2,
+       "train_rmse": 0.031725755624106566,
+       "val_rmse": 0.038238399685692114
+      },
+      {
+       "sweep": 3,
+       "train_rmse": 0.03125121369487302,
+       "val_rmse": 0.037486635611829376
+      },
+      {
+       "sweep": 4,
+       "train_rmse": 0.030885549375543404,
+       "val_rmse": 0.036658604048991406
+      }
+     ]
+    },
+    "blend_weight_gbm": 0.5,
+    "fleet_head": {
+     "calibration_ships": [
+      "HANDYSIZE-02",
+      "MR_TANKER-02",
+      "NEOPANAMAX_C-02",
+      "PANAMAX_C-01"
+     ],
+     "blend_weight_gbm": 1.0,
+     "conformal_half_width": 0.13973596748304057
+    },
+    "fit_seconds": 85.09526433600058
+   }
+  },
+  "B_unseen_ships": {
+   "scenario": "Unseen ships of known classes",
+   "rows": {
+    "train": 15000,
+    "test": 23380
+   },
+   "ships_in_test": 10,
+   "results": [
+    {
+     "model": "Q-PHYS (quantum-inspired hybrid)",
+     "MAE": 2.383103950856498,
+     "RMSE": 4.413473546753469,
+     "MAPE": 5.635697325517206,
+     "R2": 0.9870222997086843,
+     "seconds": 92.86988351799937
+    },
+    {
+     "model": "Q-PHYS-M (certified monotone)",
+     "MAE": 2.4356679409106414,
+     "RMSE": 4.501975918662675,
+     "MAPE": 5.943279110370306,
+     "R2": 0.9864966035091097,
+     "seconds": 92.86988351799937
+    },
+    {
+     "model": "LightGBM (default)",
+     "MAE": 2.5364939991494433,
+     "RMSE": 4.606597037670513,
+     "MAPE": 5.9811804578143235,
+     "R2": 0.985861701960187,
+     "seconds": 0.5843877799998154
+    },
+    {
+     "model": "MLP neural net",
+     "MAE": 2.787054565432033,
+     "RMSE": 4.886642087821605,
+     "MAPE": 6.9030065021636595,
+     "R2": 0.9840904554571509,
+     "seconds": 3.083301304000088
+    },
+    {
+     "model": "MPS tensor network (stand-alone)",
+     "MAE": 3.5445096478903273,
+     "RMSE": 8.06547393165912,
+     "MAPE": 7.40708479104508,
+     "R2": 0.9566592454252861,
+     "seconds": 10.185771737999858
+    },
+    {
+     "model": "Random forest",
+     "MAE": 3.0962366131291628,
+     "RMSE": 5.42738030174482,
+     "MAPE": 7.654858356111892,
+     "R2": 0.9803746598533588,
+     "seconds": 5.2144807479999145
+    },
+    {
+     "model": "Physics (nominal, IMO GHG4 + Kwon)",
+     "MAE": 3.073614957441496,
+     "RMSE": 5.00000976206342,
+     "MAPE": 8.222173942817651,
+     "R2": 0.9833437055750018,
+     "seconds": 0.3170327660000112
+    },
+    {
+     "model": "Physics (grey-box / calibrated)",
+     "MAE": 4.332177440816863,
+     "RMSE": 8.184285073000668,
+     "MAPE": 10.44935380361759,
+     "R2": 0.9553729498465414,
+     "seconds": 0.5447860440008299
+    },
+    {
+     "model": "Ridge regression",
+     "MAE": 6.13762101202777,
+     "RMSE": 9.0313572862518,
+     "MAPE": 21.585522038184536,
+     "R2": 0.9456571098926919,
+     "seconds": 0.02502151499993488
+    },
+    {
+     "model": "Polynomial speed (baseline)",
+     "MAE": 12.471760561645112,
+     "RMSE": 18.54325825520156,
+     "MAPE": 38.31299566121039,
+     "R2": 0.7709086042354294,
+     "seconds": 0.007058596999740985
+    }
+   ],
+   "conformal": {
+    "target_coverage": 0.9,
+    "coverage": 0.9983746792130026,
+    "mean_width": 20.578488990882597,
+    "relative_half_width": 0.25171988144189544
+   },
+   "mape_by_vessel_type": {
+    "bulk": {
+     "Polynomial speed (baseline)": 30.12037507142391,
+     "Physics (grey-box / calibrated)": 12.172890332848574,
+     "Physics (nominal, IMO GHG4 + Kwon)": 8.29078250183352,
+     "Ridge regression": 21.03555239650328,
+     "Random forest": 8.678233357518673,
+     "LightGBM (default)": 5.997360835392604,
+     "MLP neural net": 8.501445424720664,
+     "MPS tensor network (stand-alone)": 7.875312034151586,
+     "Q-PHYS (quantum-inspired hybrid)": 6.967724514094903,
+     "Q-PHYS-M (certified monotone)": 7.057261300799353
+    },
+    "container": {
+     "Polynomial speed (baseline)": 40.38882831099528,
+     "Physics (grey-box / calibrated)": 10.174063835925885,
+     "Physics (nominal, IMO GHG4 + Kwon)": 5.988827722339142,
+     "Ridge regression": 21.723947870062112,
+     "Random forest": 8.281978293246794,
+     "LightGBM (default)": 6.27218579870726,
+     "MLP neural net": 5.9954128249089695,
+     "MPS tensor network (stand-alone)": 8.298939662798087,
+     "Q-PHYS (quantum-inspired hybrid)": 5.208007036177734,
+     "Q-PHYS-M (certified monotone)": 5.339811907571677
+    },
+    "pax": {
+     "Polynomial speed (baseline)": 80.37330685300138,
+     "Physics (grey-box / calibrated)": 13.061375304108761,
+     "Physics (nominal, IMO GHG4 + Kwon)": 11.819724534778778,
+     "Ridge regression": 31.601966455842078,
+     "Random forest": 9.168040298582495,
+     "LightGBM (default)": 8.447223818214674,
+     "MLP neural net": 9.395913582301901,
+     "MPS tensor network (stand-alone)": 9.572743347591004,
+     "Q-PHYS (quantum-inspired hybrid)": 6.879692672238819,
+     "Q-PHYS-M (certified monotone)": 8.011334917029798
+    },
+    "tanker": {
+     "Polynomial speed (baseline)": 20.867653564943474,
+     "Physics (grey-box / calibrated)": 6.437672492214926,
+     "Physics (nominal, IMO GHG4 + Kwon)": 9.041877749629764,
+     "Ridge regression": 15.742594159593837,
+     "Random forest": 4.141560739044426,
+     "LightGBM (default)": 3.928060233898551,
+     "MLP neural net": 4.090357565342502,
+     "MPS tensor network (stand-alone)": 3.958027205630342,
+     "Q-PHYS (quantum-inspired hybrid)": 3.3528313178168205,
+     "Q-PHYS-M (certified monotone)": 3.725763686443078
+    }
+   },
+   "wilcoxon_vs_qphys": {
+    "Polynomial speed (baseline)": {
+     "p_value": 0.0009765625,
+     "ships": 10,
+     "qphys_better_on": 10
+    },
+    "Physics (grey-box / calibrated)": {
+     "p_value": 0.001953125,
+     "ships": 10,
+     "qphys_better_on": 9
+    },
+    "Physics (nominal, IMO GHG4 + Kwon)": {
+     "p_value": 0.0244140625,
+     "ships": 10,
+     "qphys_better_on": 7
+    },
+    "Ridge regression": {
+     "p_value": 0.0009765625,
+     "ships": 10,
+     "qphys_better_on": 10
+    },
+    "Random forest": {
+     "p_value": 0.009765625,
+     "ships": 10,
+     "qphys_better_on": 8
+    },
+    "LightGBM (default)": {
+     "p_value": 0.34765625,
+     "ships": 10,
+     "qphys_better_on": 5
+    },
+    "MLP neural net": {
+     "p_value": 0.0419921875,
+     "ships": 10,
+     "qphys_better_on": 8
+    },
+    "MPS tensor network (stand-alone)": {
+     "p_value": 0.0029296875,
+     "ships": 10,
+     "qphys_better_on": 9
+    }
+   },
+   "qphys_report": {
+    "feature_selection": {
+     "selected": [
+      "speed_kn",
+      "load_ratio",
+      "wind_speed_ms",
+      "wave_height_m",
+      "vt_container",
+      "vt_bulk",
+      "vt_tanker",
+      "vt_pax",
+      "trim_m",
+      "head_wind_ms",
+      "head_wave_m",
+      "design_speed_kn",
+      "mcr_kw"
+     ],
+     "val_score": 0.9421287762481647,
+     "evaluations": 24
+    },
+    "mps_tuning": {
+     "val_mae": 0.917938695995284
+    },
+    "mps": {
+     "best_params": {
+      "bond_dim": 10,
+      "local_dim_idx": 1,
+      "ridge": 1.401070727649465e-05,
+      "local_dim": 5
+     },
+     "n_params": 5050,
+     "entanglement_entropy": [
+      1.4217346867715335,
+      1.7970799894113598,
+      1.8952150288902618,
+      1.8516289021575396,
+      2.0284081966524883,
+      2.142852538975628,
+      2.0882849787376974,
+      1.969651597954621,
+      1.8504250520884846,
+      1.5739369171327224,
+      1.2064917090578908,
+      0.7367718008729357
+     ],
+     "bond_features": [
+      "speed_kn | load_ratio",
+      "load_ratio | wind_speed_ms",
+      "wind_speed_ms | wave_height_m",
+      "wave_height_m | vt_container",
+      "vt_container | vt_bulk",
+      "vt_bulk | vt_tanker",
+      "vt_tanker | vt_pax",
+      "vt_pax | trim_m",
+      "trim_m | head_wind_ms",
+      "head_wind_ms | head_wave_m",
+      "head_wave_m | design_speed_kn",
+      "design_speed_kn | mcr_kw"
+     ],
+     "sweeps": [
+      {
+       "sweep": 1,
+       "train_rmse": 0.03143167354344525,
+       "val_rmse": 0.03246689946711764
+      },
+      {
+       "sweep": 2,
+       "train_rmse": 0.030719414229996016,
+       "val_rmse": 0.0317762338564605
+      },
+      {
+       "sweep": 3,
+       "train_rmse": 0.03045066099285332,
+       "val_rmse": 0.03154013340389784
+      },
+      {
+       "sweep": 4,
+       "train_rmse": 0.03031368888982412,
+       "val_rmse": 0.031429845446331164
+      }
+     ]
+    },
+    "blend_weight_gbm": 0.4,
+    "fleet_head": {
+     "calibration_ships": [
+      "PANAMAX_B-01",
+      "PANAMAX_C-01"
+     ],
+     "blend_weight_gbm": 0.5,
+     "conformal_half_width": 0.2517198814418954
+    },
+    "fit_seconds": 92.86840819899953
+   }
+  },
+  "C_unseen_classes": {
+   "scenario": "Unseen classes PANAMAX_C, SUPRAMAX, MR_TANKER",
+   "rows": {
+    "train": 15000,
+    "test": 15207
+   },
+   "ships_in_test": 6,
+   "results": [
+    {
+     "model": "Q-PHYS (quantum-inspired hybrid)",
+     "MAE": 2.918337882022887,
+     "RMSE": 6.2954700771415295,
+     "MAPE": 6.006641560919797,
+     "R2": 0.9647018771381584,
+     "seconds": 99.04611272500006
+    },
+    {
+     "model": "Q-PHYS-M (certified monotone)",
+     "MAE": 2.918337882022887,
+     "RMSE": 6.2954700771415295,
+     "MAPE": 6.006641560919797,
+     "R2": 0.9647018771381584,
+     "seconds": 99.04611272500006
+    },
+    {
+     "model": "Physics (grey-box / calibrated)",
+     "MAE": 2.897902235230124,
+     "RMSE": 4.7054824928174535,
+     "MAPE": 7.854204208988011,
+     "R2": 0.9802801500428268,
+     "seconds": 0.43863891000000876
+    },
+    {
+     "model": "Physics (nominal, IMO GHG4 + Kwon)",
+     "MAE": 2.897902235230124,
+     "RMSE": 4.7054824928174535,
+     "MAPE": 7.854204208988011,
+     "R2": 0.9802801500428268,
+     "seconds": 0.20474287900015042
+    },
+    {
+     "model": "Random forest",
+     "MAE": 3.7662744035691382,
+     "RMSE": 5.233805138568307,
+     "MAPE": 11.347522598139093,
+     "R2": 0.9756033396019659,
+     "seconds": 5.142226558999937
+    },
+    {
+     "model": "MLP neural net",
+     "MAE": 10.336211563635858,
+     "RMSE": 17.650098782151645,
+     "MAPE": 17.661792619292825,
+     "R2": 0.7225469118475463,
+     "seconds": 2.5804838559997734
+    },
+    {
+     "model": "Ridge regression",
+     "MAE": 6.190492059663813,
+     "RMSE": 9.108592370099856,
+     "MAPE": 20.754285359506493,
+     "R2": 0.9261079328783421,
+     "seconds": 0.025479056999756722
+    },
+    {
+     "model": "Polynomial speed (baseline)",
+     "MAE": 9.584339088711282,
+     "RMSE": 17.82942037381668,
+     "MAPE": 22.698637749726565,
+     "R2": 0.7168805331942145,
+     "seconds": 0.006959005000680918
+    },
+    {
+     "model": "LightGBM (default)",
+     "MAE": 18.883091347357333,
+     "RMSE": 31.7562458010465,
+     "MAPE": 34.78425648923367,
+     "R2": 0.10184024327481811,
+     "seconds": 0.5407465239995872
+    },
+    {
+     "model": "MPS tensor network (stand-alone)",
+     "MAE": 18.755545332899157,
+     "RMSE": 33.2694753205022,
+     "MAPE": 39.39547862883067,
+     "R2": 0.01420369490541562,
+     "seconds": 13.08585261099961
+    }
+   ],
+   "conformal": {
+    "target_coverage": 0.9,
+    "coverage": 0.9838232392976919,
+    "mean_width": 14.782630117434742,
+    "relative_half_width": 0.18905898736502968
+   },
+   "mape_by_vessel_type": {
+    "bulk": {
+     "Polynomial speed (baseline)": 20.206932284336528,
+     "Physics (grey-box / calibrated)": 7.718002690125002,
+     "Physics (nominal, IMO GHG4 + Kwon)": 7.718002690125002,
+     "Ridge regression": 20.533897822510667,
+     "Random forest": 15.465362659407745,
+     "LightGBM (default)": 22.72176375690001,
+     "MLP neural net": 5.542832122113902,
+     "MPS tensor network (stand-alone)": 8.51140191980915,
+     "Q-PHYS (quantum-inspired hybrid)": 4.289073022805915,
+     "Q-PHYS-M (certified monotone)": 4.289073022805915
+    },
+    "container": {
+     "Polynomial speed (baseline)": 25.07009753908952,
+     "Physics (grey-box / calibrated)": 6.418192522938866,
+     "Physics (nominal, IMO GHG4 + Kwon)": 6.418192522938866,
+     "Ridge regression": 13.198227486595467,
+     "Random forest": 9.192469846445487,
+     "LightGBM (default)": 66.54392364537277,
+     "MLP neural net": 37.57110501357751,
+     "MPS tensor network (stand-alone)": 54.89831680685818,
+     "Q-PHYS (quantum-inspired hybrid)": 7.909047344094473,
+     "Q-PHYS-M (certified monotone)": 7.909047344094473
+    },
+    "tanker": {
+     "Polynomial speed (baseline)": 23.010184263043453,
+     "Physics (grey-box / calibrated)": 9.399745716508956,
+     "Physics (nominal, IMO GHG4 + Kwon)": 9.399745716508956,
+     "Ridge regression": 28.363487748924392,
+     "Random forest": 9.110422061358664,
+     "LightGBM (default)": 16.494096496431666,
+     "MLP neural net": 11.00048923357658,
+     "MPS tensor network (stand-alone)": 56.81842832125139,
+     "Q-PHYS (quantum-inspired hybrid)": 5.96001972649367,
+     "Q-PHYS-M (certified monotone)": 5.96001972649367
+    }
+   },
+   "wilcoxon_vs_qphys": {
+    "Polynomial speed (baseline)": {
+     "p_value": 0.015625,
+     "ships": 6,
+     "qphys_better_on": 6
+    },
+    "Physics (grey-box / calibrated)": {
+     "p_value": 0.21875,
+     "ships": 6,
+     "qphys_better_on": 5
+    },
+    "Physics (nominal, IMO GHG4 + Kwon)": {
+     "p_value": 0.21875,
+     "ships": 6,
+     "qphys_better_on": 5
+    },
+    "Ridge regression": {
+     "p_value": 0.015625,
+     "ships": 6,
+     "qphys_better_on": 6
+    },
+    "Random forest": {
+     "p_value": 0.15625,
+     "ships": 6,
+     "qphys_better_on": 4
+    },
+    "LightGBM (default)": {
+     "p_value": 0.015625,
+     "ships": 6,
+     "qphys_better_on": 6
+    },
+    "MLP neural net": {
+     "p_value": 0.015625,
+     "ships": 6,
+     "qphys_better_on": 6
+    },
+    "MPS tensor network (stand-alone)": {
+     "p_value": 0.015625,
+     "ships": 6,
+     "qphys_better_on": 6
+    }
+   },
+   "qphys_report": {
+    "feature_selection": {
+     "selected": [
+      "speed_kn",
+      "load_ratio",
+      "wind_speed_ms",
+      "wave_height_m",
+      "vt_container",
+      "vt_bulk",
+      "vt_tanker",
+      "vt_pax",
+      "trim_m",
+      "head_wind_ms",
+      "cross_wind_ms",
+      "displacement_t",
+      "length_m",
+      "block_coefficient"
+     ],
+     "val_score": 0.99500397417192,
+     "evaluations": 24
+    },
+    "mps_tuning": {
+     "val_mae": 0.9742720449875252
+    },
+    "mps": {
+     "best_params": {
+      "bond_dim": 7,
+      "local_dim_idx": 2,
+      "ridge": 3.6403555775241097e-06,
+      "local_dim": 7
+     },
+     "n_params": 4214,
+     "entanglement_entropy": [
+      1.5450420596396937,
+      1.6918321943973156,
+      1.7074199503104155,
+      1.6627168212176386,
+      1.8138345689297164,
+      1.8551236543593508,
+      1.8045074578292664,
+      1.7038332659113522,
+      1.6839675891006172,
+      1.5741785201259686,
+      1.4480848716360561,
+      1.558897145982974,
+      1.1153152402541002
+     ],
+     "bond_features": [
+      "speed_kn | load_ratio",
+      "load_ratio | wind_speed_ms",
+      "wind_speed_ms | wave_height_m",
+      "wave_height_m | vt_container",
+      "vt_container | vt_bulk",
+      "vt_bulk | vt_tanker",
+      "vt_tanker | vt_pax",
+      "vt_pax | trim_m",
+      "trim_m | head_wind_ms",
+      "head_wind_ms | cross_wind_ms",
+      "cross_wind_ms | displacement_t",
+      "displacement_t | length_m",
+      "length_m | block_coefficient"
+     ],
+     "sweeps": [
+      {
+       "sweep": 1,
+       "train_rmse": 0.03302767633054693,
+       "val_rmse": 0.03304325227662759
+      },
+      {
+       "sweep": 2,
+       "train_rmse": 0.03198066602842242,
+       "val_rmse": 0.03211038075005308
+      },
+      {
+       "sweep": 3,
+       "train_rmse": 0.031482541283461785,
+       "val_rmse": 0.03180380891591246
+      },
+      {
+       "sweep": 4,
+       "train_rmse": 0.031272461801793085,
+       "val_rmse": 0.03164771819716394
+      }
+     ]
+    },
+    "blend_weight_gbm": 0.35000000000000003,
+    "fleet_head": {
+     "calibration_ships": [
+      "ISLAND_ROPAX-02",
+      "NEOPANAMAX_C-01",
+      "PANAMAX_B-01"
+     ],
+     "blend_weight_gbm": 1.0,
+     "conformal_half_width": 0.18905898736502968
+    },
+    "fit_seconds": 99.04438127600042
+   }
+  },
+  "D_fuelcast": {
+   "skipped": "place FuelCast files in data/raw/fuelcast and run make data"
+  }
+ },
+ "tuners": {
+  "QPSO": {
+   "best_val_mae_mean": 1.2073728761637272,
+   "best_val_mae_std": 0.0,
+   "mean_history": [
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2431546489095802,
+    1.2431546489095802,
+    1.2431546489095802,
+    1.2431546489095802,
+    1.2431546489095802,
+    1.2149769948176135,
+    1.2087577107216627,
+    1.2073728761637272,
+    1.2073728761637272
+   ],
+   "seconds": 14.910568942000282,
+   "best_params": {
+    "num_leaves": 46,
+    "learning_rate": 0.0705352043574666,
+    "min_child_samples": 22,
+    "subsample": 0.7672657370842351,
+    "colsample_bytree": 0.8777061716412424,
+    "reg_lambda": 0.00104473432805442
+   },
+   "evals_to_within_1pct": 12
+  },
+  "PSO": {
+   "best_val_mae_mean": 1.210833415909492,
+   "best_val_mae_std": 0.0,
+   "mean_history": [
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2443974062808207,
+    1.210833415909492,
+    1.210833415909492,
+    1.210833415909492,
+    1.210833415909492,
+    1.210833415909492,
+    1.210833415909492,
+    1.210833415909492,
+    1.210833415909492
+   ],
+   "seconds": 11.379029948000607,
+   "best_params": {
+    "num_leaves": 51,
+    "learning_rate": 0.08390083300834555,
+    "min_child_samples": 14,
+    "subsample": 0.9419611706132583,
+    "colsample_bytree": 0.881197572996834,
+    "reg_lambda": 0.003847344888835966
+   },
+   "evals_to_within_1pct": 8
+  },
+  "GA": {
+   "best_val_mae_mean": 1.2291254574460555,
+   "best_val_mae_std": 0.0,
+   "mean_history": [
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2291254574460555,
+    1.2291254574460555,
+    1.2291254574460555,
+    1.2291254574460555,
+    1.2291254574460555,
+    1.2291254574460555
+   ],
+   "seconds": 11.043807371000185,
+   "best_params": {
+    "num_leaves": 47,
+    "learning_rate": 0.04385889166394462,
+    "min_child_samples": 5,
+    "subsample": 0.5215626218370979,
+    "colsample_bytree": 0.9065141722143399,
+    "reg_lambda": 1.95443788883953
+   },
+   "evals_to_within_1pct": null
+  },
+  "TPE (Optuna)": {
+   "best_val_mae_mean": 1.2296502577787631,
+   "best_val_mae_std": 0.0,
+   "mean_history": [
+    1.5210930138291452,
+    1.4017953019787028,
+    1.4017953019787028,
+    1.4017953019787028,
+    1.2529416898084311,
+    1.2529416898084311,
+    1.2529416898084311,
+    1.2529416898084311,
+    1.2344310338346232,
+    1.2323771185444183,
+    1.2323771185444183,
+    1.2296502577787631,
+    1.2296502577787631,
+    1.2296502577787631,
+    1.2296502577787631
+   ],
+   "seconds": 8.45805855799972,
+   "best_params": {
+    "num_leaves": 13,
+    "learning_rate": 0.04371268725946607,
+    "min_child_samples": 34,
+    "subsample": 0.7002799871181709,
+    "colsample_bytree": 0.8512887021896205,
+    "reg_lambda": 0.00806894295978318
+   },
+   "evals_to_within_1pct": null
+  },
+  "Random": {
+   "best_val_mae_mean": 1.2461822899549253,
+   "best_val_mae_std": 0.0,
+   "mean_history": [
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253,
+    1.2461822899549253
+   ],
+   "seconds": 9.724805456000468,
+   "best_params": {
+    "num_leaves": 47,
+    "learning_rate": 0.04152635301108488,
+    "min_child_samples": 6,
+    "subsample": 0.5082638177642645,
+    "colsample_bytree": 0.9066351196001362,
+    "reg_lambda": 4.4773630318442335
+   },
+   "evals_to_within_1pct": null
+  },
+  "Grid": {
+   "best_val_mae_mean": 1.249924207757384,
+   "best_val_mae_std": 0.0,
+   "mean_history": [
+    1.316277165872008,
+    1.316277165872008,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384,
+    1.249924207757384
+   ],
+   "seconds": 7.273704985999757,
+   "best_params": {
+    "num_leaves": 11,
+    "learning_rate": 0.026220388460794997,
+    "min_child_samples": 7,
+    "subsample": 0.55,
+    "colsample_bytree": 0.95,
+    "reg_lambda": 0.00251188643150958
+   },
+   "evals_to_within_1pct": null
+  }
+ },
+ "feature_selection": {
+  "QIEA": {
+   "score_mean": 1.237562880542423,
+   "best_features": [
+    "speed_kn",
+    "load_ratio",
+    "wind_speed_ms",
+    "wave_height_m",
+    "vt_container",
+    "vt_bulk",
+    "vt_tanker",
+    "vt_pax",
+    "draft_ratio",
+    "trim_m",
+    "days_since_cleaning",
+    "head_wind_ms",
+    "mcr_kw",
+    "displacement_t",
+    "length_m"
+   ],
+   "n_features": 15,
+   "evaluations": 24,
+   "history": [
+    1.2935452098289157,
+    1.2550535283538564,
+    1.2550535283538564,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.2430263188044315,
+    1.237562880542423,
+    1.237562880542423,
+    1.237562880542423,
+    1.237562880542423,
+    1.237562880542423,
+    1.237562880542423,
+    1.237562880542423
+   ]
+  },
+  "GA": {
+   "score_mean": 1.2258046581480266,
+   "best_features": [
+    "speed_kn",
+    "load_ratio",
+    "wind_speed_ms",
+    "wave_height_m",
+    "vt_container",
+    "vt_bulk",
+    "vt_tanker",
+    "vt_pax",
+    "trim_m",
+    "days_since_cleaning",
+    "head_wind_ms",
+    "current_kn",
+    "block_coefficient",
+    "aux_sea_kw"
+   ],
+   "n_features": 14,
+   "evaluations": 30,
+   "history": [
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2370002100412143,
+    1.2344948454601263,
+    1.2344948454601263,
+    1.2344948454601263,
+    1.2344948454601263,
+    1.2344948454601263,
+    1.2344948454601263,
+    1.2258046581480266,
+    1.2258046581480266,
+    1.2258046581480266,
+    1.2258046581480266
+   ]
+  },
+  "All features": {
+   "score_mean": 1.2559377267725897,
+   "best_features": [
+    "speed_kn",
+    "load_ratio",
+    "wind_speed_ms",
+    "wave_height_m",
+    "vt_container",
+    "vt_bulk",
+    "vt_tanker",
+    "vt_pax",
+    "draft_ratio",
+    "trim_m",
+    "days_since_cleaning",
+    "head_wind_ms",
+    "cross_wind_ms",
+    "head_wave_m",
+    "current_kn",
+    "design_speed_kn",
+    "mcr_kw",
+    "displacement_t",
+    "length_m",
+    "block_coefficient",
+    "aux_sea_kw"
+   ],
+   "n_features": 21,
+   "evaluations": 1,
+   "history": []
+  }
+ },
+ "seconds": 417.0773185709995
+}
