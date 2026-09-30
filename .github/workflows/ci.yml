@@ -26,7 +26,6 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
-    if: hashFiles('frontend/package-lock.json') != ''
     defaults:
       run:
         working-directory: frontend
@@ -36,4 +35,4 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
-      - run: npm run build
+      - run: npm run build   # tsc strict type-check + vite build
