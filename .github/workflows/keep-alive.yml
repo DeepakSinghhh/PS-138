@@ -1,0 +1,21 @@
+name: Keep the live demo awake
+
+# Render's free web services sleep after 15 minutes without traffic (first visit then takes ~1 min).
+# Pinging every 10 minutes keeps the demo instant; one always-on free service fits Render's 750 free hours/month.
+# If Render gave the service a different address, set the repository variable RENDER_URL.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the health endpoint
+        env:
+          URL: ${{ vars.RENDER_URL || 'https://q-greenfleet.onrender.com' }}
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" -m 120 "$URL/api/health" || true)
+          echo "$URL/api/health -> $code"

@@ -19,4 +19,5 @@ COPY reports/ reports/
 COPY --from=web /app/frontend/dist frontend/dist
 WORKDIR /app/backend
 EXPOSE 8000
-CMD ["uvicorn", "greenfleet.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# hosts such as Render set PORT; default 8000
+CMD ["sh", "-c", "exec uvicorn greenfleet.api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

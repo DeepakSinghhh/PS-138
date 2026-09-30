@@ -83,9 +83,9 @@ make web                           # http://localhost:5173  (dashboard)
 
 Or run everything in one container: `docker compose up --build`, then open http://localhost:8000.
 
-**Live demo: https://deepak1279-q-greenfleet.hf.space** (Hugging Face Spaces, free CPU tier).
-`.github/workflows/deploy-hf.yml` redeploys it on every push; it needs one repository secret, `HF_TOKEN`
-(a Hugging Face access token with *Write* permission).
+**Free live deployment (Render).** [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/DeepakSinghhh/PS-138)
+`render.yaml` deploys the Docker image on Render's free plan (no card; about 270 MB of the 512 MB limit is used) and
+redeploys on every push. `.github/workflows/keep-alive.yml` pings it every 10 minutes so it does not sleep.
 
 A narrated walkthrough of the prototype is in [docs/demo/](docs/demo/) (`Q-GreenFleet_walkthrough.mp4`, 4½ min, with subtitles and a narration script).
 

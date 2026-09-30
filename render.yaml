@@ -1,0 +1,13 @@
+# Render Blueprint: free web service built from the Dockerfile (dashboard + API in one container).
+# Deploy: https://render.com/deploy?repo=https://github.com/DeepakSinghhh/PS-138
+services:
+  - type: web
+    name: q-greenfleet
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: "8000"
