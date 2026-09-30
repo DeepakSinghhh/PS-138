@@ -14,6 +14,10 @@ def _e(x) -> str:
     return html.escape(str(x))
 
 
+def _usd_per_t(m: dict) -> str:
+    return "-" if m["usd_per_t"] is None else f"{m['usd_per_t']:.0f}"
+
+
 def _bar_svg(items: list[tuple[str, float, str]], unit: str, width: int = 640, bar_h: int = 18) -> str:
     """Horizontal bar chart as inline SVG. items = (label, value, color)."""
     if not items:
@@ -73,7 +77,7 @@ def render(plan: dict, scenario: dict, explanation: dict | None = None, macc: di
     if macc:
         mrows = "".join(
             f"<tr><td>{_e(m['measure'])}</td><td class=n>{m['abatement_t']:,.0f}</td>"
-            f"<td class=n>{('%.0f' % m['usd_per_t']) if m['usd_per_t'] is not None else '-'}</td>"
+            f"<td class=n>{_usd_per_t(m)}</td>"
             f"<td>{'yes' if m['feasible'] else 'no (other constraints)'}</td></tr>" for m in macc["measures"])
         macc_html = (f"<h2>Marginal abatement cost of single measures</h2><p class=muted>Each measure applied fleet-wide "
                      f"to the current-practice plan.</p><table><tr><th>Measure</th><th>Abatement t CO2e/yr</th>"
