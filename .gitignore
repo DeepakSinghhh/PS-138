@@ -35,3 +35,6 @@ frontend/playwright-report/
 # Local Claude Code settings
 .claude/settings.local.json
 frontend/tsconfig.tsbuildinfo
+
+# Benchmark checkpoints (rewritten during a run)
+reports/*.partial.json
