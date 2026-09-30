@@ -38,3 +38,11 @@ frontend/tsconfig.tsbuildinfo
 
 # Benchmark checkpoints (rewritten during a run)
 reports/*.partial.json
+
+# demo video build intermediates
+tools/demo_video/frames/
+tools/demo_video/timeline.json
+tools/demo_video/frames.ffconcat
+tools/demo_video/*.mp4
+tools/demo_video/*.srt
+tools/demo_video/*_voiceover.md

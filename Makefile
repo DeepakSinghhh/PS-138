@@ -1,7 +1,7 @@
 PY ?= backend/.venv/bin/python
 PIP ?= uv pip
 
-.PHONY: install install-web test lint data train bench-quick bench-full api web dev build-web smoke
+.PHONY: install install-web test lint data train bench-quick bench-full api web dev build-web smoke demo-video
 
 install:            ## create the backend virtualenv and install dependencies
 	cd backend && uv venv .venv --python 3.11 && . .venv/bin/activate && uv pip install -r requirements.txt
@@ -38,3 +38,6 @@ build-web:
 
 smoke:              ## Playwright smoke test against running api + web
 	cd frontend && npx playwright test
+
+demo-video:         ## record the dashboard walkthrough (needs `make api` running with the built dashboard, and ffmpeg)
+	cd tools/demo_video && node record.js && ../../$(PY) assemble.py && cp Q-GreenFleet_walkthrough.mp4 Q-GreenFleet_walkthrough.srt Q-GreenFleet_walkthrough_voiceover.md ../../docs/demo/
