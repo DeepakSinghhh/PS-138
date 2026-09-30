@@ -76,13 +76,13 @@ A plan is obtained by measuring the registers and reading $u$.
    - Half the offspring collapse whole routes coherently (class, fuel, OPS and fleet size stay consistent); the other half collapse register by register.
    - The guide is an archive leader (tournament on crowding distance, so sparse regions of the front are preferred) with probability 0.9, else a second parent.
    - $\theta$ anneals from $\pi/4$ (broad mixing) to $0.1\pi$ (offspring close to their parent).
-3. **Hadamard noise**: each register collapses to a uniformly random option with probability 2 %.
-4. **Quantum memory**: a global register per route is continually rotated towards archive members, so it learns a distribution of good options. 10 % of route decisions are re-measured from it (a quantum-inspired EDA).
+3. **Hadamard noise**: registers collapse to a uniformly random option, about $1 + R/25$ collapses per offspring for a network of $R$ routes.
+4. **Quantum memory**: a global register per route is continually rotated towards archive members, so it learns a distribution of good options. About $1.2 + R/25$ route decisions per offspring are re-measured from it (a quantum-inspired EDA).
 5. **δ-well speed move**:
    - $u = p \pm L\ln(1/r)$, with $p = \varphi u_{parent} + (1-\varphi)u_{guide}$ and $L = \beta|u_{guide} - u_{parent}| + \sigma_0$.
    - The walls are **absorbing** (clip), not reflecting, because many optima sit exactly on a speed bound: slowest feasible or top speed.
 6. **Violation-guided local tunnelling**:
-   - 30 % of offspring are archive members with one route re-measured (from memory) or speed-tunnelled.
+   - 30 % of offspring (50 % above 25 routes) are archive members with $\max(1, R/12)$ routes re-measured (from memory) or speed-tunnelled.
    - The route is drawn with probability proportional to its own constraint violation (CII, schedule), and uniformly once the member is feasible.
    - In superposition crossover, a route the parent violates but the guide satisfies collapses to the guide with probability 0.9.
 7. **Elitist $(\mu+\lambda)$ survival** by constrained non-dominated sorting and crowding distance. An external archive keeps up to 100 non-dominated plans.
@@ -103,6 +103,18 @@ The EU and synthetic networks were **not** used for tuning.
 
 The MOQPSO ablation (QPSO on every gene with random-key decoding) shows the qudit registers matter: on the same budget
 it reaches HV ≈ 0.52.
+
+**Scaling rule.** A fixed per-register mutation rate gives about 1 random change per offspring at 12 routes but about 8 at
+100 routes. A pure 1/n rule starves large networks of exploration. The final rule grows exploration and local tunnelling
+sub-linearly with the number of routes (as listed above), and leaves 12-route behaviour unchanged.
+
+**Known limitation.** On loosely constrained synthetic networks with 50–100 routes, classical MOPSO converges
+further within the same budget (higher hypervolume, smaller cost gap to the MILP). QMOEA-H remains ahead on:
+- the real case-study networks (India, EU),
+- the exact-gap comparison,
+- the tightly constrained 100-route network, where it is the only method feasible in every seed.
+
+Closing the large-scale gap is future work, for example a velocity-style memory for speed genes or adaptive rates.
 
 ## 4. Exact MILP and QUBO (`optimization/options.py`, `milp.py`, `qubo.py`)
 

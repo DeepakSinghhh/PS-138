@@ -189,17 +189,17 @@ class QMOEAHConfig:
     archive_size: int = 100
     theta_max: float = 0.25 * np.pi   # superposition angle towards the guide: sin^2 = 0.5 early (broad mixing)
     theta_min: float = 0.10 * np.pi   # late: offspring mostly stay close to their parent
-    noise: float = 0.02               # Hadamard-noise amplitude floor per register (mutation)
+    noise_per_plan: float = 0.0       # expected Hadamard-noise collapses per offspring (0 = 1 + R/25)
     leader_prob: float = 0.9          # guide = archive leader (else a second tournament parent)
-    memory_rate: float = 0.10         # share of route decisions drawn from the global quantum memory
+    memory_per_plan: float = 0.0      # expected routes per offspring re-measured from memory (0 = 1.2 + R/25)
     memory_dtheta: float = 0.05 * np.pi
     beta_max: float = 1.0
     beta_min: float = 0.3
     sigma0: float = 0.02              # base width of the delta well (keeps speeds exploring)
     stagnation: int = 15
     reset_fraction: float = 0.2
-    local_fraction: float = 0.3       # offspring made by local tunnelling around archive members
-    local_routes: int = 1             # routes perturbed per local offspring
+    local_fraction: float = 0.0       # offspring made by local tunnelling (0 = 0.3 for <= 25 routes, else 0.5)
+    local_routes: int = 0             # routes perturbed per local offspring (0 = max(1, R // 12))
     coherent: float = 0.5             # share of offspring whose routes collapse coherently (all 4 registers)
     repair_prob: float = 0.9          # collapse-to-guide probability on routes the parent violates and the guide satisfies
 
@@ -254,7 +254,12 @@ class QMOEAH:
     def run(self, tracker: Tracker, callback=None) -> RunResult:
         cfg, prob, rng = self.cfg, self.problem, self.rng
         N, R = cfg.pop_size, prob.R
-        memory = QuditRegister(1, prob.cat_sizes, p_floor=cfg.noise)
+        # exploration and local tunnelling grow (sub-linearly) with network size: large fleets need more
+        # route changes per offspring to explore, while 12-route networks keep ~1 change per offspring
+        noise = min(0.05, (cfg.noise_per_plan or 1.0 + R / 25) / (4 * R))
+        memory_rate = min(0.5, (cfg.memory_per_plan or 1.2 + R / 25) / R)
+        local_routes = cfg.local_routes or max(1, R // 12)
+        memory = QuditRegister(1, prob.cat_sizes, p_floor=noise)
         archive = Archive(max_size=cfg.archive_size)
 
         pop = prob.random_genes(N, rng)            # measurement of the uniform superposition
@@ -289,10 +294,10 @@ class QMOEAH:
             to_guide = np.where(coherent[:, None], route_mask, reg_mask)
             child = np.where(to_guide, guide_cat, pc)
             # Hadamard-noise floor: each register may collapse to a uniformly random option
-            noisy = (rng.random(child.shape) < cfg.noise) & (prob.cat_sizes[None, :] > 1)
+            noisy = (rng.random(child.shape) < noise) & (prob.cat_sizes[None, :] > 1)
             child = np.where(noisy, np.floor(rng.random(child.shape) * prob.cat_sizes[None, :]).astype(int), child)
             # quantum memory: re-measure some routes from the learned global register
-            from_mem = rng.random((N, R)) < cfg.memory_rate
+            from_mem = rng.random((N, R)) < memory_rate
             if from_mem.any():
                 mem = memory.sample(rng, N)
                 child = np.where(np.repeat(from_mem, 4, axis=1), mem, child)
@@ -308,12 +313,12 @@ class QMOEAH:
             u = np.clip(u, 0.0, 1.0)
 
             # local tunnelling: copies of archive members with a few routes re-measured / speed-tunnelled
-            n_loc = int(round(cfg.local_fraction * N))
+            n_loc = int(round((cfg.local_fraction or (0.3 if R <= 25 else 0.5)) * N))
             if n_loc:
                 src = archive.leaders(n_loc, rng)
                 lc, lu = archive.genes.cat[src].copy(), archive.genes.u[src].copy()
                 src_rv = archive.extra[src]
-                for _ in range(cfg.local_routes):
+                for _ in range(local_routes):
                     # violation-guided tunnelling: perturb a violating route with probability ~ its violation
                     w = src_rv + 1e-3 * (src_rv.sum(axis=1, keepdims=True) <= 1e-12)
                     w = w / w.sum(axis=1, keepdims=True)
