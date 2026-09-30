@@ -3,3 +3,8 @@
 **/__pycache__
 frontend/dist
 .git
+docs/demo
+docs/pitch
+tools
+reports/screenshots
+**/*.partial.json
