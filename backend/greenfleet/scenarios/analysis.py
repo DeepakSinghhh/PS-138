@@ -53,7 +53,9 @@ def explain(problem: FleetProblem, genes: Genes, i: int = 0) -> dict:
         f"{delta_slow['fuel']:+.1f} % and cost by {delta_slow['cost']:+.1f} %.",
     ]
     if switched:
-        parts = [f"{fam} on {', '.join(ids)}" for fam, ids in by_family.items()]
+        names = {"conventional": "conventional oil", "lng": "LNG", "methanol": "methanol", "ammonia": "ammonia",
+                 "hydrogen": "hydrogen"}
+        parts = [f"{names.get(fam, fam)} on {', '.join(ids)}" for fam, ids in by_family.items()]
         sentences.append("Fuel switches: " + "; ".join(parts) + ".")
     if slower:
         avg = np.mean([100 * (b["speed_kn"] - r["speed_kn"]) / b["speed_kn"] for r, b in slower])
