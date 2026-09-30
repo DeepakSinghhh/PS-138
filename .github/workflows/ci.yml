@@ -36,3 +36,22 @@ jobs:
           node-version: "22"
       - run: npm ci
       - run: npm run build   # tsc strict type-check + vite build
+
+  docker:
+    # Same image Hugging Face Spaces builds; also checks that the container starts and serves the app.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t qgreenfleet .
+      - name: Smoke-test the container
+        run: |
+          docker run -d --name qgf -p 8000:8000 qgreenfleet
+          for i in $(seq 1 60); do curl -sf http://localhost:8000/api/health && break; sleep 2; done
+          curl -sf http://localhost:8000/api/health
+          curl -sf http://localhost:8000/ | grep -qi "<div id=\"root\""
+          curl -sf http://localhost:8000/api/meta > /dev/null
+          echo "container OK"
+      - name: Container logs
+        if: always()
+        run: docker logs qgf || true
