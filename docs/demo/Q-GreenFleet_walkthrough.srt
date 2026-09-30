@@ -1,107 +1,135 @@
 1
-00:00:04,659 --> 00:00:10,548
-India coastal & near-sea network: 12 real services, from JNPT–Mundra and Chennai–Singapore to Mundra–Rotterdam.
+00:00:00,600 --> 00:00:09,675
+This is Q-GreenFleet, our answer to problem statement 26138: quantum-inspired fuel prediction and green fleet optimisation.
 
 2
-00:00:10,548 --> 00:00:17,655
-Run the way fleets run today (VLSFO at full schedule speed), it emits about 2.1 Mt CO₂e a year, and 11 of 12 services fail the 2030 CII limit.
+00:00:10,726 --> 00:00:17,241
+Our India case study has twelve real services, from JNPT to Mundra, all the way to Rotterdam.
 
 3
-00:00:22,603 --> 00:00:27,921
-Scenario: India 2030. IMO CII, FuelEU Maritime and EU ETS are built in, and every assumption is editable.
+00:00:17,741 --> 00:00:29,056
+Run as fleets run today, it emits about 2.1 million tonnes of CO₂-equivalent a year, and eleven of twelve services fail the 2030 carbon-intensity limit.
 
 4
-00:00:27,921 --> 00:00:35,601
-QMOEA-H, our quantum-inspired optimiser, decides vessel mix, capacity, speed, fuel and shore power for all 12 routes at once.
+00:00:30,360 --> 00:00:32,544
+First, optimising the whole fleet.
 
 5
-00:00:35,601 --> 00:00:41,601
-Each dot is a complete fleet plan. The front of best trade-offs streams in live, far below today's plans (grey markers).
+00:00:34,565 --> 00:00:41,848
+The scenario is India in 2030, with IMO rules, FuelEU and E U carbon trading built in.
 
 6
-00:00:41,601 --> 00:00:48,777
-Done: 116 Pareto-optimal plans out of 6,000 evaluated. The recommended plan sits at the knee of the curve.
+00:00:42,348 --> 00:00:51,743
+Our quantum-inspired optimiser, QMOEA-H, chooses the vessel mix, capacity, speed, fuel and shore power for all twelve routes at once.
 
 7
-00:00:48,777 --> 00:00:55,664
-Recommended plan: 60 % less well-to-wake GHG, 52 % less fuel and 23 % lower cost than today, with every constraint met.
+00:00:52,243 --> 00:00:57,883
+Every dot is a complete fleet plan, streaming in live, far below today's plans in grey.
 
 8
-00:00:55,664 --> 00:01:03,484
-It explains itself in plain words: which routes switch to LNG or ammonia, where to slow-steam, and where to plug into shore power.
+00:00:58,383 --> 00:01:06,412
+In seconds it evaluates six thousand plans and keeps the 116 best. The recommended plan sits at the knee of the curve.
 
 9
-00:01:03,484 --> 00:01:10,515
-Fleet allocation on the map, and the emission profile of every service.
+00:01:06,912 --> 00:01:17,181
+Compared with today, the recommended plan cuts emissions by 60 percent, fuel by 52 percent and cost by 23 percent, while meeting every constraint.
 
 10
-00:01:10,515 --> 00:01:17,552
-Per service: vessel class and capacity, number of ships, speed, fuel, shore power and the resulting CII rating.
+00:01:17,681 --> 00:01:25,156
+And it explains itself: which routes switch to LNG or ammonia, where to slow down, and where to plug into shore power.
 
 11
-00:01:17,552 --> 00:01:26,497
-One click builds a decision report for managers: the plan, compliance, robustness and abatement costs.
+00:01:25,656 --> 00:01:29,995
+Here is the fleet on the map, next to the emission profile of every service.
 
 12
-00:01:31,582 --> 00:01:37,795
-For the chosen plan: the CII rating of every service, the FuelEU pool against its tightening limit, and EU ETS exposure.
+00:01:32,687 --> 00:01:39,650
+For each service: the vessel class, number of ships, speed, fuel, shore power and the resulting CII rating.
 
 13
-00:01:42,819 --> 00:01:48,769
-Q-PHYS predicts fuel from speed, load, weather and vessel type: a physics model plus a quantum-inspired tensor network.
+00:01:40,150 --> 00:01:47,518
+One click builds a decision report for managers, with the plan, its compliance, its robustness and its abatement costs.
 
 14
-00:01:48,769 --> 00:01:56,121
-Speed up and fuel rises steeply. The model is certified never to predict less fuel at a higher speed.
+00:01:49,901 --> 00:01:51,637
+Second, staying compliant.
 
 15
-00:01:56,121 --> 00:02:03,874
-Rougher seas add fuel, and the 90 % confidence band scales with the prediction.
+00:01:54,181 --> 00:02:02,359
+For the chosen plan: every service's CII rating, the FuelEU pool against its tightening limit, and the carbon-trading cost.
 
 16
-00:02:03,874 --> 00:02:09,760
-Switch the fuel system to e-ammonia: fuel mass and well-to-wake emissions update instantly.
+00:02:03,662 --> 00:02:05,952
+Third, predicting fuel for any ship.
 
 17
-00:02:09,760 --> 00:02:15,910
-Inside the tensor network: entanglement entropy shows which inputs the model couples, a view borrowed from quantum physics.
+00:02:07,884 --> 00:02:15,700
+Q-PHYS predicts fuel from speed, load, weather and vessel type, combining physics with a quantum-inspired tensor network.
 
 18
-00:02:20,922 --> 00:02:25,972
-2025 → 2050: every milestone year is optimised under that year's rules, prices and fuel availability.
+00:02:16,200 --> 00:02:22,501
+Speed up, and fuel climbs steeply. The model is certified never to predict less fuel at a higher speed.
 
 19
-00:02:25,972 --> 00:02:33,174
-The fuel mix shifts decade by decade as the targets tighten, while emissions keep falling.
+00:02:23,551 --> 00:02:28,721
+Rougher seas add fuel, and the ninety percent confidence band scales with the prediction.
 
 20
-00:02:33,174 --> 00:02:39,311
-Marginal abatement cost curve: which measures save money, and which cost dollars per tonne of CO₂e avoided.
+00:02:31,305 --> 00:02:36,241
+Switch the fuel to green ammonia, and the fuel mass and emissions update instantly.
 
 21
-00:02:39,311 --> 00:02:45,617
-An exact MILP solves the discretised problem to true optimality in about a second: the yardstick for every heuristic.
+00:02:37,191 --> 00:02:45,220
+Inside the tensor network, entanglement entropy shows which inputs the model links together, an idea borrowed from quantum physics.
 
 22
-00:02:45,617 --> 00:02:51,767
-The same fleet problem as a QUBO, solved by our own simulated quantum annealer and exportable unchanged to D-Wave hardware.
+00:02:46,523 --> 00:02:49,645
+Fourth, planning the transition to 2050.
 
 23
-00:02:51,767 --> 00:02:56,067
-Annealed plan: 1.52% from the exact optimum on the same objective, and fully feasible.
+00:02:50,732 --> 00:02:57,630
+Each milestone year to 2050 is optimised under that year's rules, prices and fuel availability.
 
 24
-00:03:02,027 --> 00:03:10,125
-Prediction: Q-PHYS reaches 3.3 % error on known ships, ahead of LightGBM, random forest and neural networks on the same data.
+00:02:58,131 --> 00:03:03,429
+The fuel mix shifts decade by decade as the targets tighten, while emissions keep falling.
 
 25
-00:03:10,125 --> 00:03:16,891
-Optimisation: QMOEA-H ranks first against NSGA-II, NSGA-III and MOPSO, and lands within 1–3 % of the exact optimum.
+00:03:05,333 --> 00:03:11,442
+The abatement cost curve shows which measures save money, and which cost dollars per tonne of carbon avoided.
 
 26
-00:03:16,891 --> 00:03:22,491
-We also show where classical methods still do better, such as MOPSO on very large, loosely constrained networks.
+00:03:11,942 --> 00:03:19,075
+An exact mixed-integer program finds the true optimum in about a second. That is our yardstick for every heuristic.
 
 27
-00:03:27,239 --> 00:03:37,289
-What-if: close the Red Sea. The Europe service reroutes around the Cape of Good Hope (6,348 → 11,027 nm), ready to re-optimise.
+00:03:19,575 --> 00:03:28,436
+The same problem, written as a QUBO, is solved by our own simulated quantum annealer, and runs unchanged on D-Wave quantum hardware.
+
+28
+00:03:28,936 --> 00:03:33,786
+The annealed plan lands just 1.52 percent from the exact optimum.
+
+29
+00:03:35,091 --> 00:03:36,805
+Finally, the benchmarks.
+
+30
+00:03:40,246 --> 00:03:49,342
+Q-PHYS predicts fuel within 3.3 percent on known ships, ahead of LightGBM, random forests and neural networks on the same data.
+
+31
+00:03:49,842 --> 00:03:57,040
+Our optimiser ranks first against the classical algorithms, and lands within one to three percent of the exact optimum.
+
+32
+00:03:57,539 --> 00:04:03,542
+And we show honestly where classical methods still win: on very large, loosely constrained networks.
+
+33
+00:04:08,790 --> 00:04:18,078
+And what if the Red Sea closes? One click, and the Europe service reroutes around the Cape of Good Hope, adding about four thousand seven hundred nautical miles.
+
+34
+00:04:19,643 --> 00:04:24,238
+Q-GreenFleet. Predict every tonne, optimise every voyage. Thank you.

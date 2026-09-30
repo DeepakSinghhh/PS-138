@@ -46,3 +46,7 @@ tools/demo_video/frames.ffconcat
 tools/demo_video/*.mp4
 tools/demo_video/*.srt
 tools/demo_video/*_voiceover.md
+tools/demo_video/.venv/
+tools/demo_video/models/
+tools/demo_video/narration/
+tools/demo_video/narration_track.wav

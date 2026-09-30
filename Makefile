@@ -1,7 +1,7 @@
 PY ?= backend/.venv/bin/python
 PIP ?= uv pip
 
-.PHONY: install install-web test lint data train bench-quick bench-full api web dev build-web smoke demo-video
+.PHONY: install install-web test lint data train bench-quick bench-full api web dev build-web smoke demo-tts-setup demo-video
 
 install:            ## create the backend virtualenv and install dependencies
 	cd backend && uv venv .venv --python 3.11 && . .venv/bin/activate && uv pip install -r requirements.txt
@@ -39,5 +39,17 @@ build-web:
 smoke:              ## Playwright smoke test against running api + web
 	cd frontend && npx playwright test
 
-demo-video:         ## record the dashboard walkthrough (needs `make api` running with the built dashboard, and ffmpeg)
-	cd tools/demo_video && node record.js && ../../$(PY) assemble.py && cp Q-GreenFleet_walkthrough.mp4 Q-GreenFleet_walkthrough.srt Q-GreenFleet_walkthrough_voiceover.md ../../docs/demo/
+TTS_PY ?= tools/demo_video/.venv/bin/python
+KOKORO ?= tools/demo_video/models
+
+demo-tts-setup:     ## one-time: Kokoro TTS virtualenv + voice model (~350 MB) for the narrated demo video
+	python3 -m venv tools/demo_video/.venv && $(TTS_PY) -m pip install -q kokoro-onnx soundfile
+	mkdir -p $(KOKORO) && cd $(KOKORO) && for f in kokoro-v1.0.onnx voices-v1.0.bin; do [ -s $$f ] || curl -sSL -o $$f \
+	  https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/$$f; done
+
+demo-video:         ## record, narrate and assemble the walkthrough (needs `make api` running, ffmpeg, make demo-tts-setup)
+	cd tools/demo_video && node record.js
+	cd tools/demo_video && $(abspath $(TTS_PY)) narrate.py --model $(abspath $(KOKORO))
+	cd tools/demo_video && ../../$(PY) assemble.py
+	cp tools/demo_video/Q-GreenFleet_walkthrough.mp4 tools/demo_video/Q-GreenFleet_walkthrough.srt \
+	  tools/demo_video/Q-GreenFleet_walkthrough_voiceover.md docs/demo/

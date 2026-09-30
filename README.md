@@ -83,6 +83,8 @@ make web                           # http://localhost:5173  (dashboard)
 
 Or run everything in one container: `docker compose up --build`, then open http://localhost:8000.
 
+A narrated walkthrough of the prototype is in [docs/demo/](docs/demo/) (`Q-GreenFleet_walkthrough.mp4`, 4½ min, with subtitles and a narration script).
+
 A trained model ships in `backend/artifacts/`. Retrain with `make data && make train`. Run `make test` for the test
 suite, and `make bench-quick` to regenerate the benchmarks.
 
