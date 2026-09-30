@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import FleetMap from "../components/FleetMap";
 import Stat from "../components/Stat";
-import { compact, fmt } from "../lib/format";
+import { fmt } from "../lib/format";
 import { useStore } from "../lib/store";
 
 export default function Overview() {
@@ -13,27 +13,28 @@ export default function Overview() {
     <div className="grid" style={{ gap: 16 }}>
       <div className="page-head">
         <div>
-          <h1>{network?.name ?? "Loading…"} · {scenario?.year}</h1>
+          <span className="kicker">Scenario overview · {scenario?.year}</span>
+          <h1>{network?.name ?? "Loading…"}</h1>
           <p>Quantum-inspired decision support for green fleet deployment: predict fuel use, then choose vessel mix,
             capacity, speed, fuel and shore power per service to cut fuel, lifecycle emissions and cost.</p>
         </div>
         <Link to="/optimize" className="btn primary">{result ? "Back to optimizer" : "Optimize this fleet"}</Link>
       </div>
 
-      <div className="grid" style={{ gridTemplateColumns: "minmax(0, 1.1fr) minmax(0, 2fr)" }}>
-        <div className="card" style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 8 }}>
+      <div className="grid split-hero">
+        <div className="card hero-card" style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
           {ex ? (
             <>
-              <span className="secondary">{selected?.label}: well-to-wake GHG vs current practice</span>
-              <span className="hero">{ex.delta_pct.emissions > 0 ? "+" : ""}{ex.delta_pct.emissions.toFixed(0)}%</span>
+              <span className="kicker">{selected?.label} · emissions vs today</span>
+              <span className="hero">{ex.delta_pct.emissions > 0 ? "+" : "−"}{Math.abs(ex.delta_pct.emissions).toFixed(0)}%<small>well-to-wake GHG</small></span>
               <span className="secondary">fuel {ex.delta_pct.fuel.toFixed(0)}% · cost {ex.delta_pct.cost > 0 ? "+" : ""}{ex.delta_pct.cost.toFixed(0)}% ·
                 {" "}{plan!.fleet.ships} ships · {plan!.feasible ? "all constraints met" : "constraints violated"}</span>
             </>
           ) : (
             <>
-              <span className="secondary">Current practice emits (well-to-wake)</span>
-              <span className="hero">{base ? compact(base.objectives.emissions) : "–"}</span>
-              <span className="secondary">t CO₂e per year · {base ? fmt(base.objectives.cost, 0) : "–"} M USD · {base?.fleet.ships ?? "–"} ships.
+              <span className="kicker">Current practice · well-to-wake emissions</span>
+              <span className="hero">{base ? (base.objectives.emissions / 1e6).toFixed(2) : "–"}<small>Mt CO₂e / yr</small></span>
+              <span className="secondary">{base ? fmt(base.objectives.cost, 0) : "–"} M USD a year · {base?.fleet.ships ?? "–"} ships.
                 Run the optimizer to find better plans.</span>
             </>
           )}
@@ -65,7 +66,8 @@ export default function Overview() {
                 <tr key={r.id}>
                   <td><b>{r.id}</b></td><td>{r.name}</td><td>{r.service} · {r.cargo}</td>
                   <td className="n">{fmt(r.demand)} {r.cargo === "container" ? "TEU" : r.cargo === "pax" ? "pax" : "t"}<span className="muted"> {r.demand_unit}</span></td>
-                  <td className="n">{fmt(r.distance_nm)}</td><td>{r.classes.join(", ")}</td>
+                  <td className="n">{fmt(r.distance_nm)}</td>
+                  <td className="wrap">{r.classes.map((c) => (meta?.vessel_classes.find((v) => v.id === c)?.label ?? c).split(" (")[0]).join(", ")}</td>
                   <td title={r.fuels.map((f) => f.label).join(", ")}>{r.fuels.length} fuels</td>
                   <td className="n">{r.shore_power_share ? `${Math.round(r.shore_power_share * 100)}% of berths` : "–"}</td>
                   <td className="n">{r.eu_scope ? `${r.eu_scope * 100}%` : "–"}</td>

@@ -49,7 +49,7 @@ const readMs = (text) => Math.max(2800, text.length * 50);
   const card = async (html, ms, during) => {
     events.push({ t: now(), type: "card", html });
     await page.evaluate((h) => window.__qgf.card(h.replace("{MARK}",
-      document.querySelector(".brand-mark") ? document.querySelector(".brand-mark").innerHTML : "")), html);
+      document.querySelector(".brand svg") ? document.querySelector(".brand svg").outerHTML : "")), html);
     await hold(500);
     if (during) await during();
     await hold(ms);

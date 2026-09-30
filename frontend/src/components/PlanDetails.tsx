@@ -97,11 +97,11 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
               {plan.routes.map((r) => (
                 <tr key={r.route_id}>
                   <td><b>{r.route_id}</b></td>
-                  <td>{r.name}</td>
-                  <td>{r.vessel_label}</td>
+                  <td className="wrap">{r.name}</td>
+                  <td className="wrap">{r.vessel_label}</td>
                   <td className="n">{r.ships}{r.ships > r.min_ships ? <span className="muted"> (+{r.ships - r.min_ships})</span> : null}</td>
                   <td className="n" title={`feasible range ${r.speed_range_kn[0].toFixed(1)}–${r.speed_range_kn[1].toFixed(1)} kn`}>{r.speed_kn.toFixed(1)}</td>
-                  <td><span className="chip"><i className="swatch" style={{ background: familyColor(t, r.fuel_family) }} />{r.fuel_label}</span></td>
+                  <td className="wrap"><span className="chip"><i className="swatch" style={{ background: familyColor(t, r.fuel_family) }} />{r.fuel_label}</span></td>
                   <td>{r.shore_power ? "Yes" : "–"}</td>
                   <td className="n">{fmt(r.fuel_hfo_eq_t)}</td>
                   <td className="n">{fmt(r.wtw_co2e_t)}</td>

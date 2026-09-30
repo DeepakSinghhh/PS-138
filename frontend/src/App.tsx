@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { NavLink, Route, Routes } from "react-router-dom";
-import { IconAtom, IconBook, IconChart, IconGauge, IconHome, IconLeaf, IconShield, IconShip } from "./components/Icons";
+import { NavLink, Route, Routes, useLocation } from "react-router-dom";
+import { IconBook, IconChart, IconGauge, IconHome, IconLeaf, IconShield, IconShip } from "./components/Icons";
+import { Wordmark } from "./components/Logo";
 import { useStore } from "./lib/store";
 import About from "./pages/About";
 import Benchmarks from "./pages/Benchmarks";
@@ -38,18 +39,18 @@ function ThemeToggle() {
 
 export default function App() {
   const { error, setError } = useStore();
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);  // each page opens at the top
   return (
     <div className="app">
       <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark"><IconAtom /></div>
-          <div><div className="brand-name">Q-GreenFleet</div><div className="brand-sub">quantum-inspired green shipping</div></div>
-        </div>
+        <Wordmark sub="green fleet decisions" />
         <nav className="nav">
           {NAV.map((n) => <NavLink key={n.to} to={n.to} end={n.to === "/"}>{n.icon}{n.label}</NavLink>)}
         </nav>
         <div className="sidebar-foot">
-          SIH 2026 · PS 26138 · Egreen Quanta
+          <b>SIH 2026</b> · PS 26138<br />
+          Egreen Quanta
           <ThemeToggle />
         </div>
       </aside>

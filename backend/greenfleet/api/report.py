@@ -96,21 +96,24 @@ def render(plan: dict, scenario: dict, explanation: dict | None = None, macc: di
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Q-GreenFleet decision report</title>
 <style>
-body {{ font: 13px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #111827; background: #fff; margin: 0; }}
+body {{ font: 13px/1.55 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #12242d; background: #fff; margin: 0; }}
 main {{ max-width: 980px; margin: 0 auto; padding: 28px 24px 60px; }}
-h1 {{ font-size: 22px; margin: 0 0 4px; }} h2 {{ font-size: 16px; margin: 28px 0 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }}
-.muted {{ color: #6b7280; }} table {{ border-collapse: collapse; width: 100%; font-size: 12px; }}
-th, td {{ border-bottom: 1px solid #e5e7eb; padding: 5px 6px; text-align: left; vertical-align: top; }}
-th {{ background: #f9fafb; font-weight: 600; }} td.n {{ text-align: right; font-variant-numeric: tabular-nums; }} td.c {{ text-align: center; font-weight: 700; }}
+h1 {{ font: 600 26px/1.2 'Fraunces', Georgia, 'Times New Roman', serif; letter-spacing: -.01em; margin: 0 0 4px; }} h2 {{ font: 600 17px/1.3 'Fraunces', Georgia, serif; margin: 30px 0 10px; border-bottom: 1px solid #e3e9ec; padding-bottom: 6px; }}
+.brand {{ display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid #0f2d3a; }}
+.bn {{ font: 600 17px/1.1 'Fraunces', Georgia, serif; color: #0f2d3a; }} .bs {{ font-size: 11px; color: #7c8d96; letter-spacing: .08em; text-transform: uppercase; }}
+.muted {{ color: #6b7a83; }} table {{ border-collapse: collapse; width: 100%; font-size: 12px; }}
+th, td {{ border-bottom: 1px solid #e3e9ec; padding: 5px 6px; text-align: left; vertical-align: top; }}
+th {{ background: #f0f3f5; font-weight: 600; color: #4a5c66; }} td.n {{ text-align: right; font-variant-numeric: tabular-nums; }} td.c {{ text-align: center; font-weight: 700; }}
 .rA {{ color: #047857; }} .rB {{ color: #15803d; }} .rC {{ color: #a16207; }} .rD {{ color: #c2410c; }} .rE {{ color: #b91c1c; }}
 .kpis {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 14px 0; }}
-.kpi {{ border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; }} .kl {{ color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }}
+.kpi {{ border: 1px solid #e3e9ec; border-radius: 10px; padding: 10px 12px; }} .kl {{ color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }}
 .kv {{ font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }} .ku {{ color: #6b7280; font-size: 11px; }}
 .delta {{ font-size: 12px; margin-top: 2px; }} .good {{ color: #047857; }} .bad {{ color: #b91c1c; }}
-.note {{ background: #f9fafb; border-left: 3px solid #2a78b8; padding: 8px 12px; margin: 12px 0; }}
+.note {{ background: #f0f6f2; border-left: 3px solid #0f6b45; padding: 8px 12px; margin: 12px 0; }}
 .legend span {{ display: inline-block; margin-right: 12px; font-size: 11px; }} .legend i {{ display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }}
 @media print {{ main {{ padding: 0; }} h2 {{ break-after: avoid; }} table {{ break-inside: auto; }} tr {{ break-inside: avoid; }} }}
 </style></head><body><main>
+<div class="brand"><svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><mask id="wl"><rect width="64" height="64" fill="#fff"/><path d="M0 34 C8 29 14 29 21 33.5 S33 38 40 33.5 S54 29 64 34" stroke="#000" stroke-width="10.5" fill="none"/></mask><circle cx="32" cy="32" r="18.5" fill="none" stroke="#0f2d3a" stroke-width="5.2" mask="url(#wl)"/><path d="M5 34 C11.5 30.1 16 30.1 22.2 33.8 S34.4 37.6 40.6 33.8 S52 30.1 59 33.3" stroke="#1f8a5b" stroke-width="4.6" stroke-linecap="round" fill="none"/></svg><div><div class="bn">Q-GreenFleet</div><div class="bs">Decision report</div></div></div>
 <h1>Green fleet deployment plan</h1>
 <div class="muted">{_e(network_name)} · year {scenario.get('year')} · generated {now} by Q-GreenFleet{(' · optimiser: ' + _e(algorithm)) if algorithm else ''}</div>
 <div class="kpis">

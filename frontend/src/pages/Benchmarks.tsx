@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import Plot from "../components/Plot";
 import { api } from "../lib/api";
 import { fmt } from "../lib/format";
+import { useStore } from "../lib/store";
 import { algoColor, useTheme } from "../lib/theme";
 
 const f3 = (v: number | null | undefined) => (v === null || v === undefined ? "–" : v.toFixed(3));
 
 export default function Benchmarks() {
   const t = useTheme();
+  const { meta } = useStore();
+  // "Unseen classes PANAMAX_C, SUPRAMAX" -> readable vessel-class names
+  const prettyClasses = (txt: string) => txt.replace(/\b[A-Z][A-Z0-9_]{2,}\b/g,
+    (id) => meta?.vessel_classes.find((v) => v.id === id)?.label.split(" (")[0] ?? id);
   const [data, setData] = useState<Record<string, any> | null>(null);
   const [inst, setInst] = useState("india_2030");
   useEffect(() => { api.benchmarks().then(setData).catch(() => setData({})); }, []);
@@ -19,7 +24,7 @@ export default function Benchmarks() {
 
   return (
     <div className="grid" style={{ gap: 16 }}>
-      <div className="page-head"><div><h1>Benchmarks</h1>
+      <div className="page-head"><div><span className="kicker">Deliverable 5 · Experimental results</span><h1>Benchmarks</h1>
         <p>The quantum-inspired methods against conventional prediction and optimization methods on accuracy, convergence
           speed, solution quality and scalability, including cases where they do not win.</p></div></div>
 
@@ -29,11 +34,11 @@ export default function Benchmarks() {
           <div className="grid cols-3">
             {Object.entries(pred.scenarios as Record<string, any>).filter(([, s]) => !s.skipped).map(([k, s]) => (
               <div className="card" key={k}>
-                <div className="card-head"><h3>{s.scenario}</h3><span className="muted small">{s.ships_in_test} test ships</span></div>
-                <table><thead><tr><th>Model</th><th className="n">MAPE %</th><th className="n">R²</th></tr></thead>
+                <div className="card-head"><h3>{prettyClasses(s.scenario)}</h3><span className="muted small">{s.ships_in_test} test ships</span></div>
+                <div className="table-wrap"><table><thead><tr><th>Model</th><th className="n">MAPE %</th><th className="n">R²</th></tr></thead>
                   <tbody>{s.results.filter((r: any) => r.MAPE !== undefined).slice(0, 8).map((r: any) => (
-                    <tr key={r.model} className={r.model.startsWith("Q-PHYS") ? "hl" : ""}><td>{r.model}</td><td className="n">{r.MAPE.toFixed(2)}</td><td className="n">{r.R2.toFixed(3)}</td></tr>))}
-                  </tbody></table>
+                    <tr key={r.model} className={r.model.startsWith("Q-PHYS") ? "hl" : ""}><td className="wrap">{r.model}</td><td className="n">{r.MAPE.toFixed(2)}</td><td className="n">{r.R2.toFixed(3)}</td></tr>))}
+                  </tbody></table></div>
                 <p className="small muted" style={{ marginTop: 8 }}>90 % interval coverage {(100 * s.conformal.coverage).toFixed(1)}%</p>
               </div>
             ))}
@@ -54,7 +59,7 @@ export default function Benchmarks() {
       {opt && (
         <>
           <h2>Optimization</h2>
-          <div className="segmented" style={{ alignSelf: "start" }}>
+          <div className="segmented" style={{ alignSelf: "start", justifySelf: "start" }}>
             {Object.keys(opt.instances).map((k) => <button key={k} className={inst === k ? "on" : ""} onClick={() => setInst(k)}>{k.replace(/_/g, " ")}</button>)}
           </div>
           {I && (
@@ -86,20 +91,20 @@ export default function Benchmarks() {
             {opt.exact && (
               <div className="card">
                 <div className="card-head"><div><h3>Optimality gap vs exact MILP</h3><p className="muted small">India 2030, 5 speed levels; gap of each algorithm's best plan per objective.</p></div></div>
-                <table><thead><tr><th>Algorithm</th><th className="n">fuel %</th><th className="n">GHG %</th><th className="n">cost %</th><th className="n">IGD+ vs exact front</th></tr></thead>
+                <div className="table-wrap"><table><thead><tr><th>Algorithm</th><th className="n">fuel %</th><th className="n">GHG %</th><th className="n">cost %</th><th className="n">IGD+ vs exact front</th></tr></thead>
                   <tbody>{Object.entries(opt.exact.algorithms as Record<string, any>).map(([n, a]) => (
                     <tr key={n} className={n.includes("ours") ? "hl" : ""}><td>{n}</td><td className="n">{a.gap_pct_mean.fuel?.toFixed(2)}</td><td className="n">{a.gap_pct_mean.emissions?.toFixed(2)}</td>
-                      <td className="n">{a.gap_pct_mean.cost?.toFixed(2)}</td><td className="n">{f3(a.igd_plus_vs_exact_front)}</td></tr>))}</tbody></table>
+                      <td className="n">{a.gap_pct_mean.cost?.toFixed(2)}</td><td className="n">{f3(a.igd_plus_vs_exact_front)}</td></tr>))}</tbody></table></div>
               </div>
             )}
             {opt.qubo && (
               <div className="card">
                 <div className="card-head"><div><h3>QUBO annealing: gap to exact optimum</h3><p className="muted small">median over seeds, same weighted objective</p></div></div>
-                <table><thead><tr><th>Network</th><th>Weights</th><th className="n">PI-SQA (ours)</th><th className="n">OpenJij SQA</th><th className="n">Classical SA</th></tr></thead>
+                <div className="table-wrap"><table><thead><tr><th>Network</th><th>Weights</th><th className="n">PI-SQA (ours)</th><th className="n">OpenJij SQA</th><th className="n">Classical SA</th></tr></thead>
                   <tbody>{Object.entries(opt.qubo as Record<string, any[]>).flatMap(([net, rows]) => rows.map((r, i) => (
-                    <tr key={net + i}><td>{net}</td><td>{Object.entries(r.weights).map(([k, v]) => `${k} ${(v as number).toFixed(2)}`).join(", ")}</td>
+                    <tr key={net + i}><td>{net === "india" ? "India" : net === "eu" ? "EU" : net}</td><td className="wrap">{Object.entries(r.weights).map(([k, v]) => `${k} ${(v as number).toFixed(2)}`).join(", ")}</td>
                       <td className="n">{r.solvers.pi_sqa.gap_pct_median.toFixed(2)}%</td><td className="n">{r.solvers.openjij_sqa.gap_pct_median.toFixed(2)}%</td>
-                      <td className="n">{r.solvers.openjij_sa.gap_pct_median.toFixed(2)}%</td></tr>)))}</tbody></table>
+                      <td className="n">{r.solvers.openjij_sa.gap_pct_median.toFixed(2)}%</td></tr>)))}</tbody></table></div>
               </div>
             )}
           </div>
@@ -115,10 +120,10 @@ export default function Benchmarks() {
                   { type: "scatter" as const, mode: "lines+markers" as const, name: "MILP (min cost)", x: opt.scalability.rows.map((r: any) => r.routes),
                     y: opt.scalability.rows.map((r: any) => r.milp_min_cost_seconds), line: { color: t["text-muted"], width: 1.5, dash: "dot" } },
                 ]} layout={{ xaxis: { title: { text: "routes" } }, yaxis: { title: { text: "seconds" } } }} />
-                <table><thead><tr><th className="n">Routes</th><th className="n">Ships</th><th>Algorithm</th><th className="n">HV</th><th className="n">cost gap %</th><th className="n">s</th></tr></thead>
+                <div className="table-wrap"><table><thead><tr><th className="n">Routes</th><th className="n">Ships</th><th>Algorithm</th><th className="n">HV</th><th className="n">cost gap %</th><th className="n">s</th></tr></thead>
                   <tbody>{opt.scalability.rows.flatMap((r: any) => Object.entries(r.algorithms as Record<string, any>).map(([n, a]) => (
                     <tr key={r.routes + n} className={n.includes("ours") ? "hl" : ""}><td className="n">{r.routes}</td><td className="n">{r.ships_available}</td><td>{n}</td>
-                      <td className="n">{a.hv_mean.toFixed(2)}</td><td className="n">{a.cost_gap_pct_vs_milp?.toFixed(2) ?? "–"}</td><td className="n">{a.seconds_mean.toFixed(1)}</td></tr>)))}</tbody></table>
+                      <td className="n">{a.hv_mean.toFixed(2)}</td><td className="n">{a.cost_gap_pct_vs_milp?.toFixed(2) ?? "–"}</td><td className="n">{a.seconds_mean.toFixed(1)}</td></tr>)))}</tbody></table></div>
               </div>
             </div>
           )}

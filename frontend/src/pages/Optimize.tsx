@@ -104,6 +104,7 @@ export default function Optimize() {
     <div className="grid" style={{ gap: 16 }}>
       <div className="page-head">
         <div>
+          <span className="kicker">Deliverables 2–3 · Optimization</span>
           <h1>Fleet optimizer</h1>
           <p>Choose vessel mix, capacity, speed, fuel and shore power for every service, minimising fuel, well-to-wake
             emissions and cost under demand, schedule, fleet, CII and FuelEU constraints.</p>

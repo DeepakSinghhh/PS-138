@@ -1,4 +1,9 @@
-# Q-GreenFleet
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/q-greenfleet-logo-white.svg">
+    <img src="docs/brand/q-greenfleet-logo.svg" alt="Q-GreenFleet" height="52">
+  </picture>
+</h1>
 
 **Quantum-inspired fuel consumption prediction and green fleet optimization.**
 Built for Smart India Hackathon 2026, problem statement **26138** (Egreen Quanta · Clean & Green Technology).
@@ -26,6 +31,10 @@ and against an exact MILP optimum.
 | **5. Demonstration** | India coastal & near-sea network (12 services, Sagarmala / Harit Sagar / green-hydrogen ports), EU FuelEU/ETS network, and **MILP-certified synthetic networks of up to 100 routes / 1,250 ships**. Benchmarks in [reports/](reports/). Implementation guide in [docs/implementation_guide.md](docs/implementation_guide.md). |
 
 Deliverable-by-deliverable tracking: [docs/deliverables.md](docs/deliverables.md).
+
+**Logo.** The mark is a ship's load-line disc (the Plimsoll mark painted on every hull) with a waterline through it:
+staying within limits, which is what the optimizer does with emissions. SVG and PNG files, for light and dark
+backgrounds, are in [docs/brand/](docs/brand/).
 
 ## Results at a glance
 

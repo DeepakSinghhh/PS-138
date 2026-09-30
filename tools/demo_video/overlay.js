@@ -18,26 +18,26 @@
   @keyframes qgf-rip { to { transform: translate(-50%, -50%) scale(4.2); opacity: 0; } }
   #qgf-cap { position: fixed; left: 50%; bottom: 40px; transform: translate(-50%, 16px); max-width: 1240px; min-width: 620px;
     z-index: 2147483645; pointer-events: none; opacity: 0; transition: opacity .45s ease, transform .45s ease;
-    background: rgba(12, 28, 22, 0.93); color: #fff; border-radius: 16px; padding: 18px 30px 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.25); font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+    background: rgba(15, 45, 58, 0.95); color: #fff; border-radius: 16px; padding: 18px 30px 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25); font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif; }
   #qgf-cap.on { opacity: 1; transform: translate(-50%, 0); }
-  #qgf-cap .k { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: #8fd8b2; font-weight: 700; margin-bottom: 6px; }
+  #qgf-cap .k { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: #6fd3a3; font-weight: 700; margin-bottom: 6px; }
   #qgf-cap .t { font-size: 27px; line-height: 1.38; font-weight: 500; }
   #qgf-card { position: fixed; inset: 0; z-index: 2147483644; display: flex; align-items: center; pointer-events: none;
-    background: #0c1c16; color: #fff; opacity: 0; transition: opacity .6s ease; font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+    background: #0f2d3a; color: #fff; opacity: 0; transition: opacity .6s ease; font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif; }
   #qgf-card.on { opacity: 1; }
   #qgf-card .wrap { margin-left: 170px; max-width: 1400px; }
-  #qgf-card .kick { font-size: 21px; letter-spacing: .18em; text-transform: uppercase; color: #8fd8b2; font-weight: 700; }
-  #qgf-card .num { font-size: 140px; font-weight: 800; color: #1f8f5f; line-height: 1; margin-bottom: 8px; }
-  #qgf-card h1 { font-size: 92px; margin: 14px 0 12px; font-weight: 800; letter-spacing: -.01em; line-height: 1.05; }
-  #qgf-card p { font-size: 33px; color: #cfe6da; margin: 0; line-height: 1.4; }
-  #qgf-card .foot { margin-top: 48px; font-size: 22px; color: #9db8ab; }
-  #qgf-card .mark { width: 76px; height: 76px; border-radius: 16px; background: #0f6b45; display: grid; place-items: center; margin-bottom: 26px; color: #fff; }
-  #qgf-card .mark svg { width: 44px; height: 44px; }
+  #qgf-card .kick { font-size: 21px; letter-spacing: .18em; text-transform: uppercase; color: #6fd3a3; font-weight: 700; }
+  #qgf-card .num { font-family: "Fraunces Variable", Georgia, serif; font-variation-settings: "opsz" 40; font-size: 140px; font-weight: 600; color: #3fbf85; line-height: 1; margin-bottom: 8px; }
+  #qgf-card h1 { font-family: "Fraunces Variable", Georgia, serif; font-variation-settings: "opsz" 40; font-size: 96px; margin: 14px 0 14px; font-weight: 600; letter-spacing: -.02em; line-height: 1.05; }
+  #qgf-card p { font-size: 33px; color: #c9dde3; margin: 0; line-height: 1.4; }
+  #qgf-card .foot { margin-top: 48px; font-size: 22px; color: #9fb4bc; }
+  #qgf-card .mark { width: 110px; height: 110px; margin: 0 0 18px -10px; color: #f3f6f7; --brand-wave: #3fbf85; }
+  #qgf-card .mark svg { width: 110px; height: 110px; }
   #qgf-ff { position: fixed; right: 26px; top: 22px; z-index: 2147483645; pointer-events: none; opacity: 0; transition: opacity .3s;
-    background: rgba(12, 28, 22, 0.9); color: #8fd8b2; border-radius: 999px; padding: 8px 16px; font: 700 17px Arial, sans-serif; letter-spacing: .08em; }
+    background: rgba(15, 45, 58, 0.92); color: #6fd3a3; border-radius: 999px; padding: 8px 16px; font: 700 17px Arial, sans-serif; letter-spacing: .08em; }
   #qgf-ff.on { opacity: 1; }
-  #qgf-report { position: fixed; inset: 0; z-index: 2147483600; background: rgba(12,28,22,.55); display: none; padding: 34px 90px; }
+  #qgf-report { position: fixed; inset: 0; z-index: 2147483600; background: rgba(15,45,58,.55); display: none; padding: 34px 90px; }
   #qgf-report.on { display: block; }
   #qgf-report iframe { width: 100%; height: 100%; border: 0; border-radius: 14px; background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
   `;

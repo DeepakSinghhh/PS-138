@@ -14,7 +14,7 @@ interface Props {
   ariaLabel: string;
 }
 
-/** Theme-aware Plotly wrapper: recessive hairline grid, system font, transparent surface, hover on. */
+/** Theme-aware Plotly wrapper: recessive hairline grid, IBM Plex Sans, transparent surface, hover on. */
 export default function Plot({ data, layout, height = 320, config, onClick, ariaLabel }: Props) {
   const t = useTheme();
   const axis = {
@@ -27,8 +27,9 @@ export default function Plot({ data, layout, height = 320, config, onClick, aria
     margin: { l: 56, r: 16, t: 12, b: 44 },
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
-    font: { family: 'system-ui, -apple-system, "Segoe UI", sans-serif', color: t["text-secondary"], size: 12 },
-    hoverlabel: { bgcolor: t["surface-1"], bordercolor: t.border, font: { color: t["text-primary"] } },
+    font: { family: '"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif', color: t["text-secondary"], size: 12 },
+    hoverlabel: { bgcolor: t["surface-1"], bordercolor: t.border, font: { color: t["text-primary"], family: '"IBM Plex Sans", sans-serif' } },
+    modebar: { bgcolor: "rgba(0,0,0,0)", color: t["text-muted"], activecolor: t.accent },
     legend: { orientation: "h", y: -0.22, font: { color: t["text-secondary"] } },
     ...layout,
     xaxis: { ...axis, ...(layout?.xaxis ?? {}) },

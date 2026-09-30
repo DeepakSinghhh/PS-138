@@ -6,4 +6,3 @@ export const IconLeaf = () => (<svg viewBox="0 0 24 24" {...p}><path d="M5 19c0-
 export const IconShield = () => (<svg viewBox="0 0 24 24" {...p}><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" /><path d="M9 12l2 2 4-4" /></svg>);
 export const IconChart = () => (<svg viewBox="0 0 24 24" {...p}><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>);
 export const IconBook = () => (<svg viewBox="0 0 24 24" {...p}><path d="M4 5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z" /><path d="M4 19V5" /></svg>);
-export const IconAtom = () => (<svg viewBox="0 0 24 24" {...p}><circle cx="12" cy="12" r="1.5" /><ellipse cx="12" cy="12" rx="10" ry="4" /><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)" /><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)" /></svg>);

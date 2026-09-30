@@ -50,3 +50,4 @@ tools/demo_video/.venv/
 tools/demo_video/models/
 tools/demo_video/narration/
 tools/demo_video/narration_track.wav
+tools/demo_video/*.log

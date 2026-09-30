@@ -49,7 +49,7 @@ export default function Lab() {
 
   return (
     <div className="grid" style={{ gap: 16 }}>
-      <div className="page-head"><div><h1>Fuel & policy lab</h1>
+      <div className="page-head"><div><span className="kicker">Scenario simulation · 2025–2050</span><h1>Fuel &amp; policy lab</h1>
         <p>Scenario analysis for alternative fuels: how the optimal fleet shifts from 2025 to 2050, what each measure costs
           per tonne abated, how robust a plan is, and how close quantum-inspired annealing gets to the exact optimum.</p></div></div>
       <ScenarioPanel compact />
@@ -132,6 +132,7 @@ export default function Lab() {
             {["fuel", "emissions", "cost"].map((o) => (
               <button key={o} className="btn" onClick={() => api.exact(scenario, o).then((r) => setExact((s) => ({ ...s, [o]: r }))).catch((e) => setError(e.message))}>Minimum {o}</button>))}
           </div>
+          {Object.keys(exact).length === 0 ? <div className="empty" style={{ marginTop: 10, minHeight: 120 }}>Solve for an extreme to see the true optimum.</div> : (
           <div className="table-wrap" style={{ marginTop: 10 }}>
             <table><thead><tr><th>Exact optimum</th><th className="n">Fuel t</th><th className="n">GHG t CO₂e</th><th className="n">Cost M$</th><th className="n">Solve s</th><th className="n">vs selected plan</th></tr></thead>
               <tbody>{Object.entries(exact).map(([o, r]) => (
@@ -139,7 +140,7 @@ export default function Lab() {
                   <td className="n">{fmt(r.objectives?.cost, 1)}</td><td className="n">{fmt(r.seconds, 2)}</td>
                   <td className="n">{selected ? pct(100 * (selected.plan.objectives[o as "fuel"] - r.objectives[o]) / r.objectives[o]) : "–"}</td></tr>))}
               </tbody></table>
-          </div>
+          </div>)}
         </div>
         <div className="card">
           <div className="card-head"><div><h3>QUBO + quantum annealing</h3><p className="muted small">The fleet problem as a one-hot QUBO, exported as a D-Wave BQM and solved here by simulated quantum annealing.</p></div></div>
@@ -169,7 +170,7 @@ export default function Lab() {
               <div className="stat"><span className="label">QUBO variables</span><span className="value">{qubo.qubo_variables}</span><span className="unit">one-hot + slack bits</span></div>
               <div className="stat"><span className="label">Time</span><span className="value">{qubo.seconds.toFixed(1)} s</span><span className="unit">{qubo.iterations} lazy-constraint round(s)</span></div>
             </div>
-          ) : <div className="empty" style={{ minHeight: 120 }}>Anneal the fleet QUBO and compare with the exact MILP.</div>}
+          ) : <div className="empty" style={{ minHeight: 120, marginTop: 12 }}>Anneal the fleet QUBO and compare with the exact MILP.</div>}
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ export default function Compliance() {
 
   return (
     <div className="grid" style={{ gap: 16 }}>
-      <div className="page-head"><div><h1>Regulatory compliance</h1>
+      <div className="page-head"><div><span className="kicker">IMO CII · FuelEU Maritime · EU ETS</span><h1>Regulatory compliance</h1>
         <p>{selected!.label} in {scenario.year}: IMO Carbon Intensity Indicator per ship, FuelEU Maritime pooled GHG intensity and EU ETS exposure.</p></div></div>
 
       <div className="grid cols-3">

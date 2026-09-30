@@ -38,9 +38,9 @@ export default function FleetMap({ network, plan, meta, height = 420 }: Props) {
   return (
     <div>
       <div className="map" style={{ height }}>
-        <MapContainer key={network.name + network.routes.length} bounds={bounds} scrollWheelZoom={false}
+        <MapContainer key={network.name + network.routes.length + t.land} bounds={bounds} scrollWheelZoom={false}
           style={{ height: "100%", width: "100%" }} attributionControl={false} worldCopyJump>
-          <GeoJSON data={LAND} style={{ color: t.axis, weight: 0.6, fillColor: t["surface-1"], fillOpacity: 1 }} />
+          <GeoJSON data={LAND} style={{ color: t.coast, weight: 0.7, fillColor: t.land, fillOpacity: 1 }} />
           {network.routes.map((r) => {
             const p = byRoute[r.id];
             const color = p ? familyColor(t, p.fuel_family) : t["text-muted"];

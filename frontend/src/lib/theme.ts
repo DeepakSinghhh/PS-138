@@ -4,7 +4,7 @@ export type ThemeTokens = Record<string, string>;
 const NAMES = [
   "surface-1", "surface-2", "text-primary", "text-secondary", "text-muted", "grid", "axis", "border", "accent",
   "series-1", "series-2", "series-3", "series-4", "series-5", "series-6", "series-7", "series-8", "neutral-series",
-  "seq-100", "seq-300", "seq-500", "seq-700", "good", "warning", "serious", "critical",
+  "seq-100", "seq-300", "seq-500", "seq-700", "good", "warning", "serious", "critical", "sea", "land", "coast",
 ];
 
 function read(): ThemeTokens {

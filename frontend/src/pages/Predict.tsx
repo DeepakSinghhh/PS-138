@@ -11,6 +11,13 @@ interface Inputs {
   wave_height_m: number; wave_rel_deg: number; days_since_cleaning: number; fuel: string;
 }
 
+const FEATURE_LABEL: Record<string, string> = {
+  log_prior: "Physics prior", speed_kn: "Speed", design_speed_kn: "Design speed", mcr_kw: "Engine power (MCR)",
+  load_ratio: "Cargo load", draft_ratio: "Draft", trim_m: "Trim", days_since_cleaning: "Days since hull cleaning",
+  hull_age_years: "Hull age", head_wind_ms: "Head wind", wind_speed_ms: "Wind speed", wave_height_m: "Wave height",
+  head_wave_m: "Head waves", current_kn: "Current", capacity: "Capacity", dwt: "Deadweight",
+};
+
 function Slider({ label, value, min, max, step, unit, onChange }: { label: string; value: number; min: number; max: number; step: number; unit: string; onChange: (v: number) => void }) {
   return (
     <label className="field">
@@ -38,6 +45,7 @@ export default function Predict() {
 
   const curve = res?.curve;
   const imp = card?.feature_importance ? Object.entries(card.feature_importance as Record<string, number>).slice(0, 10) : [];
+  const featureName = (k: string) => FEATURE_LABEL[k] ?? (k.startsWith("vt_") ? `Type: ${k.slice(3).replace(/_/g, " ")}` : k.replace(/_/g, " "));
   const ent: number[] = card?.report?.mps?.entanglement_entropy ?? [];
   const bonds: string[] = card?.report?.mps?.bond_features ?? [];
   const beaufort = Math.round((inp.wind_speed_ms / 0.836) ** (2 / 3));
@@ -46,6 +54,7 @@ export default function Predict() {
     <div className="grid" style={{ gap: 16 }}>
       <div className="page-head">
         <div>
+          <span className="kicker">Deliverable 1 · Prediction</span>
           <h1>Fuel consumption prediction</h1>
           <p>Q-PHYS combines ship physics with a QPSO-tuned monotone booster and a Matrix-Product-State tensor network
             (a quantum-inspired model). Inputs follow the PS: speed, load, weather and vessel type.</p>
@@ -53,7 +62,7 @@ export default function Predict() {
         {card?.available && <span className="chip">test MAPE {card.test_metrics.MAPE.toFixed(2)}% · R² {card.test_metrics.R2.toFixed(3)} · 90% interval coverage {(100 * card.conformal.coverage).toFixed(0)}%</span>}
       </div>
 
-      <div className="grid" style={{ gridTemplateColumns: "320px minmax(0,1fr)" }}>
+      <div className="grid split-controls">
         <div className="card grid" style={{ alignContent: "start", gap: 14 }}>
           <label className="field">Vessel type & class
             <select value={inp.vessel_class} onChange={(e) => {
@@ -80,7 +89,7 @@ export default function Predict() {
 
         <div className="grid" style={{ alignContent: "start" }}>
           <div className="grid cols-4">
-            <Stat label="Predicted fuel (HFO-equivalent)" value={res ? fmt(res.fuel_hfo_eq_tpd, 1) : "–"} unit="t / day" />
+            <Stat label="Predicted fuel" value={res ? fmt(res.fuel_hfo_eq_tpd, 1) : "–"} unit="t HFO-equivalent / day" />
             <Stat label="90 % prediction interval" value={res ? `${fmt(res.interval_tpd[0], 1)}–${fmt(res.interval_tpd[1], 1)}` : "–"} unit="t / day (split-conformal)" />
             <Stat label={`${res?.fuel_label ?? "Fuel"} burned`} value={res ? fmt(Object.values(res.fuel_mass_tpd as Record<string, number>).reduce((a, b) => a + b, 0), 1) : "–"}
               unit={res ? Object.entries(res.fuel_mass_tpd as Record<string, number>).map(([k, v]) => `${k} ${fmt(v, 1)} t`).join(" + ") : ""} />
@@ -107,7 +116,7 @@ export default function Predict() {
               <div className="card-head"><h3>What drives the prediction</h3><span className="muted small">mean |SHAP|, booster</span></div>
               {imp.length ? (
                 <Plot ariaLabel="Feature importance" height={300} data={[{
-                  type: "bar", orientation: "h", y: imp.map(([k]) => k.replace("log_prior", "physics prior")), x: imp.map(([, v]) => v),
+                  type: "bar", orientation: "h", y: imp.map(([k]) => featureName(k)), x: imp.map(([, v]) => v),
                   marker: { color: t["series-1"] }, width: 0.55, hovertemplate: "%{y}: %{x:.3f}<extra></extra>",
                 }]} layout={{ margin: { l: 150, r: 16, t: 8, b: 36 }, yaxis: { autorange: "reversed", gridcolor: "rgba(0,0,0,0)" }, xaxis: { title: { text: "mean |SHAP| (log fuel)" } } }} />
               ) : <div className="empty">Train the model with <span className="kbd">make train</span></div>}
