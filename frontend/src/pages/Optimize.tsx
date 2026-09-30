@@ -23,16 +23,19 @@ export default function Optimize() {
   const [live, setLive] = useState<number[][]>([]);
   const [view, setView] = useState<"2d" | "3d">("2d");
   const [feasibleSoFar, setFeasibleSoFar] = useState(false);
+  const [queued, setQueued] = useState(0);
 
   const objs = result?.objectives ?? scenario?.objectives ?? ["fuel", "emissions", "cost"];
   const ix = (o: string) => objs.indexOf(o as never);
 
   const run = async () => {
     if (!scenario) return;
-    setRunning(true); setProgress(0); setLive([]); setResult(null); setFeasibleSoFar(false);
+    setRunning(true); setProgress(0); setLive([]); setResult(null); setFeasibleSoFar(false); setQueued(0);
     try {
       const job = await api.optimize(scenario, algorithm, budget);
       const res = await followJob<OptResult>(job.id, (ev) => {
+        if (ev.type === "queued") setQueued(ev.ahead as number);
+        if (ev.type === "status") setQueued(0);
         if (ev.type === "progress") {
           setProgress((ev.nfe as number) / (ev.budget as number));
           setLive(ev.front as number[][]);
@@ -127,7 +130,7 @@ export default function Optimize() {
             {running ? "Optimizing…" : "Run optimization"}
           </button>
           <div style={{ flex: 1, minWidth: 220 }}>
-            <div className="range-row"><span>{running ? (feasibleSoFar ? "searching the Pareto front" : "looking for feasible plans") : result ? `${result.solutions.length} Pareto-optimal plans · ${fmt(result.evaluations)} evaluated` : "idle"}</span>
+            <div className="range-row"><span>{running ? (queued ? `waiting for ${queued} earlier run${queued > 1 ? "s" : ""} on the shared server` : feasibleSoFar ? "searching the Pareto front" : "looking for feasible plans") : result ? `${result.solutions.length} Pareto-optimal plans · ${fmt(result.evaluations)} evaluated` : "idle"}</span>
               <span className="num">{Math.round(progress * 100)}%</span></div>
             <div className="progress"><div style={{ width: `${progress * 100}%` }} /></div>
           </div>

@@ -22,6 +22,7 @@ export default function Lab() {
   const [qBusy, setQBusy] = useState(false);
   const [solver, setSolver] = useState("pi_sqa");
   const [wEm, setWEm] = useState(0.5);
+  const [qStage, setQStage] = useState("");
   if (!scenario) return null;
 
   const runTimeline = async () => {
@@ -159,10 +160,15 @@ export default function Lab() {
             <button className="btn primary" disabled={qBusy} onClick={async () => {
               setQBusy(true);
               try {
+                setQStage("");
                 const job = await api.qubo(scenario, { emissions: wEm, cost: 1 - wEm }, solver);
-                setQubo(await followJob(job.id, () => undefined));
-              } catch (e) { setError((e as Error).message); } finally { setQBusy(false); }
+                setQubo(await followJob(job.id, (ev) => {
+                  if (ev.type === "queued") setQStage(`waiting for ${ev.ahead} earlier run${(ev.ahead as number) > 1 ? "s" : ""}`);
+                  if (ev.type === "progress") setQStage(String(ev.stage ?? ""));
+                }));
+              } catch (e) { setError((e as Error).message); } finally { setQBusy(false); setQStage(""); }
             }}>{qBusy ? "Annealing…" : "Anneal"}</button>
+            {qBusy && qStage && <span className="small muted">{qStage}</span>}
           </div>
           {qubo ? (
             <div className="grid cols-3" style={{ marginTop: 12 }}>

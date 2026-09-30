@@ -6,6 +6,7 @@ import functools
 import hashlib
 import json
 import threading
+from collections import OrderedDict
 from pathlib import Path
 
 import numpy as np
@@ -63,6 +64,25 @@ def get_problem(sc: Scenario) -> FleetProblem:
         return _problems[key]
 
 
+_memo_lock = threading.Lock()
+_memo: OrderedDict[str, object] = OrderedDict()
+
+
+def memo(kind: str, key: str, fn, size: int = 64):
+    """Small LRU of deterministic results (network summaries, MACC, exact optima) keyed by the scenario."""
+    k = f"{kind}:{key}"
+    with _memo_lock:
+        if k in _memo:
+            _memo.move_to_end(k)
+            return _memo[k]
+    value = fn()
+    with _memo_lock:
+        _memo[k] = value
+        while len(_memo) > size:
+            _memo.popitem(last=False)
+    return value
+
+
 def genes_to_json(g: Genes) -> dict:
     return {"cat": g.cat.astype(int).tolist(), "u": np.round(g.u, 6).tolist()}
 
@@ -107,6 +127,10 @@ def meta() -> dict:
 
 
 def network(sc: Scenario) -> dict:
+    return memo("network", scenario_key(sc), lambda: _network(sc))
+
+
+def _network(sc: Scenario) -> dict:
     p = get_problem(sc)
     rs = p.rs
     lib = fuel_library()
@@ -279,7 +303,7 @@ def robustness(sc: Scenario, genes: Genes, n: int = 400) -> dict:
 
 
 def macc(sc: Scenario) -> dict:
-    return A.macc(get_problem(sc))
+    return memo("macc", scenario_key(sc), lambda: A.macc(get_problem(sc)))
 
 
 def run_timeline(job, sc: Scenario, years: list[int], budget: int, preference: str) -> dict:
@@ -293,6 +317,10 @@ def run_timeline(job, sc: Scenario, years: list[int], budget: int, preference: s
 
 
 def run_exact(sc: Scenario, objective: str) -> dict:
+    return memo(f"exact-{objective}", scenario_key(sc), lambda: _run_exact(sc, objective))
+
+
+def _run_exact(sc: Scenario, objective: str) -> dict:
     from dataclasses import replace
 
     from greenfleet.optimization.milp import FleetMILP

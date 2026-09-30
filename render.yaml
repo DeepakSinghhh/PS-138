@@ -11,3 +11,9 @@ services:
     envVars:
       - key: PORT
         value: "8000"
+      # precompute the default scenario's runs at start-up, so a first visitor never waits
+      - key: GREENFLEET_WARMUP
+        value: "1"
+      # the free instance has 0.1 CPU: cap optimizer evaluations per request
+      - key: GREENFLEET_MAX_BUDGET
+        value: "20000"

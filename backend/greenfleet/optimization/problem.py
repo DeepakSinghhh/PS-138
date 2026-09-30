@@ -383,7 +383,7 @@ class FleetProblem:
                 "cost_usd": {"charter": float(b["charter"][r]), "fuel": float(b["fuel_cost"][r]),
                              "electricity": float(b["elec_cost"][r]), "eu_ets": float(b["ets_cost"][r]),
                              "levy": float(b["levy_cost"][r])},
-                "cii": {"attained": float(b["cii_attained"][r]), "required": float(b["cii_attained"][r] / ratio),
+                "cii": {"attained": float(b["cii_attained"][r]), "required": float(self.cii_req[b["cls"][r]]),
                         "ratio": ratio, "rating": cii.rating(ratio, 1.0, vc.cii_type)},
                 "on_time_probability": float(b["p_on"][r]), "buffer_hours_per_round_trip": float(b["buffer_h"][r]),
             })

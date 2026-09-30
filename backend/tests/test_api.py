@@ -89,3 +89,46 @@ def test_routes_csv_roundtrip():
     net = client.post("/api/network", json={"scenario": {"custom_routes": routes, "year": 2030}}).json()
     assert len(net["routes"]) == 4
     assert client.post("/api/routes/parse", json={"csv": "a,b\n1,2\n"}).status_code == 422
+
+
+def test_identical_requests_share_one_job_and_replay():
+    body = {"scenario": {"network": "eu", "year": 2035}, "budget": 800, "seed": 3}
+    a = client.post("/api/optimize", json=body).json()
+    b = client.post("/api/optimize", json=body).json()
+    assert a["reused"] is False and b["reused"] is True and a["id"] == b["id"]
+    _wait(a["id"])
+    # a finished job replays its events on a late stream
+    with client.stream("GET", f"/api/jobs/{a['id']}/stream") as s:
+        events = [json.loads(line[6:]) for line in s.iter_lines() if line.startswith("data: ")]
+    assert events[-1]["type"] == "done" and any(e["type"] == "progress" for e in events)
+    other = client.post("/api/optimize", json={**body, "seed": 4}).json()
+    assert other["id"] != a["id"]
+
+
+def test_request_limits_and_static_guard():
+    too_big = client.post("/api/routes/parse", content=b"{" + b" " * 2_100_000 + b"}",
+                          headers={"content-type": "application/json"})
+    assert too_big.status_code == 413
+    bad_years = client.post("/api/timeline", json={"scenario": {}, "years": [1990]})
+    assert bad_years.status_code == 422
+    assert client.post("/api/timeline", json={"scenario": {}, "preference": "nope"}).status_code == 422
+    r = client.get("/..%2f..%2fpyproject.toml")
+    assert "[project]" not in r.text
+
+
+def test_job_manager_reuse_and_eviction():
+    from greenfleet.api.jobs import JobManager
+
+    jm = JobManager(workers=1, keep=2)
+    pinned, _ = jm.submit("x", lambda j: 1, key="p", pinned=True)
+    for i in range(4):
+        job, reused = jm.submit("x", lambda j, i=i: i, key=f"k{i}")
+        assert not reused
+        while job.status != "done":
+            time.sleep(0.01)
+    assert jm.get(pinned.id) is not None            # pinned warm-up jobs survive eviction
+    assert jm.submit("x", lambda j: 2, key="p")[1] is True
+    failing, _ = jm.submit("x", lambda j: 1 / 0, key="f")
+    while failing.status != "error":
+        time.sleep(0.01)
+    assert jm.submit("x", lambda j: 1, key="f")[1] is False   # a failed job is retried, not reused
