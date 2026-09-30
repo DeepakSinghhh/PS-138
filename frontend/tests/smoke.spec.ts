@@ -65,3 +65,9 @@ test("QAOA circuit trains and offers the OpenQASM download", async ({ page }) =>
   await expect(page.getByText("Best plan measured")).toBeVisible({ timeout: 120_000 });
   await expect(page.getByRole("button", { name: "Download OpenQASM" })).toBeVisible();
 });
+
+test("a shared link opens the dashboard with its scenario", async ({ page }) => {
+  const param = Buffer.from(JSON.stringify({ year: 2040, bogus: 1 })).toString("base64url");
+  await page.goto(`/?s=${param}`);
+  await expect(page.getByText("Scenario overview · 2040")).toBeVisible();
+});

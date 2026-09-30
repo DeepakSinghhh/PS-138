@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../lib/api";
+import { shareUrl } from "../lib/share";
 import { useStore } from "../lib/store";
 import type { Obj } from "../lib/types";
 
@@ -7,7 +8,18 @@ export default function ScenarioPanel({ compact = false }: { compact?: boolean }
   const { scenario, patchScenario, meta, setError } = useStore();
   const [csv, setCsv] = useState("");
   const [showCsv, setShowCsv] = useState(false);
+  const [copied, setCopied] = useState(false);
   if (!scenario || !meta) return null;
+  const share = async () => {
+    const url = shareUrl(scenario, { ...meta.default_scenario, network: "india", year: 2030 });
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt("Copy this link to share the scenario", url);
+    }
+  };
   const objs: Obj[] = ["fuel", "emissions", "cost", "schedule_risk"];
   const toggleObj = (o: Obj) => {
     const has = scenario.objectives.includes(o);
@@ -82,7 +94,10 @@ export default function ScenarioPanel({ compact = false }: { compact?: boolean }
       </div>
       {!compact && (
         <div style={{ marginTop: 10 }}>
-          <button className="btn" onClick={() => setShowCsv((s) => !s)}>{showCsv ? "Hide" : "Upload your own routes (CSV)"}</button>
+          <div className="head-actions">
+            <button className="btn" onClick={() => setShowCsv((s) => !s)}>{showCsv ? "Hide" : "Upload your own routes (CSV)"}</button>
+            <button className="btn" onClick={share} title="Copy a link that opens the dashboard with this scenario">{copied ? "Link copied" : "Copy share link"}</button>
+          </div>
           {showCsv && (
             <div className="grid" style={{ marginTop: 10 }}>
               <p className="small muted">Columns: <span className="kbd">id,name,port_a,port_b,service,cargo,demand,classes</span> ·

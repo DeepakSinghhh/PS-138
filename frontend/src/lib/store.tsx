@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api } from "./api";
 import type { Genes, Meta, NetworkInfo, OptResult, Plan, Scenario } from "./types";
+import { decodeScenario } from "./share";
 
 interface Selected { genes: Genes; plan: Plan; label: string }
 
@@ -31,7 +32,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.meta().then((m) => { setMeta(m); setScenario({ ...m.default_scenario, network: "india", year: 2030 }); })
+    // a shared link (?s=...) carries the scenario fields that differ from the defaults
+    const shared = decodeScenario(new URLSearchParams(window.location.search).get("s"));
+    api.meta().then((m) => {
+      setMeta(m);
+      const known = Object.fromEntries(Object.entries(shared ?? {}).filter(([k, v]) =>
+        k in m.default_scenario && (k !== "objectives" || Array.isArray(v))));
+      setScenario({ ...m.default_scenario, network: "india", year: 2030, ...known } as Scenario);
+    })
       .catch((e) => setError(`Cannot reach the API: ${e.message}. Start it with "make api".`));
   }, []);
 
