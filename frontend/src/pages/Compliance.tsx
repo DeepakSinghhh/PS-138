@@ -3,8 +3,10 @@ import { useMoney } from "../lib/currency";
 import { fmt } from "../lib/format";
 import { useStore } from "../lib/store";
 import { useTheme } from "../lib/theme";
+import { useT } from "../lib/i18n";
 
 export default function Compliance() {
+  const tr = useT();
   const { selected, meta, network, scenario } = useStore();
   const t = useTheme();
   const money = useMoney();
@@ -18,8 +20,8 @@ export default function Compliance() {
 
   return (
     <div className="grid page">
-      <div className="page-head"><div><span className="kicker">IMO CII · FuelEU Maritime · EU ETS</span><h1>Regulatory compliance</h1>
-        <p>{selected!.label} in {scenario.year}: IMO Carbon Intensity Indicator per ship, FuelEU Maritime pooled GHG intensity and EU ETS exposure.</p></div></div>
+      <div className="page-head"><div><span className="kicker">IMO CII · FuelEU Maritime · EU ETS</span><h1>{tr("Regulatory compliance")}</h1>
+        <p>{tr("{label} in {year}: IMO Carbon Intensity Indicator per ship, FuelEU Maritime pooled GHG intensity and EU ETS exposure.", { label: tr(selected!.label), year: scenario.year })}</p></div></div>
 
       <div className="grid cols-3">
         <div className="card stat">
@@ -40,8 +42,8 @@ export default function Compliance() {
         </div>
       </div>
 
-      <div className="card">
-        <div className="card-head"><div><h3>CII: attained ÷ required per service</h3><p className="muted small">Below 1.0 beats the required line; rating boundaries follow IMO dd-vectors per ship type (hover for rating).</p></div></div>
+      <div className="card" data-tour="cii">
+        <div className="card-head"><div><h3>{tr("CII: attained ÷ required per service")}</h3><p className="muted small">Below 1.0 beats the required line; rating boundaries follow IMO dd-vectors per ship type (hover for rating).</p></div></div>
         <Plot ariaLabel="CII ratio per route" height={340} data={[{
           type: "bar", x: routes.map((r) => r.route_id), y: routes.map((r) => r.cii.ratio), width: 0.3,
           marker: { color: routes.map((r) => ({ A: t.good, B: t.good, C: t.warning, D: t.serious, E: t.critical } as Record<string, string>)[r.cii.rating]) },

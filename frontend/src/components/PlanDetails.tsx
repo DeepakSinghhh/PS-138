@@ -6,6 +6,7 @@ import FleetMap from "./FleetMap";
 import { downloadReport, printReport } from "../lib/api";
 import { useStore } from "../lib/store";
 import { useMoney } from "../lib/currency";
+import { useT } from "../lib/i18n";
 import { useSaved } from "../lib/saved";
 import { compact, fmt, pct } from "../lib/format";
 import { FAMILY_LABEL, familyColor, useTheme } from "../lib/theme";
@@ -22,6 +23,7 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
   const [busy, setBusy] = useState(false);
   const { save } = useSaved();
   const { setError } = useStore();
+  const tr = useT();
   const [savedAs, setSavedAs] = useState<string | null>(null);
   useEffect(() => setSavedAs(null), [genes]);   // a different plan has not been saved yet
   const ex = plan.explanation;
@@ -35,33 +37,33 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
     <div className="grid sections">
       <div className="card-head" style={{ marginBottom: 0 }}>
         <div>
-          <h2>{label}</h2>
-          <p className="muted small">{plan.fleet.ships} ships on {plan.routes.length} services · {plan.feasible
-            ? "all constraints satisfied" : `violates: ${Object.entries(plan.violations).filter(([, v]) => v > 0).map(([k]) => k).join(", ")}`}</p>
+          <h2>{tr(label)}</h2>
+          <p className="muted small">{tr("{ships} ships on {services} services", { ships: plan.fleet.ships, services: plan.routes.length })} · {plan.feasible
+            ? tr("all constraints satisfied") : `violates: ${Object.entries(plan.violations).filter(([, v]) => v > 0).map(([k]) => k).join(", ")}`}</p>
         </div>
         <div className="btn-row">
           <button className="btn" onClick={() => {
             const name = `${label} · ${scenario.year}${scenario.red_sea_diversion ? " · Red Sea closed" : ""}`;
             save({ label: name, plan, genes, scenario, algorithm });
             setSavedAs(name);
-          }}>{savedAs ? "Saved ✓" : "Save plan"}</button>
-          {savedAs && <Link className="btn" to="/compare">Compare plans</Link>}
+          }}>{savedAs ? tr("Saved ✓") : tr("Save plan")}</button>
+          {savedAs && <Link className="btn" to="/compare">{tr("Compare plans")}</Link>}
           <button className="btn" disabled={busy} title="Opens the report with your browser's print dialog; choose Save as PDF"
             onClick={() => { printReport(scenario, genes, algorithm, money.currency).catch((e) => setError((e as Error).message)); }}>
-            Save as PDF</button>
+            {tr("Save as PDF")}</button>
           <button className="btn primary" disabled={busy} onClick={async () => {
             setBusy(true);
             try { await downloadReport(scenario, genes, algorithm, money.currency); } finally { setBusy(false); }
-          }}>{busy ? "Building report…" : "Download decision report"}</button>
+          }}>{busy ? tr("Building report…") : tr("Download decision report")}</button>
         </div>
       </div>
 
       <div className="grid cols-4">
-        <Stat label="Fuel" value={compact(plan.objectives.fuel)} unit="t HFO-eq / yr" delta={d.fuel} />
-        <Stat label="Well-to-wake GHG" value={compact(plan.objectives.emissions)} unit="t CO₂e / yr" delta={d.emissions} />
-        <Stat label="Annual cost" value={money.bigSplit(plan.objectives.cost).value} unit={`${money.bigSplit(plan.objectives.cost).unit} / yr`} delta={d.cost} />
+        <Stat label={tr("Fuel")} value={compact(plan.objectives.fuel)} unit="t HFO-eq / yr" delta={d.fuel} deltaLabel={tr("vs current practice")} />
+        <Stat label={tr("Well-to-wake GHG")} value={compact(plan.objectives.emissions)} unit="t CO₂e / yr" delta={d.emissions} deltaLabel={tr("vs current practice")} />
+        <Stat label={tr("Annual cost")} value={money.bigSplit(plan.objectives.cost).value} unit={`${money.bigSplit(plan.objectives.cost).unit} / yr`} delta={d.cost} deltaLabel={tr("vs current practice")} />
         <div className="card stat">
-          <span className="label">Compliance</span>
+          <span className="label">{tr("Compliance")}</span>
           <span className="value" style={{ fontSize: 20 }}>{ratings.filter((r) => "ABC".includes(r)).length}/{ratings.length} CII ≥ C</span>
           <span className="status">
             <span className="dot" style={{ background: fe.balance_t_co2e >= 0 ? t.good : t.critical }} />
@@ -78,11 +80,11 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
 
       <div className="grid cols-2">
         <div className="card">
-          <div className="card-head"><h3>Fleet allocation map</h3><span className="muted small">hover a route for details</span></div>
+          <div className="card-head"><h3>{tr("Fleet allocation map")}</h3><span className="muted small">hover a route for details</span></div>
           <FleetMap network={network} plan={plan} meta={meta} height={380} />
         </div>
         <div className="card">
-          <div className="card-head"><h3>Emission profile by service</h3><span className="muted small">t CO₂e / yr, well-to-wake</span></div>
+          <div className="card-head"><h3>{tr("Emission profile by service")}</h3><span className="muted small">t CO₂e / yr, well-to-wake</span></div>
           <Plot ariaLabel="Well-to-wake emissions per route" height={380}
             data={families.map((f) => {
               const rs = routes.filter((r) => r.fuel_family === f);
@@ -104,8 +106,8 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
         </div>
       </div>
 
-      <div className="card">
-        <div className="card-head"><h3>Fleet allocation</h3><span className="muted small">vessel mix, capacity, speed and fuel per service</span></div>
+      <div className="card" data-tour="allocation">
+        <div className="card-head"><h3>{tr("Fleet allocation")}</h3><span className="muted small">vessel mix, capacity, speed and fuel per service</span></div>
         <div className="table-wrap">
           <table>
             <thead><tr>

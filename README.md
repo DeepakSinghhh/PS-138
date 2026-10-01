@@ -164,6 +164,9 @@ suite, and `make bench-quick` to regenerate the benchmarks.
 - **Money** is shown in rupees by default, in crore for large amounts, with a ₹ / $ switch in the sidebar. The model itself
   works in US dollars because bunker fuel, charter rates and shipping finance are quoted in dollars (EU ETS in euros), and
   converts at an editable rate (`usd_to_inr: 88` in `backend/config/prices.yaml`). The decision report follows the switch.
+- **Language**: an English / हिन्दी switch in the sidebar translates navigation, page openers, headline figures, the main
+  controls and the whole guided tour. Detailed tables, chart labels and the model's generated plan explanations stay in
+  English.
 - Everything runs on classical hardware. "Quantum-inspired" names the algorithms' mechanics: tensor networks,
   superposition/measurement, tunnelling, annealing. It is not a speed-up claim. The QAOA circuit is simulated exactly
   (state vector) on a classical computer; the exported OpenQASM file is what would run on quantum hardware. Its noisy

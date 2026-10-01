@@ -5,6 +5,7 @@ import { api } from "../lib/api";
 import { fmt } from "../lib/format";
 import { useStore } from "../lib/store";
 import { useTheme } from "../lib/theme";
+import { useT } from "../lib/i18n";
 
 interface Inputs {
   vessel_class: string; speed_kn: number; load_ratio: number; wind_speed_ms: number; wind_rel_deg: number;
@@ -28,6 +29,7 @@ function Slider({ label, value, min, max, step, unit, onChange }: { label: strin
 }
 
 export default function Predict() {
+  const tr = useT();
   const { meta, setError } = useStore();
   const t = useTheme();
   const [inp, setInp] = useState<Inputs>({ vessel_class: "PANAMAX_C", speed_kn: 16, load_ratio: 0.85, wind_speed_ms: 8,
@@ -54,10 +56,9 @@ export default function Predict() {
     <div className="grid page">
       <div className="page-head">
         <div>
-          <span className="kicker">Deliverable 1 · Prediction</span>
-          <h1>Fuel consumption prediction</h1>
-          <p>Q-PHYS combines ship physics with a QPSO-tuned monotone booster and a Matrix-Product-State tensor network
-            (a quantum-inspired model). Inputs follow the PS: speed, load, weather and vessel type.</p>
+          <span className="kicker">{tr("Deliverable 1 · Prediction")}</span>
+          <h1>{tr("Fuel consumption prediction")}</h1>
+          <p>{tr("Q-PHYS combines ship physics with a QPSO-tuned monotone booster and a Matrix-Product-State tensor network (a quantum-inspired model). Inputs follow the PS: speed, load, weather and vessel type.")}</p>
         </div>
         {card?.available && <span className="chip">test MAPE {card.test_metrics.MAPE.toFixed(2)}% · R² {card.test_metrics.R2.toFixed(3)} · 90% interval coverage {(100 * card.conformal.coverage).toFixed(0)}%</span>}
       </div>
@@ -95,8 +96,8 @@ export default function Predict() {
               unit={res ? Object.entries(res.fuel_mass_tpd as Record<string, number>).map(([k, v]) => `${k} ${fmt(v, 1)} t`).join(" + ") : ""} />
             <Stat label="Well-to-wake GHG" value={res ? fmt(res.wtw_co2e_tpd, 1) : "–"} unit={res ? `t CO₂e / day · TtW CO₂ ${fmt(res.co2_ttw_tpd, 1)} t` : ""} />
           </div>
-          <div className="card">
-            <div className="card-head"><h3>Speed-fuel curve at these conditions</h3><span className="muted small">{res?.source}</span></div>
+          <div className="card" data-tour="speedfuel">
+            <div className="card-head"><h3>{tr("Speed-fuel curve at these conditions")}</h3><span className="muted small">{res?.source}</span></div>
             {curve ? (
               <Plot ariaLabel="Fuel consumption versus speed with prediction interval" height={330} data={[
                 { type: "scatter", mode: "lines", x: curve.speed_kn, y: curve.hi, line: { width: 0 }, hoverinfo: "skip", showlegend: false },

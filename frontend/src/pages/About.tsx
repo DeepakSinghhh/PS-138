@@ -1,3 +1,5 @@
+import { useT } from "../lib/i18n";
+
 const DELIVERABLES = [
   ["1", "Fuel consumption prediction model", "Inputs speed, load, weather, vessel type; accuracy and statistical tests",
     "Q-PHYS: physics prior (IMO GHG4 + Kwon + SFOC) · Matrix-Product-State tensor network (qudit feature encoding, DMRG sweeps) · QPSO-tuned monotone booster · QIEA feature selection · split-conformal intervals · Wilcoxon tests"],
@@ -12,10 +14,11 @@ const DELIVERABLES = [
 ];
 
 export default function About() {
+  const tr = useT();
   return (
     <div className="grid page">
-      <div className="page-head"><div><span className="kicker">How it works</span><h1>Methodology</h1>
-        <p>SIH 2026 problem statement 26138 (Egreen Quanta): quantum-inspired fuel consumption prediction and green fleet optimization.</p></div></div>
+      <div className="page-head"><div><span className="kicker">{tr("How it works")}</span><h1>{tr("Methodology")}</h1>
+        <p>{tr("SIH 2026 problem statement 26138 (Egreen Quanta): quantum-inspired fuel consumption prediction and green fleet optimization.")}</p></div></div>
       <div className="card">
         <h3>How the platform meets the delivery table</h3>
         <div className="table-wrap"><table>

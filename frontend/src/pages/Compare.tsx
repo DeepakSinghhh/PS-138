@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Plot from "../components/Plot";
 import { useMoney } from "../lib/currency";
+import { useT } from "../lib/i18n";
 import { compact, fmt, pct } from "../lib/format";
 import { describeScenario, useSaved, type SavedPlan } from "../lib/saved";
 import { useStore } from "../lib/store";
@@ -35,6 +36,7 @@ export default function Compare() {
   const money = useMoney();
   const t = useTheme();
   const navigate = useNavigate();
+  const tr = useT();
   const [aId, setA] = useState<string | null>(null);
   const [bId, setB] = useState<string | null>(null);
   // default pair: the two most recently saved plans (older = A, newer = B)
@@ -74,15 +76,14 @@ export default function Compare() {
     <div className="grid page">
       <div className="page-head">
         <div>
-          <span className="kicker">Plans · scenarios · trade-offs</span>
-          <h1>Compare plans</h1>
-          <p>Save any plan from the optimizer, then put two side by side: the same network under different scenarios (a Red
-            Sea closure, a higher carbon price) or two points on one trade-off curve.</p>
+          <span className="kicker">{tr("Plans · scenarios · trade-offs")}</span>
+          <h1>{tr("Compare plans")}</h1>
+          <p>{tr("Save any plan from the optimizer, then put two side by side: the same network under different scenarios (a Red Sea closure, a higher carbon price) or two points on one trade-off curve.")}</p>
         </div>
       </div>
 
       <div className="card">
-        <div className="card-head"><h3>Saved plans</h3><span className="muted small">kept in this browser · {saved.length} of 12</span></div>
+        <div className="card-head"><h3>{tr("Saved plans")}</h3><span className="muted small">kept in this browser · {saved.length} of 12</span></div>
         {saved.length === 0 ? (
           <div className="empty">No saved plans yet. In the Fleet optimizer, pick a plan and press “Save plan”, then change the
             scenario, optimise again and save a second one.</div>
@@ -122,7 +123,7 @@ export default function Compare() {
         <>
           <div className="grid cols-2">
             <div className="card">
-              <div className="card-head"><h3>Side by side</h3><span className="muted small">B relative to A</span></div>
+              <div className="card-head"><h3>{tr("Side by side")}</h3><span className="muted small">B relative to A</span></div>
               <div className="table-wrap">
                 <table>
                   <thead><tr><th /><th className="n">A · {A.label}</th><th className="n">B · {B.label}</th><th className="n">B vs A</th></tr></thead>
@@ -140,7 +141,7 @@ export default function Compare() {
               </div>
             </div>
             <div className="card">
-              <div className="card-head"><h3>Fuel mix</h3><span className="muted small">share of fleet energy</span></div>
+              <div className="card-head"><h3>{tr("Fuel mix")}</h3><span className="muted small">share of fleet energy</span></div>
               <Plot ariaLabel="Fuel mix of plan A and plan B" height={250} config={{ displayModeBar: false }}
                 data={FAMILIES.filter((f) => (familyShares(A.plan, meta)[f] ?? 0) + (familyShares(B.plan, meta)[f] ?? 0) > 0.001).map((f) => ({
                   type: "bar", orientation: "h", name: FAMILY_LABEL[f] ?? f, marker: { color: familyColor(t, f), line: { color: t["surface-1"], width: 2 } },
@@ -155,7 +156,7 @@ export default function Compare() {
           </div>
 
           <div className="card">
-            <div className="card-head"><h3>Route by route</h3><span className="muted small">{rows.filter((r) => !r.same).length} of {rows.length} services differ</span></div>
+            <div className="card-head"><h3>{tr("Route by route")}</h3><span className="muted small">{rows.filter((r) => !r.same).length} of {rows.length} services differ</span></div>
             <div className="table-wrap">
               <table>
                 <thead><tr><th>Route</th><th>Service</th><th>A</th><th>B</th><th className="n">Δ GHG t CO₂e</th><th className="n">Δ cost {money.bigUnit}</th></tr></thead>

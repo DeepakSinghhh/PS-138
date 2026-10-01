@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import Plot from "../components/Plot";
 import PlanDetails from "../components/PlanDetails";
+import { useT } from "../lib/i18n";
 import ScenarioPanel from "../components/ScenarioPanel";
 import { api, followJob } from "../lib/api";
 import { useMoney } from "../lib/currency";
@@ -18,6 +19,7 @@ export default function Optimize() {
   const { scenario, meta, network, result, setResult, selected, setSelected, setError } = useStore();
   const t = useTheme();
   const money = useMoney();
+  const t_ = useT();
   const [algorithm, setAlgorithm] = useState("QMOEA-H");
   const [budget, setBudget] = useState(6000);
   const [running, setRunning] = useState(false);
@@ -112,39 +114,38 @@ export default function Optimize() {
     <div className="grid page">
       <div className="page-head">
         <div>
-          <span className="kicker">Deliverables 2–3 · Optimization</span>
-          <h1>Fleet optimizer</h1>
-          <p>Choose vessel mix, capacity, speed, fuel and shore power for every service, minimising fuel, well-to-wake
-            emissions and cost under demand, schedule, fleet, CII and FuelEU constraints.</p>
+          <span className="kicker">{t_("Deliverables 2–3 · Optimization")}</span>
+          <h1>{t_("Fleet optimizer")}</h1>
+          <p>{t_("Choose vessel mix, capacity, speed, fuel and shore power for every service, minimising fuel, well-to-wake emissions and cost under demand, schedule, fleet, CII and FuelEU constraints.")}</p>
         </div>
       </div>
       <ScenarioPanel />
       <div className="card">
         <div className="filters">
-          <label className="field">Algorithm
+          <label className="field">{t_("Algorithm")}
             <select value={algorithm} onChange={(e) => setAlgorithm(e.target.value)}>
               {meta && Object.entries(meta.algorithms).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
           </label>
-          <label className="field">Evaluation budget
+          <label className="field">{t_("Evaluation budget")}
             <select value={budget} onChange={(e) => setBudget(Number(e.target.value))}>
               {[2000, 4000, 6000, 10000, 20000].map((b) => <option key={b} value={b}>{fmt(b)} fleet plans</option>)}
             </select>
           </label>
-          <button className="btn primary" onClick={run} disabled={running || !scenario} style={{ height: 36 }}>
-            {running ? "Optimizing…" : "Run optimization"}
+          <button className="btn primary" data-tour="run" onClick={run} disabled={running || !scenario} style={{ height: 36 }}>
+            {running ? t_("Optimizing…") : t_("Run optimization")}
           </button>
           <div style={{ flex: 1, minWidth: 220 }}>
-            <div className="range-row"><span>{running ? (queued ? `waiting for ${queued} earlier run${queued > 1 ? "s" : ""} on the shared server` : feasibleSoFar ? "searching the Pareto front" : "looking for feasible plans") : result ? `${result.solutions.length} Pareto-optimal plans · ${fmt(result.evaluations)} evaluated` : "idle"}</span>
+            <div className="range-row"><span data-opt-done={result && !running ? "1" : undefined}>{running ? (queued ? t_("waiting for {n} earlier run(s) on the shared server", { n: queued }) : feasibleSoFar ? t_("searching the Pareto front") : t_("looking for feasible plans")) : result ? t_("{n} Pareto-optimal plans · {m} evaluated", { n: result.solutions.length, m: fmt(result.evaluations) }) : t_("idle")}</span>
               <span className="num">{Math.round(progress * 100)}%</span></div>
             <div className="progress"><div style={{ width: `${progress * 100}%` }} /></div>
           </div>
         </div>
       </div>
 
-      <div className="card">
+      <div className="card" data-tour="tradeoff">
         <div className="card-head">
-          <div><h3>Trade-off: emissions vs cost</h3>
+          <div><h3>{t_("Trade-off: emissions vs cost")}</h3>
             <p className="muted small">Each dot is a complete fleet plan that no other plan beats on every objective. Colour = {OBJ_SHORT[colorObj].toLowerCase()} ({OBJ_UNITS[colorObj]}).</p></div>
           <div className="segmented">
             <button className={view === "2d" ? "on" : ""} onClick={() => setView("2d")}>2-D</button>
@@ -168,9 +169,9 @@ export default function Optimize() {
         )}
         {result && (
           <div className="btn-row" style={{ marginTop: 8 }}>
-            <span className="small muted">Jump to:</span>
+            <span className="small muted">{t_("Jump to:")}</span>
             {Object.entries(result.picks).map(([k, i]) => (
-              <button key={k} className="btn" onClick={() => choose(i, PICK_LABEL[k] ?? k)}>{PICK_LABEL[k] ?? k}</button>
+              <button key={k} className="btn" onClick={() => choose(i, PICK_LABEL[k] ?? k)}>{t_(PICK_LABEL[k] ?? k)}</button>
             ))}
           </div>
         )}

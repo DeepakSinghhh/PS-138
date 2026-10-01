@@ -47,7 +47,7 @@ export default function QaoaCard() {
   const xy = res?.layers.xy ?? [];
   const best = xy[xy.length - 1];
   return (
-    <div className="card">
+    <div className="card" data-tour="qaoa">
       <div className="card-head">
         <div>
           <h3>Gate-model QAOA</h3>

@@ -4,6 +4,7 @@ import { api } from "../lib/api";
 import { fmt } from "../lib/format";
 import { useStore } from "../lib/store";
 import { algoColor, useTheme } from "../lib/theme";
+import { useT } from "../lib/i18n";
 
 const f3 = (v: number | null | undefined) => (v === null || v === undefined ? "–" : v.toFixed(3));
 const pval = (p: number) => (p < 0.001 ? "< 0.001" : p.toFixed(3));
@@ -11,6 +12,7 @@ const pval = (p: number) => (p < 0.001 ? "< 0.001" : p.toFixed(3));
 const isAblationOfOurs = (name: string) => name.startsWith("QMOEA-H w/o");
 
 export default function Benchmarks() {
+  const tr = useT();
   const t = useTheme();
   const { meta } = useStore();
   // "Unseen classes PANAMAX_C, SUPRAMAX" -> readable vessel-class names
@@ -28,13 +30,12 @@ export default function Benchmarks() {
 
   return (
     <div className="grid page">
-      <div className="page-head"><div><span className="kicker">Deliverable 5 · Experimental results</span><h1>Benchmarks</h1>
-        <p>The quantum-inspired methods against conventional prediction and optimization methods on accuracy, convergence
-          speed, solution quality and scalability, including cases where they do not win.</p></div></div>
+      <div className="page-head"><div><span className="kicker">{tr("Deliverable 5 · Experimental results")}</span><h1>{tr("Benchmarks")}</h1>
+        <p>{tr("The quantum-inspired methods against conventional prediction and optimization methods on accuracy, convergence speed, solution quality and scalability, including cases where they do not win.")}</p></div></div>
 
       {pred && (
         <>
-          <h2>Prediction</h2>
+          <h2>{tr("Prediction")}</h2>
           <div className="grid cols-3">
             {Object.entries(pred.scenarios as Record<string, any>).filter(([, s]) => !s.skipped).map(([k, s]) => (
               <div className="card" key={k}>
@@ -83,13 +84,13 @@ export default function Benchmarks() {
 
       {opt && (
         <>
-          <h2>Optimization</h2>
+          <h2>{tr("Optimization")}</h2>
           <div className="segmented" style={{ alignSelf: "start", justifySelf: "start" }}>
             {Object.keys(opt.instances).map((k) => <button key={k} className={inst === k ? "on" : ""} onClick={() => setInst(k)}>{k.replace(/_/g, " ")}</button>)}
           </div>
           {I && (
             <div className="grid cols-2">
-              <div className="card">
+              <div className="card" data-tour="frontquality">
                 <div className="card-head"><div><h3>Front quality</h3><p className="muted small">{opt.config.seeds} seeds · {fmt(opt.config.budget)} evaluations per run (hypervolume: higher is better)</p></div></div>
                 <div className="table-wrap"><table>
                   <thead><tr><th>Algorithm</th><th className="n">HV</th><th className="n">IGD+</th><th className="n">evals to 95 %</th><th className="n">best GHG t</th><th className="n">p (vs ours)</th></tr></thead>

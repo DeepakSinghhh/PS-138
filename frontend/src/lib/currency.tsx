@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useLang } from "./i18n";
 import { useStore } from "./store";
 
 /**
@@ -51,6 +52,8 @@ export interface Money {
 export function useMoney(): Money {
   const { currency } = useCurrency();
   const { meta } = useStore();
+  const { lang } = useLang();
+  const crore = lang === "hi" ? "करोड़" : "crore";
   const rate = (meta as { fx?: { usd_to_inr?: number } } | null)?.fx?.usd_to_inr ?? 88;
   return useMemo(() => {
     const inr = currency === "INR";
@@ -61,12 +64,12 @@ export function useMoney(): Money {
       if (musd === null || musd === undefined || Number.isNaN(musd)) return "–";
       const v = bigValue(musd);
       if (v === 0) return inr ? "₹0" : "$0"; // "₹0.0 crore" reads oddly for a zero penalty
-      return inr ? `₹${nf(v, digits ?? (Math.abs(v) < 10 ? 1 : 0))} crore` : `$${nf(v, digits ?? 1)} M`;
+      return inr ? `₹${nf(v, digits ?? (Math.abs(v) < 10 ? 1 : 0))} ${crore}` : `$${nf(v, digits ?? 1)} M`;
     };
     const bigSplit = (musd: number | null | undefined) => {
       if (musd === null || musd === undefined || Number.isNaN(musd)) return { value: "–", unit: "" };
       const v = bigValue(musd);
-      return inr ? { value: `₹${nf(v, Math.abs(v) < 10 ? 1 : 0)}`, unit: "crore" } : { value: `$${nf(v, 1)}`, unit: "million" };
+      return inr ? { value: `₹${nf(v, Math.abs(v) < 10 ? 1 : 0)}`, unit: crore } : { value: `$${nf(v, 1)}`, unit: "million" };
     };
     const unitValue = (usd: number) => (inr ? usd * rate : usd);
     const unit = (usd: number | null | undefined, digits = 0) =>
@@ -74,7 +77,7 @@ export function useMoney(): Money {
     const text = (s: string) =>
       s.replace(/USD\s*([\d,.]+)\s*M\b/g, (_, x) => big(parseFloat(x.replace(/,/g, ""))))
         .replace(/([\d,.]+)\s*M USD\b/g, (_, x) => big(parseFloat(x.replace(/,/g, ""))));
-    return { currency, inr, rate, bigValue, bigUnit: inr ? "crore ₹" : "M USD", big, bigSplit, unitValue,
+    return { currency, inr, rate, bigValue, bigUnit: inr ? `${crore} ₹` : "M USD", big, bigSplit, unitValue,
       unitLabel: inr ? "₹" : "USD", unit, text };
-  }, [currency, rate]);
+  }, [currency, rate, crore]);
 }

@@ -43,7 +43,7 @@
   --seq-100: #959ef9; --seq-300: #5f6cf6; --seq-500: #2a3cf5; --seq-700: #121a7a;
   --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
   --good-text: #17692d; --bad-text: #b3261e;
-  --font: "QGF Amp", "Archivo Variable", "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font: "QGF Amp", "Archivo Variable", "Archivo", "Noto Sans Devanagari Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
@@ -287,6 +287,13 @@ tr.mark td:first-child { box-shadow: inset 2px 0 0 var(--accent); padding-left: 
 .plot-loading { display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
 .inline-edit { height: 30px; width: 100%; min-width: 230px; padding: 0 6px; background: transparent; border-color: transparent; font-weight: 600; }
 .inline-edit:hover { border-color: var(--line); }
+:root[lang="hi"] h1, :root[lang="hi"] h2, :root[lang="hi"] h3, :root[lang="hi"] .brand-name { letter-spacing: 0; line-height: 1.25; }
+:root[lang="hi"] .page-head p, :root[lang="hi"] .tour-callout p { line-height: 1.7; }
+/* the mono label face has no Devanagari and its tracking splits conjuncts: Hindi labels use the text face */
+:root[lang="hi"] .kicker, :root[lang="hi"] .stat .label, :root[lang="hi"] label.field, :root[lang="hi"] th,
+:root[lang="hi"] .tour-count, :root[lang="hi"] .brand-sub, :root[lang="hi"] .card-head > .muted.small {
+  font-family: var(--font); letter-spacing: 0; text-transform: none; font-size: 12.5px;
+}
 .plain-list { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--text-primary); }
 .kbd { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--line); border-radius: 2px; padding: 0 5px; }
 

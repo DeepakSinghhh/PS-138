@@ -7,10 +7,12 @@ import { useMoney } from "../lib/currency";
 import { compact, fmt, pct } from "../lib/format";
 import { useStore } from "../lib/store";
 import { FAMILY_LABEL, familyColor, useTheme } from "../lib/theme";
+import { useT } from "../lib/i18n";
 
 const FUEL_FAMILY = (meta: any, fid: string) => meta?.fuels.find((f: any) => f.id === fid)?.family ?? "conventional";
 
 export default function Lab() {
+  const tr = useT();
   const { scenario, meta, selected, setError } = useStore();
   const money = useMoney();
   const t = useTheme();
@@ -53,14 +55,13 @@ export default function Lab() {
 
   return (
     <div className="grid page">
-      <div className="page-head"><div><span className="kicker">Scenario simulation · 2025–2050</span><h1>Fuel &amp; policy lab</h1>
-        <p>Scenario analysis for alternative fuels: how the optimal fleet shifts from 2025 to 2050, what each measure costs
-          per tonne abated, how robust a plan is, and how close quantum-inspired annealing gets to the exact optimum.</p></div></div>
+      <div className="page-head"><div><span className="kicker">{tr("Scenario simulation · 2025–2050")}</span><h1>{tr("Fuel & policy lab")}</h1>
+        <p>{tr("Scenario analysis for alternative fuels: how the optimal fleet shifts from 2025 to 2050, what each measure costs per tonne abated, how robust a plan is, and how close quantum-inspired annealing gets to the exact optimum.")}</p></div></div>
       <ScenarioPanel compact />
 
-      <div className="card">
+      <div className="card" data-tour="pathway">
         <div className="card-head">
-          <div><h3>Transition pathway 2025 → 2050</h3><p className="muted small">Each milestone year is optimised with QMOEA-H under that year's CII / FuelEU targets, prices and bunkering availability.</p></div>
+          <div><h3>{tr("Transition pathway 2025 → 2050")}</h3><p className="muted small">Each milestone year is optimised with QMOEA-H under that year's CII / FuelEU targets, prices and bunkering availability.</p></div>
           <div className="btn-row">
             <div className="segmented">
               {[["cost", "cheapest"], ["balanced", "balanced"], ["emissions", "greenest"]].map(([k, l]) => (

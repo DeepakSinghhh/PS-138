@@ -4,6 +4,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { Wordmark } from "./components/Logo";
 import Tour, { startTour } from "./components/Tour";
 import { useCurrency } from "./lib/currency";
+import { useLang, useT } from "./lib/i18n";
 import { useStore } from "./lib/store";
 
 // each page is its own chunk, fetched the first time it is opened
@@ -28,6 +29,7 @@ const NAV = [
 ];
 
 function ThemeToggle() {
+  const t = useT();
   const [theme, setTheme] = useState<string>(() => {
     try { return localStorage.getItem("qgf-theme") ?? "auto"; } catch { return "auto"; }
   });
@@ -38,7 +40,7 @@ function ThemeToggle() {
   }, [theme]);
   return (
     <div className="segmented theme-toggle" role="group" aria-label="Colour theme">
-      {["auto", "light", "dark"].map((k) => <button key={k} className={theme === k ? "on" : ""} onClick={() => setTheme(k)}>{k}</button>)}
+      {["auto", "light", "dark"].map((k) => <button key={k} className={theme === k ? "on" : ""} onClick={() => setTheme(k)}>{t(k)}</button>)}
     </div>
   );
 }
@@ -53,8 +55,19 @@ function CurrencyToggle() {
   );
 }
 
+function LangToggle() {
+  const { lang, setLang } = useLang();
+  return (
+    <div className="segmented theme-toggle" role="group" aria-label="Language">
+      {([["en", "English"], ["hi", "हिन्दी"]] as const).map(([k, l]) => (
+        <button key={k} lang={k} className={lang === k ? "on" : ""} onClick={() => setLang(k)}>{l}</button>))}
+    </div>
+  );
+}
+
 export default function App() {
   const { error, setError } = useStore();
+  const t = useT();
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);  // each page opens at the top
   useEffect(() => {  // warm the chart library after the first paint so later pages open instantly
@@ -66,13 +79,14 @@ export default function App() {
   return (
     <div className="app">
       <aside className="sidebar">
-        <Wordmark sub="green fleet decisions" />
+        <Wordmark sub={t("green fleet decisions")} />
         <nav className="nav">
-          {NAV.map((n) => <NavLink key={n.to} to={n.to} end={n.to === "/"}>{n.label}</NavLink>)}
+          {NAV.map((n) => <NavLink key={n.to} to={n.to} end={n.to === "/"}>{t(n.label)}</NavLink>)}
         </nav>
-        <button className="tour-link" onClick={startTour}>Guided tour (2 min)</button>
+        <button className="tour-link" onClick={startTour}>{t("Guided tour (2 min)")}</button>
         <div className="sidebar-foot">
           <span className="foot-credit"><b>SIH 2026</b> · PS 26138<br />Egreen Quanta</span>
+          <LangToggle />
           <CurrencyToggle />
           <ThemeToggle />
         </div>

@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { api } from "../lib/api";
 import { useMoney } from "../lib/currency";
+import { useT } from "../lib/i18n";
 import { shareUrl } from "../lib/share";
 import { useStore } from "../lib/store";
 import type { Obj } from "../lib/types";
 
 export default function ScenarioPanel({ compact = false }: { compact?: boolean }) {
   const { scenario, patchScenario, meta, network, setError } = useStore();
+  const t = useT();
   const [csv, setCsv] = useState("");
   const [showCsv, setShowCsv] = useState(false);
   const [showPrices, setShowPrices] = useState(false);
@@ -31,48 +33,48 @@ export default function ScenarioPanel({ compact = false }: { compact?: boolean }
 
   return (
     <div className="card">
-      <div className="card-head"><h3>Scenario</h3>
+      <div className="card-head"><h3>{t("Scenario")}</h3>
         {scenario.custom_routes && <span className="chip">custom network · {scenario.custom_routes.length} routes</span>}
       </div>
       <div className="filters">
-        <label className="field">Network
+        <label className="field">{t("Network")}
           <select value={scenario.custom_routes ? "custom" : scenario.network}
             onChange={(e) => e.target.value !== "custom" && patchScenario({ network: e.target.value, custom_routes: null })}>
-            {Object.entries(meta.networks).map(([k, v]) => <option key={k} value={k}>{v.name}</option>)}
+            {Object.entries(meta.networks).map(([k, v]) => <option key={k} value={k}>{t(v.name)}</option>)}
             {scenario.custom_routes && <option value="custom">Custom (uploaded)</option>}
           </select>
         </label>
-        <label className="field">Year
+        <label className="field">{t("Year")}
           <select value={scenario.year} onChange={(e) => patchScenario({ year: Number(e.target.value) })}>
             {[2025, 2026, 2027, 2028, 2030, 2032, 2035, 2040, 2045, 2050].map((y) => <option key={y}>{y}</option>)}
           </select>
         </label>
-        <label className="field">EU ETS price (€/t)
+        <label className="field">{t("EU ETS price (€/t)")}
           <input type="number" min={0} step={10} placeholder="auto" value={scenario.ets_price_eur ?? ""}
             onChange={(e) => patchScenario({ ets_price_eur: e.target.value === "" ? null : Number(e.target.value) })} />
         </label>
-        <label className="field">Global carbon levy ($/t)
+        <label className="field">{t("Global carbon levy ($/t)")}
           <input type="number" min={0} step={10} placeholder="0" value={scenario.global_levy_usd ?? ""}
             onChange={(e) => patchScenario({ global_levy_usd: e.target.value === "" ? null : Number(e.target.value) })} />
         </label>
-        <label className="field">Fuel price ×
+        <label className="field">{t("Fuel price ×")}
           <input type="number" min={0.3} max={3} step={0.1} value={scenario.fuel_price_multiplier}
             onChange={(e) => patchScenario({ fuel_price_multiplier: Number(e.target.value) || 1 })} />
         </label>
         <label className="field">FuelEU
           <select value={scenario.fueleu_mode} onChange={(e) => patchScenario({ fueleu_mode: e.target.value as "penalty" | "hard" })}>
-            <option value="penalty">pay penalty if non-compliant</option>
-            <option value="hard">must comply</option>
+            <option value="penalty">{t("pay penalty if non-compliant")}</option>
+            <option value="hard">{t("must comply")}</option>
           </select>
         </label>
         {!compact && (
-          <label className="field">Min. on-time probability
+          <label className="field">{t("Min. on-time probability")}
             <input type="number" min={0.5} max={0.99} step={0.05} value={scenario.on_time_min}
               onChange={(e) => patchScenario({ on_time_min: Number(e.target.value) })} />
           </label>
         )}
         {!compact && (
-          <label className="field">Min. CII rating
+          <label className="field">{t("Min. CII rating")}
             <select value={scenario.cii_min_rating} onChange={(e) => patchScenario({ cii_min_rating: e.target.value })}>
               {["A", "B", "C", "D", "E"].map((r) => <option key={r}>{r}</option>)}
             </select>
@@ -81,15 +83,15 @@ export default function ScenarioPanel({ compact = false }: { compact?: boolean }
       </div>
       <div className="btn-row" style={{ marginTop: 12 }}>
         <label className="check"><input type="checkbox" checked={scenario.red_sea_diversion}
-          onChange={(e) => patchScenario({ red_sea_diversion: e.target.checked })} />Red Sea closed (divert via Cape)</label>
+          onChange={(e) => patchScenario({ red_sea_diversion: e.target.checked })} />{t("Red Sea closed (divert via Cape)")}</label>
         <label className="check"><input type="checkbox" checked={scenario.monsoon}
-          onChange={(e) => patchScenario({ monsoon: e.target.checked })} />SW-monsoon sea state (+1 Bf)</label>
+          onChange={(e) => patchScenario({ monsoon: e.target.checked })} />{t("SW-monsoon sea state (+1 Bf)")}</label>
         {!compact && (
           <span className="btn-row" style={{ marginLeft: "auto" }}>
-            <span className="small muted">Objectives:</span>
+            <span className="small muted">{t("Objectives:")}</span>
             {objs.map((o) => (
               <label key={o} className="check"><input type="checkbox" checked={scenario.objectives.includes(o)} onChange={() => toggleObj(o)} />
-                {meta.objectives[o].split(" (")[0]}</label>
+                {t(meta.objectives[o].split(" (")[0])}</label>
             ))}
           </span>
         )}
@@ -97,10 +99,10 @@ export default function ScenarioPanel({ compact = false }: { compact?: boolean }
       {!compact && (
         <div style={{ marginTop: 10 }}>
           <div className="head-actions">
-            <button className="btn" onClick={() => setShowCsv((s) => !s)}>{showCsv ? "Hide" : "Upload your own routes (CSV)"}</button>
+            <button className="btn" onClick={() => setShowCsv((s) => !s)}>{showCsv ? t("Hide") : t("Upload your own routes (CSV)")}</button>
             <button className="btn" onClick={() => setShowPrices((v) => !v)}>
-              {showPrices ? "Hide fuel prices" : `Fuel prices${Object.keys(scenario.fuel_prices).length ? ` (${Object.keys(scenario.fuel_prices).length} edited)` : ""}`}</button>
-            <button className="btn" onClick={share} title="Copy a link that opens the dashboard with this scenario">{copied ? "Link copied" : "Copy share link"}</button>
+              {showPrices ? t("Hide fuel prices") : `${t("Fuel prices")}${Object.keys(scenario.fuel_prices).length ? ` (${Object.keys(scenario.fuel_prices).length} edited)` : ""}`}</button>
+            <button className="btn" onClick={share} title="Copy a link that opens the dashboard with this scenario">{copied ? t("Link copied") : t("Copy share link")}</button>
           </div>
           {showPrices && network && <PriceEditor />}
           {showCsv && (
