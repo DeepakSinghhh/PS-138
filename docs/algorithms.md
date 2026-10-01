@@ -170,6 +170,13 @@ Random guessing finds the best plan with 1.2 % probability (3.7 % for one of the
 with 192 CX gates. The state vector is simulated exactly on a classical computer; no quantum hardware was used and no speed-up is claimed.
 At shallow depth the circuit cannot separate near-tied plans; for example, shore power on a one-ship feeder changes the objective very little.
 
+**Under real-device noise.** `tools/ibm_quantum/run_qaoa_hardware.py` transpiles the same circuits for an IBM device
+and samples them, on real hardware when an `IBM_QUANTUM_TOKEN` is set, otherwise on Qiskit Aer with the device's
+noise model. With the IBM Torino (Heron, 133 qubits) noise model and 4,000 shots, the best plan comes out in 20.6 / 31.6 /
+28.8 % of shots at p = 1 / 2 / 3 (74 / 131 / 189 two-qubit gates after transpilation), and in 34 / 64 / 67 % of the
+shots that are valid plans. Noise erodes the deeper circuit, so p = 2 is the right depth for today's hardware. This is
+an emulation, not a hardware run ([reports/qaoa_noisy_emulation.md](../reports/qaoa_noisy_emulation.md)).
+
 ## 5. Classical baselines
 
 | Family | Methods |

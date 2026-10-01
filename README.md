@@ -83,7 +83,9 @@ comparison, including its own ablation without the route-wise merge (0.640 and 0
 min-cost (2.6 % vs 2.9 %).
 
 **Gate-model QAOA** (12 qubits, simulated exactly): the trained depth-3 circuit returns the best plan in 79 % of shots,
-against 1.2 % for random guessing and 2 % for the textbook X-mixer formulation.
+against 1.2 % for random guessing and 2 % for the textbook X-mixer formulation. Under the noise model of a real IBM
+device (Torino, emulated) the depth-2 circuit still returns the best plan in 32 % of shots, 64 % of the valid ones;
+`tools/ibm_quantum/` runs it on real IBM hardware once an `IBM_QUANTUM_TOKEN` is set.
 
 **Scalability** (synthetic networks, 5 seeds per size): QMOEA-H's cheapest plan is 2.2 %, 7.6 %, 6.0 % and 6.7 % above
 the exact minimum cost at 12, 25, 50 and 100 routes, against 6.0 %, 13.0 %, 16.1 % and 23.1 % for MOPSO. NSGA-II/III
@@ -163,7 +165,8 @@ suite, and `make bench-quick` to regenerate the benchmarks.
   converts at an editable rate (`usd_to_inr: 88` in `backend/config/prices.yaml`). The decision report follows the switch.
 - Everything runs on classical hardware. "Quantum-inspired" names the algorithms' mechanics: tensor networks,
   superposition/measurement, tunnelling, annealing. It is not a speed-up claim. The QAOA circuit is simulated exactly
-  (state vector) on a classical computer; the exported OpenQASM file is what would run on quantum hardware.
+  (state vector) on a classical computer; the exported OpenQASM file is what would run on quantum hardware. Its noisy
+  result is emulated with an IBM device's noise model; it has not yet been run on a real quantum computer.
 - **Real data**: FuelCast (3 ships) is used to evaluate prediction, and EU MRV (2023–2024) to validate the vessel library.
   FuelCast's licence (CC BY-NC-ND 4.0) allows non-commercial use but not redistribution of derivatives, so its files are
   not in the repository and the shipped model is trained on the physics-informed synthetic fleet. The optimizer needs

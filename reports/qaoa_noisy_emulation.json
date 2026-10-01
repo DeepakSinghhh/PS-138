@@ -1,0 +1,99 @@
+{
+ "where": "Qiskit Aer with the noise model of fake_torino (133 qubits), emulation",
+ "date": "2026-10-01",
+ "weights": {
+  "emissions": 0.5,
+  "cost": 0.5
+ },
+ "qubits": 12,
+ "valid_plans": 81,
+ "random_guess_p_optimal": 0.012345679012345678,
+ "optimum": {
+  "bits": "001001001001",
+  "probability": 0.7906407842244587,
+  "plan": [
+   "R01 \u00b7 1 \u00d7 Feeder container \u00b7 Bio-methanol \u00b7 14.1 kn \u00b7 shore power",
+   "R05 \u00b7 2 \u00d7 Ro-Pax ferry \u00b7 HFO (with scrubber) \u00b7 12.0 kn \u00b7 shore power",
+   "R06 \u00b7 1 \u00d7 Island passenger-cargo ship \u00b7 Bio-LNG \u00b7 10.0 kn",
+   "R09 \u00b7 6 \u00d7 Neo-Panamax container \u00b7 LNG (high-pressure Diesel cycle) \u00b7 14.3 kn \u00b7 shore power"
+  ],
+  "optimal": true
+ },
+ "services": [
+  "JNPT - Mundra coastal container",
+  "Chennai - Port Blair (Ro-Pax)",
+  "Kochi - Kavaratti (Lakshadweep)",
+  "Mundra - Rotterdam (Europe trade)"
+ ],
+ "results": [
+  {
+   "p": 1,
+   "depth": 118,
+   "two_qubit_gates": 74,
+   "shots": 4000,
+   "job_id": "0bf6baef-ea53-4415-ba2c-e633b2e064d8",
+   "raw": {
+    "p_optimal": 0.20575,
+    "p_top3": 0.254,
+    "p_valid": 0.598
+   },
+   "post_selected": {
+    "p_optimal": 0.3440635451505017,
+    "p_top3": 0.42474916387959866,
+    "valid_shots": 2392
+   },
+   "ideal": {
+    "p_optimal": 0.383653091042777,
+    "p_top3": 0.45399503274843733,
+    "p_valid": 0.9999999999999992
+   },
+   "most_frequent_is_optimal": true
+  },
+  {
+   "p": 2,
+   "depth": 210,
+   "two_qubit_gates": 131,
+   "shots": 4000,
+   "job_id": "865aeda0-8b1f-4493-a144-7fd1ee7485ea",
+   "raw": {
+    "p_optimal": 0.31575,
+    "p_top3": 0.35525,
+    "p_valid": 0.4905
+   },
+   "post_selected": {
+    "p_optimal": 0.6437308868501529,
+    "p_top3": 0.7242609582059123,
+    "valid_shots": 1962
+   },
+   "ideal": {
+    "p_optimal": 0.7655673589670483,
+    "p_top3": 0.8224586268120905,
+    "p_valid": 1.0000000000000002
+   },
+   "most_frequent_is_optimal": true
+  },
+  {
+   "p": 3,
+   "depth": 268,
+   "two_qubit_gates": 189,
+   "shots": 4000,
+   "job_id": "d154d22d-965c-406d-a784-7223872c2431",
+   "raw": {
+    "p_optimal": 0.2885,
+    "p_top3": 0.31875,
+    "p_valid": 0.43375
+   },
+   "post_selected": {
+    "p_optimal": 0.6651296829971182,
+    "p_top3": 0.7348703170028819,
+    "valid_shots": 1735
+   },
+   "ideal": {
+    "p_optimal": 0.7906407842244587,
+    "p_top3": 0.8430863041167529,
+    "p_valid": 1.0000000000000004
+   },
+   "most_frequent_is_optimal": true
+  }
+ ]
+}

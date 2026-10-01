@@ -320,6 +320,7 @@ def run_qaoa(problem: FleetProblem, weights: dict[str, float], n_routes: int = 4
         "valid_plans": len(plans), "coupled_pairs": int((sub.P > 0).sum()), "labels": sub.labels,
         "weights": weights, "random_guess_p_optimal": 1 / len(plans), "random_guess_p_top3": len(top3) / len(plans),
         "optimum": describe(true_opt["index"]), "qubo_matches_full_model": bool(qubo_opt["index"] == true_opt["index"]),
+        "top3_indices": [int(i) for i in top3],
         "layers": {m: [{kk: v for kk, v in r.items()} for r in results[m]["layers"]] for m in results},
         "top_plans": [describe(i) for i in top],
         "qasm": to_qasm(sub, best_layer["gammas"], best_layer["betas"]),

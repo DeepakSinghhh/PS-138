@@ -1,0 +1,4 @@
+# Optional: only for tools/ibm_quantum/run_qaoa_hardware.py (not needed by the app)
+qiskit>=2.0
+qiskit-aer>=0.17
+qiskit-ibm-runtime>=0.40
