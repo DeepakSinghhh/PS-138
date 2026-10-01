@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { api } from "../lib/api";
+import { useMoney } from "../lib/currency";
 import { shareUrl } from "../lib/share";
 import { useStore } from "../lib/store";
 import type { Obj } from "../lib/types";
 
 export default function ScenarioPanel({ compact = false }: { compact?: boolean }) {
-  const { scenario, patchScenario, meta, setError } = useStore();
+  const { scenario, patchScenario, meta, network, setError } = useStore();
   const [csv, setCsv] = useState("");
   const [showCsv, setShowCsv] = useState(false);
+  const [showPrices, setShowPrices] = useState(false);
   const [copied, setCopied] = useState(false);
   if (!scenario || !meta) return null;
   const share = async () => {
@@ -96,8 +98,11 @@ export default function ScenarioPanel({ compact = false }: { compact?: boolean }
         <div style={{ marginTop: 10 }}>
           <div className="head-actions">
             <button className="btn" onClick={() => setShowCsv((s) => !s)}>{showCsv ? "Hide" : "Upload your own routes (CSV)"}</button>
+            <button className="btn" onClick={() => setShowPrices((v) => !v)}>
+              {showPrices ? "Hide fuel prices" : `Fuel prices${Object.keys(scenario.fuel_prices).length ? ` (${Object.keys(scenario.fuel_prices).length} edited)` : ""}`}</button>
             <button className="btn" onClick={share} title="Copy a link that opens the dashboard with this scenario">{copied ? "Link copied" : "Copy share link"}</button>
           </div>
+          {showPrices && network && <PriceEditor />}
           {showCsv && (
             <div className="grid" style={{ marginTop: 10 }}>
               <p className="small muted">Columns: <span className="kbd">id,name,port_a,port_b,service,cargo,demand,classes</span> ·
@@ -117,6 +122,51 @@ export default function ScenarioPanel({ compact = false }: { compact?: boolean }
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Per-fuel price overrides (USD per tonne, the currency bunker prices are quoted in), next to the scenario default. */
+function PriceEditor() {
+  const { scenario, patchScenario, meta, network } = useStore();
+  const money = useMoney();
+  if (!scenario || !meta || !network) return null;
+  const used = Array.from(new Set(network.routes.flatMap((r) => r.fuels.map((f) => f.id))));
+  const defaults = network.prices.fuel_default_usd_per_t ?? network.prices.fuel_usd_per_t;
+  const fuels = meta.fuels.filter((f) => used.includes(f.id));
+  const set = (id: string, v: string) => {
+    const next = { ...scenario.fuel_prices };
+    if (v === "" || Number.isNaN(Number(v))) delete next[id]; else next[id] = Math.max(0, Number(v));
+    patchScenario({ fuel_prices: next });
+  };
+  const basis = meta.price_basis;
+  return (
+    <div style={{ marginTop: 14 }}>
+      <p className="small muted" style={{ maxWidth: 760 }}>
+        {basis?.as_of ? `Price basis: ${basis.as_of}. ` : ""}{basis?.note ?? "Scenario defaults, not a live market feed."} Defaults
+        for {scenario.year}{scenario.fuel_price_multiplier !== 1 ? `, × ${scenario.fuel_price_multiplier}` : ""}; prices are entered in
+        USD per tonne, as bunker fuel is traded{money.inr ? ` (₹ at ${money.rate} per USD)` : ""}.</p>
+      <div className="table-wrap">
+        <table>
+          <thead><tr><th>Fuel</th><th className="n">Default USD / t</th>{money.inr && <th className="n">≈ ₹ / t</th>}<th>Your price, USD / t</th><th /></tr></thead>
+          <tbody>
+            {fuels.map((f) => {
+              const own = scenario.fuel_prices[f.id];
+              const eff = own ?? defaults[f.id];
+              return (
+                <tr key={f.id} className={own !== undefined ? "mark" : undefined}>
+                  <td>{f.label}</td>
+                  <td className="n">{Math.round(defaults[f.id] ?? 0).toLocaleString("en-US")}</td>
+                  {money.inr && <td className="n">{money.unit(eff)}</td>}
+                  <td><input type="number" min={0} step={10} aria-label={`${f.label} price, USD per tonne`} style={{ width: 130 }}
+                    placeholder={String(Math.round(defaults[f.id] ?? 0))} value={own ?? ""} onChange={(e) => set(f.id, e.target.value)} /></td>
+                  <td>{own !== undefined && <button className="btn" onClick={() => set(f.id, "")}>Reset</button>}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

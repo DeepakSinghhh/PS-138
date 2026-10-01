@@ -17,6 +17,7 @@ from greenfleet.config import (
     NETWORKS,
     REPORTS_DIR,
     fuel_library,
+    interp_year,
     load_routes,
     ports,
     prices,
@@ -123,6 +124,7 @@ def meta() -> dict:
         "objectives": OBJECTIVE_LABELS, "algorithms": {k: v[0] for k, v in ALGORITHMS.items()},
         "default_scenario": Scenario().to_dict(),
         "fx": {"usd_to_inr": float(prices().get("usd_to_inr", 88.0)), "eur_to_usd": float(prices().get("eur_to_usd", 1.1))},
+        "price_basis": prices().get("price_basis", {}),
         "regulations": {
             "cii_reduction_pct": reg["cii"]["reduction_pct"],
             "fueleu_targets": {int(y): fueleu.target_intensity(int(y)) for y in (2025, 2030, 2035, 2040, 2045, 2050)},
@@ -152,7 +154,10 @@ def _network(sc: Scenario) -> dict:
     base = p.describe(p.baseline_genes("current_practice"))
     slow = p.describe(p.baseline_genes("slow_steaming"))
     return {"name": rs.name, "year": rs.year, "routes": routes, "notes": rs.notes,
-            "prices": {"fuel_usd_per_t": rs.fuel_price, "ets_usd_per_t": rs.ets_price_usd, "levy_usd_per_t": rs.global_levy_usd},
+            "prices": {"fuel_usd_per_t": rs.fuel_price, "ets_usd_per_t": rs.ets_price_usd, "levy_usd_per_t": rs.global_levy_usd,
+                       # scenario default for this year (x multiplier) before any per-fuel override, for the price editor
+                       "fuel_default_usd_per_t": {f: interp_year(prices()["fuel_usd_per_t"][f], rs.year) * sc.fuel_price_multiplier
+                                                  for f in rs.fuel_price}},
             "fueleu_target": p.fe_target, "cii_reduction_pct": cii.reduction_pct(rs.year),
             "baselines": {"current_practice": base, "slow_steaming": slow},
             "baseline_genes": {"current_practice": genes_to_json(p.baseline_genes("current_practice")),

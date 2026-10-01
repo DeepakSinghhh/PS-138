@@ -30,6 +30,10 @@ def test_network_and_baselines():
     r = client.post("/api/network", json={"scenario": {"network": "india", "year": 2030}}).json()
     assert len(r["routes"]) == 12 and "current_practice" in r["baselines"]
     assert all(len(rt["geometry"]) >= 2 for rt in r["routes"])
+    ov = client.post("/api/network", json={"scenario": {"network": "india", "year": 2030, "fuel_prices": {"LNG_HP": 400}}}).json()
+    assert ov["prices"]["fuel_usd_per_t"]["LNG_HP"] == 400                      # the override is used
+    assert ov["prices"]["fuel_default_usd_per_t"]["LNG_HP"] != 400              # the default stays visible
+    assert client.get("/api/meta").json()["price_basis"]["as_of"]
 
 
 def test_predict_returns_curve_and_alt_fuel():

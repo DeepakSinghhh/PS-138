@@ -3,6 +3,11 @@
 # inputs (2026 snapshot + stylised trajectories), not forecasts: every value can
 # be overridden from the UI or the API.
 
+# What the defaults are, shown next to the price editor in the dashboard.
+price_basis:
+  as_of: "January 2026"
+  note: "Scenario defaults: indicative 2026 price levels with stylised trajectories to 2050. Not a live market feed; edit any fuel's price for your own case."
+
 eur_to_usd: 1.10
 # Display currency only: the model works in USD (bunker fuel, charter and shipping finance are quoted in USD);
 # the dashboard and the decision report can show rupees at this rate (2026 scenario assumption, editable).

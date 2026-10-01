@@ -83,6 +83,7 @@ export interface Meta {
   default_scenario: Scenario;
   regulations: { cii_reduction_pct: Record<string, number>; fueleu_targets: Record<string, number>; fueleu_reference: number; ets_phase_in: Record<string, number> };
   fx?: { usd_to_inr: number; eur_to_usd: number };
+  price_basis?: { as_of?: string; note?: string };
 }
 
 export interface NetworkInfo {
@@ -90,7 +91,7 @@ export interface NetworkInfo {
   routes: { id: string; name: string; ports: string[]; service: string; cargo: string; demand: number; demand_unit: string;
             distance_nm: number; geometry: number[][]; classes: string[]; fuels: { id: string; label: string; family: string }[];
             shore_power_share: number; eu_scope: number; beaufort: number }[];
-  prices: { fuel_usd_per_t: Record<string, number>; ets_usd_per_t: number; levy_usd_per_t: number };
+  prices: { fuel_usd_per_t: Record<string, number>; fuel_default_usd_per_t?: Record<string, number>; ets_usd_per_t: number; levy_usd_per_t: number };
   fueleu_target: number; cii_reduction_pct: number;
   baselines: { current_practice: Plan; slow_steaming: Plan };
   baseline_genes: { current_practice: Genes; slow_steaming: Genes };
