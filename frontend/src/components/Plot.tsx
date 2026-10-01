@@ -1,9 +1,36 @@
+import { useEffect, useState, type ComponentType } from "react";
 import createPlotlyComponent from "react-plotly.js/factory";
-import Plotly from "plotly.js-dist-min";
 import type { Data, Layout, Config } from "plotly.js";
 import { useTheme } from "../lib/theme";
+import ErrorBoundary from "./ErrorBoundary";
 
-const PlotlyComponent = createPlotlyComponent(Plotly);
+// Plotly is the bulk of the app's JavaScript, so it is loaded on demand and in two partial builds: the 2-D
+// "cartesian" build for every chart, and the WebGL 3-D build only when a chart actually needs scatter3d.
+type Kind = "cartesian" | "gl3d";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PlotlyComp = ComponentType<any>;
+const LOADERS: Record<Kind, () => Promise<{ default: unknown }>> = {
+  cartesian: () => import("plotly.js-cartesian-dist-min"),
+  gl3d: () => import("plotly.js-gl3d-dist-min"),
+};
+const loaded: Partial<Record<Kind, PlotlyComp>> = {};
+const pending: Partial<Record<Kind, Promise<PlotlyComp>>> = {};
+function loadPlotly(kind: Kind): Promise<PlotlyComp> {
+  pending[kind] ??= LOADERS[kind]().then((m) => (loaded[kind] = createPlotlyComponent(m.default) as PlotlyComp));
+  return pending[kind]!;
+}
+/** Fetch the 2-D chart build in the background once the first page has rendered. */
+export const preloadCharts = () => { void loadPlotly("cartesian"); };
+function usePlotly(kind: Kind): PlotlyComp | null {
+  const [comp, setComp] = useState<PlotlyComp | null>(() => loaded[kind] ?? null);
+  useEffect(() => {
+    let live = true;
+    if (loaded[kind]) setComp(() => loaded[kind]!);
+    else loadPlotly(kind).then((c) => { if (live) setComp(() => c); });
+    return () => { live = false; };
+  }, [kind]);
+  return comp;
+}
 const SANS = '"Archivo Variable", "Archivo", system-ui, sans-serif';
 const MONO = '"IBM Plex Mono", ui-monospace, monospace';
 
@@ -19,6 +46,7 @@ interface Props {
 /** Theme-aware Plotly wrapper: recessive hairline grid, Archivo text with mono tick labels, ink hover labels. */
 export default function Plot({ data, layout, height = 320, config, onClick, ariaLabel }: Props) {
   const t = useTheme();
+  const PlotlyComponent = usePlotly(data.some((d) => d.type === "scatter3d") ? "gl3d" : "cartesian");
   // numeric ticks in mono; category labels (service names, models) stay in the text face
   const categorical = (k: "x" | "y") => data.some((d) => {
     const v = (d as Record<string, unknown>)[k];
@@ -51,14 +79,16 @@ export default function Plot({ data, layout, height = 320, config, onClick, aria
   }
   return (
     <div role="img" aria-label={ariaLabel}>
-      <PlotlyComponent
+      <ErrorBoundary variant="inline" resetKey={data}>
+      {!PlotlyComponent ? <div className="plot-loading" style={{ height }}>Loading chart…</div> : <PlotlyComponent
         data={data}
         layout={merged}
         config={{ displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d"], ...config }}
         style={{ width: "100%" }}
         useResizeHandler
         onClick={onClick}
-      />
+      />}
+      </ErrorBoundary>
     </div>
   );
 }

@@ -126,13 +126,13 @@ body {{ font: 13px/1.55 'Archivo', 'Helvetica Neue', Arial, system-ui, sans-seri
 main {{ max-width: 980px; margin: 0 auto; padding: 28px 24px 60px; }}
 h1 {{ font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.03em; margin: 18px 0 6px; }} h2 {{ font-size: 18px; font-weight: 700; line-height: 1.3; margin: 34px 0 12px; border-top: 1px solid #121518; padding-top: 10px; }}
 .brand {{ display: flex; align-items: center; gap: 10px; padding-bottom: 14px; border-bottom: 2px solid #121518; }}
-.bn {{ font-size: 17px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; }} .bs {{ font: 10.5px 'IBM Plex Mono', ui-monospace, monospace; color: #6e7279; letter-spacing: .08em; text-transform: uppercase; }}
-.muted {{ color: #6e7279; }} table {{ border-collapse: collapse; width: 100%; font-size: 12px; }}
+.bn {{ font-size: 17px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; }} .bs {{ font: 10.5px 'IBM Plex Mono', ui-monospace, monospace; color: #63676e; letter-spacing: .08em; text-transform: uppercase; }}
+.muted {{ color: #63676e; }} table {{ border-collapse: collapse; width: 100%; font-size: 12px; }}
 th, td {{ border-bottom: 1px solid #dcd8cf; padding: 5px 8px 5px 0; text-align: left; vertical-align: top; }}
-th {{ font: 10.5px 'IBM Plex Mono', ui-monospace, monospace; color: #6e7279; border-bottom-color: #121518; }} td.n {{ text-align: right; font-variant-numeric: tabular-nums; }} td.c {{ text-align: center; font-weight: 700; }}
+th {{ font: 10.5px 'IBM Plex Mono', ui-monospace, monospace; color: #63676e; border-bottom-color: #121518; }} td.n {{ text-align: right; font-variant-numeric: tabular-nums; }} td.c {{ text-align: center; font-weight: 700; }}
 .rA {{ color: #047857; }} .rB {{ color: #15803d; }} .rC {{ color: #a16207; }} .rD {{ color: #c2410c; }} .rE {{ color: #b91c1c; }}
 .kpis {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px; margin: 16px 0; }}
-.kpi {{ border-top: 1px solid #121518; padding-top: 8px; }} .kl {{ font: 10px 'IBM Plex Mono', ui-monospace, monospace; color: #6e7279; text-transform: uppercase; letter-spacing: .07em; }}
+.kpi {{ border-top: 1px solid #121518; padding-top: 8px; }} .kl {{ font: 10px 'IBM Plex Mono', ui-monospace, monospace; color: #63676e; text-transform: uppercase; letter-spacing: .07em; }}
 .kv {{ font-size: 26px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }} .ku {{ color: #4a4f56; font-size: 11px; }}
 .delta {{ font-size: 12px; margin-top: 2px; }} .good {{ color: #17692d; }} .bad {{ color: #b3261e; }}
 .note {{ border-left: 2px solid #121518; padding: 2px 0 2px 14px; margin: 14px 0; }}

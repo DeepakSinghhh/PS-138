@@ -1,16 +1,19 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { NavLink, Route, Routes, useLocation } from "react-router-dom";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { Wordmark } from "./components/Logo";
 import Tour, { startTour } from "./components/Tour";
 import { useCurrency } from "./lib/currency";
 import { useStore } from "./lib/store";
-import About from "./pages/About";
-import Benchmarks from "./pages/Benchmarks";
-import Compliance from "./pages/Compliance";
-import Lab from "./pages/Lab";
-import Optimize from "./pages/Optimize";
-import Overview from "./pages/Overview";
-import Predict from "./pages/Predict";
+
+// each page is its own chunk, fetched the first time it is opened
+const About = lazy(() => import("./pages/About"));
+const Benchmarks = lazy(() => import("./pages/Benchmarks"));
+const Compliance = lazy(() => import("./pages/Compliance"));
+const Lab = lazy(() => import("./pages/Lab"));
+const Optimize = lazy(() => import("./pages/Optimize"));
+const Overview = lazy(() => import("./pages/Overview"));
+const Predict = lazy(() => import("./pages/Predict"));
 
 const NAV = [
   { to: "/", label: "Overview" },
@@ -52,6 +55,10 @@ export default function App() {
   const { error, setError } = useStore();
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);  // each page opens at the top
+  useEffect(() => {  // warm the chart library after the first paint so later pages open instantly
+    const t = window.setTimeout(() => { void import("./components/Plot").then((m) => m.preloadCharts()); }, 1200);
+    return () => window.clearTimeout(t);
+  }, []);
   // section number shown before each page's kicker ("02 — …"), matching the numbered navigation
   const section = `"${String(Math.max(0, NAV.findIndex((n) => n.to === pathname)) + 1).padStart(2, "0")}"`;
   return (
@@ -75,6 +82,8 @@ export default function App() {
             <button className="btn" onClick={() => setError(null)}>Dismiss</button>
           </div>
         )}
+        <ErrorBoundary resetKey={pathname}>
+        <Suspense fallback={<div className="plot-loading" style={{ minHeight: 240 }}>Loading…</div>}>
         <Routes>
           <Route path="/" element={<Overview />} />
           <Route path="/optimize" element={<Optimize />} />
@@ -84,6 +93,8 @@ export default function App() {
           <Route path="/benchmarks" element={<Benchmarks />} />
           <Route path="/about" element={<About />} />
         </Routes>
+        </Suspense>
+        </ErrorBoundary>
       </main>
       <Tour />
     </div>

@@ -7,6 +7,7 @@ import "leaflet/dist/leaflet.css";
 import { FAMILY_LABEL, familyColor, useTheme } from "../lib/theme";
 import type { Meta, NetworkInfo, RoutePlan } from "../lib/types";
 import { fmt } from "../lib/format";
+import ErrorBoundary from "./ErrorBoundary";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const LAND = feature(land110 as any, (land110 as any).objects.land) as any;
@@ -38,6 +39,7 @@ export default function FleetMap({ network, plan, meta, height = 420 }: Props) {
   return (
     <div>
       <div className="map" style={{ height }}>
+        <ErrorBoundary variant="inline" resetKey={network.name}>
         <MapContainer key={network.name + network.routes.length + t.land} bounds={bounds} scrollWheelZoom={false}
           style={{ height: "100%", width: "100%" }} attributionControl={false} worldCopyJump>
           <GeoJSON data={LAND} style={{ color: t.coast, weight: 0.7, fillColor: t.land, fillOpacity: 1 }} />
@@ -64,6 +66,7 @@ export default function FleetMap({ network, plan, meta, height = 420 }: Props) {
             </CircleMarker>
           ))}
         </MapContainer>
+        </ErrorBoundary>
       </div>
       {plan && (
         <div className="legend" style={{ marginTop: 8 }}>
