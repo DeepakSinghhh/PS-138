@@ -9,6 +9,7 @@ import { useStore } from "./lib/store";
 // each page is its own chunk, fetched the first time it is opened
 const About = lazy(() => import("./pages/About"));
 const Benchmarks = lazy(() => import("./pages/Benchmarks"));
+const Compare = lazy(() => import("./pages/Compare"));
 const Compliance = lazy(() => import("./pages/Compliance"));
 const Lab = lazy(() => import("./pages/Lab"));
 const Optimize = lazy(() => import("./pages/Optimize"));
@@ -18,6 +19,7 @@ const Predict = lazy(() => import("./pages/Predict"));
 const NAV = [
   { to: "/", label: "Overview" },
   { to: "/optimize", label: "Fleet optimizer" },
+  { to: "/compare", label: "Compare plans" },
   { to: "/predict", label: "Fuel prediction" },
   { to: "/lab", label: "Fuel & policy lab" },
   { to: "/compliance", label: "Compliance" },
@@ -87,6 +89,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Overview />} />
           <Route path="/optimize" element={<Optimize />} />
+          <Route path="/compare" element={<Compare />} />
           <Route path="/predict" element={<Predict />} />
           <Route path="/lab" element={<Lab />} />
           <Route path="/compliance" element={<Compliance />} />

@@ -71,3 +71,19 @@ test("a shared link opens the dashboard with its scenario", async ({ page }) => 
   await page.goto(`/?s=${param}`);
   await expect(page.getByText("Scenario overview · 2040")).toBeVisible();
 });
+
+test("two saved plans can be compared side by side", async ({ page }) => {
+  await page.goto("/optimize");
+  await page.getByRole("button", { name: "Run optimization" }).click();
+  await expect(page.getByText("Pareto-optimal plans ·")).toBeVisible({ timeout: 120_000 });
+  await page.getByRole("button", { name: "Save plan" }).click();
+  await page.getByRole("button", { name: "Minimum cost", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Minimum cost" })).toBeVisible();
+  await page.getByRole("button", { name: "Save plan" }).click();
+  await page.getByRole("link", { name: "Compare plans", exact: true }).first().click();
+  await expect(page.getByRole("heading", { name: "Side by side" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Route by route" })).toBeVisible();
+  await expect(page.getByText(/services differ/)).toBeVisible();
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: `${shots}/07_compare.png`, fullPage: true });
+});

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Plot from "./Plot";
 import Stat from "./Stat";
 import FleetMap from "./FleetMap";
 import { downloadReport } from "../lib/api";
 import { useMoney } from "../lib/currency";
+import { useSaved } from "../lib/saved";
 import { compact, fmt, pct } from "../lib/format";
 import { FAMILY_LABEL, familyColor, useTheme } from "../lib/theme";
 import type { Genes, Meta, NetworkInfo, Plan, Scenario } from "../lib/types";
@@ -17,6 +19,9 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
   const t = useTheme();
   const money = useMoney();
   const [busy, setBusy] = useState(false);
+  const { save } = useSaved();
+  const [savedAs, setSavedAs] = useState<string | null>(null);
+  useEffect(() => setSavedAs(null), [genes]);   // a different plan has not been saved yet
   const ex = plan.explanation;
   const d = ex?.delta_pct ?? {};
   const routes = [...plan.routes].sort((a, b) => b.wtw_co2e_t - a.wtw_co2e_t);
@@ -32,10 +37,18 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
           <p className="muted small">{plan.fleet.ships} ships on {plan.routes.length} services · {plan.feasible
             ? "all constraints satisfied" : `violates: ${Object.entries(plan.violations).filter(([, v]) => v > 0).map(([k]) => k).join(", ")}`}</p>
         </div>
-        <button className="btn primary" disabled={busy} onClick={async () => {
-          setBusy(true);
-          try { await downloadReport(scenario, genes, algorithm, money.currency); } finally { setBusy(false); }
-        }}>{busy ? "Building report…" : "Download decision report"}</button>
+        <div className="btn-row">
+          <button className="btn" onClick={() => {
+            const name = `${label} · ${scenario.year}${scenario.red_sea_diversion ? " · Red Sea closed" : ""}`;
+            save({ label: name, plan, genes, scenario, algorithm });
+            setSavedAs(name);
+          }}>{savedAs ? "Saved ✓" : "Save plan"}</button>
+          {savedAs && <Link className="btn" to="/compare">Compare plans</Link>}
+          <button className="btn primary" disabled={busy} onClick={async () => {
+            setBusy(true);
+            try { await downloadReport(scenario, genes, algorithm, money.currency); } finally { setBusy(false); }
+          }}>{busy ? "Building report…" : "Download decision report"}</button>
+        </div>
       </div>
 
       <div className="grid cols-4">

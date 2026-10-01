@@ -148,7 +148,8 @@ suite, and `make bench-quick` to regenerate the benchmarks.
 2. **Fleet optimizer**: press *Run optimization*. The Pareto front streams in live, far from the grey reference plans. Click
    *Recommended*: roughly −60 % GHG, −50 % fuel and −20 % cost, all constraints satisfied. Read the explanation, hover the map,
    then click *Minimum emissions* to show the ammonia/methanol extreme. Download the decision report.
-3. **Scenario levers**: tick *Red Sea closed*. The Europe service reroutes via the Cape (6,348 → 11,027 nm); re-run and compare.
+3. **Scenario levers**: press *Save plan*, tick *Red Sea closed* (the Europe service reroutes via the Cape, 6,348 → 11,027 nm),
+   re-run and save again. *Compare plans* puts the two side by side, route by route.
 4. **Fuel prediction**: move the speed and wave sliders. The conformal band tracks the prediction, which sits next to the
    physics-only curve. Switch the fuel system to e-ammonia. Show the tensor-network entanglement chart.
 5. **Fuel & policy lab**: run the 2025→2050 pathway (conventional → LNG → e-ammonia), then the MACC. Anneal the QUBO and
