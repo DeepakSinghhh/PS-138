@@ -163,8 +163,10 @@ suite, and `make bench-quick` to regenerate the benchmarks.
 - **Real data**: FuelCast (3 ships) is used to evaluate prediction, and EU MRV (2023–2024) to validate the vessel library.
   FuelCast's licence (CC BY-NC-ND 4.0) allows non-commercial use but not redistribution of derivatives, so its files are
   not in the repository and the shipped model is trained on the physics-informed synthetic fleet. The optimizer needs
-  that fleet anyway: its vessel classes, alternative fuels and India routes have no public telemetry. See
-  [docs/data_card.md](docs/data_card.md) for download commands.
+  that fleet anyway: its vessel classes, alternative fuels and India routes have no public telemetry. The Kaggle
+  "ship fuel consumption" set was downloaded too, but it fails basic physical checks (random route lengths, the same
+  CO₂ factor for diesel and HFO, no weather effect), so nothing relies on it. See [docs/data_card.md](docs/data_card.md)
+  for the audit and download commands.
 - Alternative-fuel prices, bunkering-availability years and e-fuel well-to-tank factors are scenario assumptions (cited
   and editable in `backend/config/`).
 - QMOEA-H was tuned on the India instance. The EU and synthetic networks test generalisation, and the benchmark reports

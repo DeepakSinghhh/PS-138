@@ -7,7 +7,7 @@
 | **Physics-informed synthetic fleet telemetry** (`greenfleet/data/synthetic.py`) | generated (~47k rows, 20 ships, 10 vessel classes, 1 year, 3-hourly) | prediction training and benchmark scenarios A–C; optimizer fuel surrogate |
 | **FuelCast** (Hugging Face `krohnedigital/FuelCast`, CC BY-NC-ND 4.0): 2 cruise ships + 1 offshore supply vessel, 5-minute sensor logs with hindcast wind, waves and currents | **used**: 86,757 samples under way (> 3 kn) | prediction benchmark scenario D (real data), **evaluation only**: the files are not redistributed (`data/raw` is git-ignored) and the production model is trained on synthetic data |
 | **EU MRV / THETIS-MRV** (EMSA public emission reports, 2023 and 2024): annual per-ship fuel, CO₂, distance, time at sea, transport work | **used**: 26,999 ship-years (23,009 after plausibility filters) | vessel-library validation (`reports/mrv_validation.md`) |
-| Kaggle "Ship Fuel Consumption & CO₂ Emissions" (Nigerian waterways) | loader ready; not downloaded (needs a Kaggle account token) | secondary tabular set (ship type, fuel type, weather, distance, engine efficiency) |
+| Kaggle "Ship Fuel Consumption & CO₂ Emissions Analysis" (`jeleeladekunlefijabi/…`, CC BY-NC-SA 4.0; Nigerian waterways, 1,440 rows) | downloaded and audited; **not used**, because it fails physical plausibility checks (see below) | – (the loader still reads it into `data/processed`) |
 | `searoute` maritime network (bundled with the Python package) | used | sea distances and route geometry |
 | Regulatory parameters (IMO MEPC.353/354/338/400; FuelEU Regulation 2023/1805 Annex II; EU ETS Directive 2023/959) | encoded in `config/regulations.yaml`, `config/fuels.yaml` | emissions and compliance |
 
@@ -37,6 +37,15 @@ Engine power, rpm, torque and engine load are **excluded** as target leakage. Th
   distance = total fuel / fuel per n mile; average speed = distance / time at sea; average cargo carried = fuel per
   n mile / fuel per tonne-n mile of transport work (mass-based for bulk carriers, tankers and container ships,
   deadweight-based for some types); at-berth share = CO₂ at berth in EU ports / total CO₂.
+
+- **Kaggle ship-fuel set (audited, rejected)**: it does not behave like measured data, so no result in this project
+  relies on it:
+  - a fixed route (e.g. Lagos–Apapa) has trip distances spread uniformly between 20 and 500 n miles;
+  - CO₂ per tonne of fuel is 2.75 ± 0.15 for both diesel and HFO, where real factors are fixed and fuel-specific
+    (HFO 3.114, MGO/diesel 3.206);
+  - fuel per mile does not rise in bad weather (calm 29.5, moderate 28.2, stormy 28.1 units per n mile);
+  - engine efficiency is uncorrelated with fuel per mile (r = −0.003);
+  - the table is exactly 120 ships × 12 months.
 
 Download commands (full network access):
 
