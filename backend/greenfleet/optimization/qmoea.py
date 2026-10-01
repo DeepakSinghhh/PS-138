@@ -252,7 +252,8 @@ class QMOEAH:
         idx = np.array(keep)
         return (g.take(idx), F[idx], CV[idx], rank[idx], crowd[idx], *(e[idx] for e in extras))
 
-    def run(self, tracker: Tracker, callback=None) -> RunResult:
+    def run(self, tracker: Tracker, callback=None, seeds: Genes | None = None) -> RunResult:
+        """``seeds``: optional plans placed in the initial population (e.g. MILP warm start, see warmstart.py)."""
         cfg, prob, rng = self.cfg, self.problem, self.rng
         N, R = cfg.pop_size, prob.R
         # exploration and local tunnelling grow (sub-linearly) with network size: large fleets need more
@@ -264,6 +265,9 @@ class QMOEAH:
         archive = Archive(max_size=cfg.archive_size)
 
         pop = prob.random_genes(N, rng)            # measurement of the uniform superposition
+        if seeds is not None and len(seeds.u):     # warm start: at most a quarter seeded, the rest stays random
+            k = min(len(seeds.u), max(1, N // 4))
+            pop.cat[:k], pop.u[:k] = seeds.cat[:k], seeds.u[:k]
         F, CV, RV, RF = tracker.evaluate(pop, route_cv=True, route_f=True)
         archive.update(pop, F, CV, RV)
         pop, F, CV, rank, crowd, RV, RF = self._survive(pop, F, CV, N, RV, RF)

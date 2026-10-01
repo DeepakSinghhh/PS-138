@@ -172,3 +172,18 @@ def test_route_violations_include_attributed_fleet_availability():
     attributed = (parts["route_cv"] - route_only).sum(axis=1)
     assert v_avail.max() > 0                              # the random plans do over-use some class
     assert np.allclose(attributed, v_avail)               # the per-route shares add up to the fleet-level violation
+
+
+def test_exact_warm_start_gives_feasible_seeds_and_hybrid_keeps_feasibility():
+    from greenfleet.optimization.warmstart import exact_seeds
+
+    p = FleetProblem(resolve(synthetic_scenario(50, seed=7)))
+    ws = exact_seeds(p, time_limit=30)
+    assert ws.n >= 3                                   # extremes (+ compromises), duplicates removed
+    F, CV = p.evaluate(ws.genes)[:2]
+    assert (CV <= 1e-9).all()                          # MILP plans satisfy every constraint by construction
+    tr = Tracker(p, 1500)
+    QMOEAH(p, seed=0).run(tr, seeds=ws.genes)
+    assert tr.archive.feasible
+    i = p.objectives.index("cost")
+    assert tr.archive.F[:, i].min() <= F[:, i].min() + 1e-6   # never loses the seeds' best cost

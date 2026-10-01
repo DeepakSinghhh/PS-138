@@ -29,6 +29,7 @@ from greenfleet.optimization.classical_moo import run_pymoo
 from greenfleet.optimization.problem import FleetProblem, Genes, state_draft_ratio
 from greenfleet.optimization.qmoea import QMOEAH, QMOEARegister
 from greenfleet.optimization.swarm import MOPSO, MOQPSO, RandomSearchMO
+from greenfleet.optimization.warmstart import exact_seeds
 from greenfleet.physics.emissions import burn, wtw_g_per_mj
 from greenfleet.prediction.physics_model import NominalPhysics
 from greenfleet.regulations import cii, fueleu
@@ -38,6 +39,9 @@ from greenfleet.scenarios.scenario import OBJECTIVE_LABELS, Scenario, resolve
 
 ALGORITHMS = {
     "QMOEA-H": ("QMOEA-H (quantum-inspired, ours)", lambda p, t, s, cb: QMOEAH(p, seed=s).run(t, callback=cb)),
+    # hybrid: MILP-optimal plans seed the population (feasible start on very large networks)
+    "QMOEA-H+MILP": ("QMOEA-H + exact warm start (hybrid, for large networks)",
+                     lambda p, t, s, cb: QMOEAH(p, seed=s).run(t, callback=cb, seeds=exact_seeds(p, time_limit=20).genes)),
     "MOQPSO": ("MOQPSO (quantum-inspired)", lambda p, t, s, cb: MOQPSO(p, seed=s).run(t, callback=cb)),
     "QMOEA-R": ("QMOEA-R (register population)", lambda p, t, s, cb: QMOEARegister(p, seed=s).run(t, callback=cb)),
     "MOPSO": ("MOPSO (classical)", lambda p, t, s, cb: MOPSO(p, seed=s).run(t, callback=cb)),

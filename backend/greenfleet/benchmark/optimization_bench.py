@@ -28,12 +28,19 @@ from greenfleet.optimization.options import enumerate_options, objective_scales
 from greenfleet.optimization.problem import FleetProblem
 from greenfleet.optimization.qmoea import QMOEAH, QMOEAHConfig, QMOEARegister
 from greenfleet.optimization.swarm import MOPSO, MOQPSO, RandomSearchMO
+from greenfleet.optimization.warmstart import exact_seeds
 from greenfleet.scenarios.instances import synthetic_scenario
 from greenfleet.scenarios.scenario import Scenario, resolve
 
 OURS = "QMOEA-H (ours)"
+HYBRID = "QMOEA-H + exact seeds (hybrid)"
+NSGA_SEEDED = "NSGA-II + exact seeds"
 ALGORITHMS = {
     OURS: lambda p, t, s: QMOEAH(p, seed=s).run(t),
+    # warm-started variants: the MILP seeds are recomputed inside every run, so their solve time is
+    # included in the reported seconds; NSGA-II gets the same seeds to separate the seeds' effect from the search
+    HYBRID: lambda p, t, s: QMOEAH(p, seed=s).run(t, seeds=exact_seeds(p).genes),
+    NSGA_SEEDED: lambda p, t, s: run_pymoo("NSGA-II", p, t, s, seeds=exact_seeds(p).genes),
     "QMOEA-H w/o route merge (ablation)": lambda p, t, s: QMOEAH(p, QMOEAHConfig(route_merge=0.0), seed=s).run(t),
     "MOQPSO (ablation)": lambda p, t, s: MOQPSO(p, seed=s).run(t),
     "QMOEA-R (ablation)": lambda p, t, s: QMOEARegister(p, seed=s).run(t),
@@ -45,6 +52,7 @@ ALGORITHMS = {
     "Random search": lambda p, t, s: RandomSearchMO(p, seed=s).run(t),
 }
 CORE = [OURS, "MOPSO", "NSGA-II", "NSGA-III"]
+LARGE = CORE + [HYBRID, NSGA_SEEDED]      # large networks: also the MILP-warm-started variants
 
 
 @dataclass
@@ -218,13 +226,15 @@ def qubo_comparison(cfg: OptBenchConfig, log) -> dict:
     return out
 
 
-def scalability(cfg: OptBenchConfig, log) -> dict:
-    rows = []
+def scalability(cfg: OptBenchConfig, log, done: list[dict] | None = None, checkpoint=None) -> dict:
+    rows = list(done or [])
     for n in cfg.scal_sizes:
+        if any(r["routes"] == n for r in rows):      # resumed: this size is already in the checkpoint
+            continue
         sc = synthetic_scenario(n, seed=7)
         problem = FleetProblem(resolve(sc))
         budget = int(cfg.budget * max(1.0, n / 12) ** 0.5)
-        runs = run_algorithms(problem, CORE, cfg.scal_seeds, budget)
+        runs = run_algorithms(problem, LARGE, cfg.scal_seeds, budget)
         summ = summarise(runs, problem)
         opts = enumerate_options(problem, 5)
         t0 = time.perf_counter()
@@ -233,7 +243,7 @@ def scalability(cfg: OptBenchConfig, log) -> dict:
         exact_val = problem.evaluate(exact_cost.genes)[0][0, problem.objectives.index("cost")] if exact_cost.genes is not None else None
         row = {"routes": n, "ships_available": int(problem.available.sum()), "budget": budget,
                "milp_min_cost_seconds": milp_secs, "milp_status": exact_cost.status, "algorithms": {}}
-        for name in CORE:
+        for name in LARGE:
             t = summ["table"][name]
             best_cost = t["best_objective_mean"].get("cost")
             row["algorithms"][name] = {
@@ -243,7 +253,9 @@ def scalability(cfg: OptBenchConfig, log) -> dict:
             }
         rows.append(row)
         log(f"[optimization] scalability {n} routes done")
-    return {"rows": rows}
+        if checkpoint:
+            checkpoint(rows)
+    return {"rows": sorted(rows, key=lambda r: r["routes"])}
 
 
 def _checkpoint(out: dict) -> None:
@@ -256,13 +268,29 @@ def _checkpoint(out: dict) -> None:
         json.dump(out, fh, default=float)
 
 
-def run(cfg: OptBenchConfig | None = None, log=print) -> dict:
+def run(cfg: OptBenchConfig | None = None, log=print, resume: dict | None = None) -> dict:
+    """``resume``: a partial result (``optimization_benchmark.partial.json``) whose finished stages are kept."""
     warnings.filterwarnings("ignore")
     cfg = cfg or OptBenchConfig.quick()
     t0 = time.perf_counter()
-    out: dict = {"config": {k: v for k, v in cfg.__dict__.items()}, "instances": {}}
+    conf = {k: (list(v) if isinstance(v, tuple) else v) for k, v in cfg.__dict__.items()}
+    if resume and resume.get("config") == conf:
+        out = resume
+        log("[optimization] resuming: " + ", ".join(list(out.get("instances", {})) +
+                                                    [k for k in ("exact", "qubo") if k in out]))
+    else:
+        out = {"config": conf, "instances": {}}
+    prev_seconds = out.pop("elapsed_seconds", 0.0)
+
+    def save():
+        out["elapsed_seconds"] = prev_seconds + time.perf_counter() - t0
+        _checkpoint(out)
+        out.pop("elapsed_seconds")
+
     for key, sc in (("india_2030", Scenario(network="india", year=2030)),
                     ("eu_2030", Scenario(network="eu", year=2030))):
+        if key in out["instances"]:
+            continue
         log(f"[optimization] {key}: {len(cfg.algorithms)} algorithms x {cfg.seeds} seeds x {cfg.budget} evaluations")
         problem = FleetProblem(resolve(sc))
         runs = run_algorithms(problem, cfg.algorithms, cfg.seeds, cfg.budget)
@@ -270,21 +298,30 @@ def run(cfg: OptBenchConfig | None = None, log=print) -> dict:
         base = problem.evaluate(problem.baseline_genes("current_practice"))[0][0]
         summ["current_practice"] = dict(zip(problem.objectives, map(float, base)))
         out["instances"][key] = summ
-        _checkpoint(out)
-    log("[optimization] large-scale synthetic network (100 routes)")
-    big = FleetProblem(resolve(synthetic_scenario(100, seed=11)))
-    runs = run_algorithms(big, CORE, cfg.large_seeds, cfg.large_budget)
-    summ = summarise(runs, big)
-    summ["ships_available"] = int(big.available.sum())
-    out["instances"]["synthetic_100_routes"] = summ
-    _checkpoint(out)
-    log("[optimization] exact MILP comparison")
-    out["exact"] = exact_comparison(cfg, log)
-    _checkpoint(out)
-    log("[optimization] QUBO / annealing comparison")
-    out["qubo"] = qubo_comparison(cfg, log)
-    _checkpoint(out)
+        save()
+    if "synthetic_100_routes" not in out["instances"]:
+        log("[optimization] large-scale synthetic network (100 routes)")
+        big = FleetProblem(resolve(synthetic_scenario(100, seed=11)))
+        runs = run_algorithms(big, LARGE, cfg.large_seeds, cfg.large_budget)
+        summ = summarise(runs, big)
+        summ["ships_available"] = int(big.available.sum())
+        out["instances"]["synthetic_100_routes"] = summ
+        save()
+    if "exact" not in out:
+        log("[optimization] exact MILP comparison")
+        out["exact"] = exact_comparison(cfg, log)
+        save()
+    if "qubo" not in out:
+        log("[optimization] QUBO / annealing comparison")
+        out["qubo"] = qubo_comparison(cfg, log)
+        save()
     log("[optimization] scalability sweep")
-    out["scalability"] = scalability(cfg, log)
-    out["seconds"] = time.perf_counter() - t0
+
+    def scal_checkpoint(rows):
+        out["scalability_partial"] = rows
+        save()
+
+    out["scalability"] = scalability(cfg, log, out.pop("scalability_partial", None), scal_checkpoint)
+    out.pop("scalability_partial", None)
+    out["seconds"] = prev_seconds + time.perf_counter() - t0
     return out

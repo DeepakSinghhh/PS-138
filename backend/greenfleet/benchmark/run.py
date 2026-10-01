@@ -1,4 +1,4 @@
-"""Benchmark runner: ``python -m greenfleet.benchmark.run [--quick|--full] [--only prediction|optimization]``.
+"""Benchmark runner: ``python -m greenfleet.benchmark.run [--quick|--full] [--only prediction|optimization] [--resume]``.
 
 Without a flag the optimization benchmark uses its published configuration (10 seeds); --quick is a smoke run.
 """
@@ -25,11 +25,13 @@ def run_prediction(full: bool) -> dict:
     return res
 
 
-def run_optimization(full: bool, quick: bool = False) -> dict:
+def run_optimization(full: bool, quick: bool = False, resume: bool = False) -> dict:
     from greenfleet.benchmark import optimization_bench as ob
 
     cfg = ob.OptBenchConfig.full() if full else ob.OptBenchConfig.quick() if quick else ob.OptBenchConfig()
-    res = ob.run(cfg)
+    partial = REPORTS_DIR / "optimization_benchmark.partial.json"
+    prev = json.loads(partial.read_text()) if resume and partial.exists() else None
+    res = ob.run(cfg, resume=prev)
     figs = report.optimization_figures(res)
     with open(REPORTS_DIR / "optimization_benchmark.json", "w") as fh:
         json.dump(res, fh, indent=1, default=float)
@@ -43,11 +45,12 @@ def main() -> None:
     mode.add_argument("--quick", action="store_true")
     mode.add_argument("--full", action="store_true")
     ap.add_argument("--only", choices=["prediction", "optimization"])
+    ap.add_argument("--resume", action="store_true", help="continue the optimization benchmark from its checkpoint")
     args = ap.parse_args()
     if args.only in (None, "prediction"):
         run_prediction(args.full)
     if args.only in (None, "optimization"):
-        run_optimization(args.full, args.quick)
+        run_optimization(args.full, args.quick, args.resume)
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ from pymoo.optimize import minimize
 from pymoo.util.ref_dirs import get_reference_directions
 
 from greenfleet.optimization.archive import Archive, Tracker
-from greenfleet.optimization.problem import FleetProblem
+from greenfleet.optimization.problem import FleetProblem, Genes
 from greenfleet.optimization.qmoea import RunResult
 
 
@@ -52,7 +52,8 @@ def _ref_dirs(n_obj: int, pop: int):
 
 
 def run_pymoo(name: str, problem: FleetProblem, tracker: Tracker, seed: int = 0, pop_size: int = 40,
-              callback=None) -> RunResult:
+              callback=None, seeds: Genes | None = None) -> RunResult:
+    """``seeds``: optional plans placed in the initial population (same warm start as QMOEA-H)."""
     from pymoo.algorithms.moo.moead import MOEAD
     from pymoo.algorithms.moo.nsga2 import NSGA2
     from pymoo.algorithms.moo.nsga3 import NSGA3
@@ -73,6 +74,12 @@ def run_pymoo(name: str, problem: FleetProblem, tracker: Tracker, seed: int = 0,
         penalty = np.maximum(np.abs(base), 1e-9)
     else:
         raise ValueError(name)
+    if seeds is not None and len(seeds.u):
+        n0 = getattr(algo, "pop_size", None) or pop_size
+        X0 = np.random.default_rng(seed).random((n0, problem.n_keys))
+        k = min(len(seeds.u), max(1, n0 // 4))
+        X0[:k] = problem.encode_keys(seeds.take(np.arange(k)))
+        algo.initialization.sampling = X0
     minimize(_PymooProblem(problem, tracker, penalty), algo, ("n_eval", tracker.budget), seed=seed,
              callback=_Stop(tracker, callback), verbose=False)
     arch: Archive = tracker.archive

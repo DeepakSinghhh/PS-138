@@ -124,11 +124,24 @@ sub-linearly with the number of routes (as listed above), and leaves 12-route be
 availability, QMOEA-H's cheapest plan is 2.2 / 7.6 / 6.0 / 6.7 % above the exact MILP minimum cost at 12 / 25 / 50 / 100
 routes, against 6.0 / 13.0 / 16.1 / 23.1 % for MOPSO. It is the only method feasible in every seed on the tight
 100-route network. Limitations:
-- at 200 routes no metaheuristic reaches feasibility, even with 120,000 evaluations: only fleet availability stays
-  violated (about 10 % over-use of one class). An availability repair (moving services to classes with spare ships) or a
-  MILP warm start are the obvious next steps; the MILP itself solves this size in about 2 s;
+- at 200 routes no metaheuristic reaches feasibility from a random start, even with 120,000 evaluations: only fleet
+  availability stays violated (about 10 % over-use of one class). The exact warm start below closes this gap;
 - one of five 12-route runs ended infeasible;
 - per evaluation QMOEA-H is 3–5× slower than MOPSO in wall-clock time.
+
+### Exact warm start: QMOEA-H + MILP seeds (`optimization/warmstart.py`)
+
+A random initial population almost never satisfies demand, schedule, CII and fleet availability together on a very
+large network, so the search can spend its whole budget finding the feasible region. The multiple-choice MILP over
+discretised speeds solves even 200-route networks in seconds and its plans are feasible by construction. The hybrid
+solves it for five weight vectors (cost, emissions and fuel minima, an equal-weight and a cost-leaning compromise),
+removes duplicates, and places the plans in a quarter of QMOEA-H's initial population; the rest stays a random
+measurement of the uniform superposition. QMOEA-H then refines speeds continuously and fills the trade-off front between
+the seeds.
+
+To separate what the seeds contribute from what the search adds, the benchmark also runs **NSGA-II with the same
+seeds**. The seeds' MILP time is counted in the reported run time. In the dashboard the hybrid is the algorithm
+"QMOEA-H + exact warm start"; the default stays the pure quantum-inspired QMOEA-H, which needs no solver.
 
 ### Gate-model QAOA (`quantum/qaoa.py`)
 Everything above runs on classical hardware. QAOA writes a piece of the fleet problem as a gate-based quantum circuit.

@@ -56,6 +56,13 @@ def test_optimize_job_streams_and_returns_front():
     assert rep.status_code == 200 and "Fleet allocation" in rep.text
 
 
+def test_optimize_with_exact_warm_start():
+    j = client.post("/api/optimize", json={"scenario": {"network": "india", "year": 2030}, "budget": 800,
+                                           "algorithm": "QMOEA-H+MILP"}).json()
+    res = _wait(j["id"])["result"]
+    assert res["feasible"] and "hybrid" in res["algorithm"]
+
+
 def test_plan_evaluation_by_readable_plan_and_robustness():
     body = {"scenario": {"network": "india", "year": 2030},
             "plan": [{"route_id": "R09", "fuel": "LNG_HP", "extra_ships": 2, "speed_u": 0.0, "shore_power": True}]}
