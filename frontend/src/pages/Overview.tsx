@@ -13,7 +13,7 @@ export default function Overview() {
   const ex = plan?.explanation;
   const base = network?.baselines.current_practice;
   return (
-    <div className="grid" style={{ gap: 16 }}>
+    <div className="grid page">
       <div className="page-head">
         <div>
           <span className="kicker">Scenario overview · {scenario?.year}</span>
@@ -32,7 +32,7 @@ export default function Overview() {
           {ex ? (
             <>
               <span className="kicker">{selected?.label} · emissions vs today</span>
-              <span className="hero">{ex.delta_pct.emissions > 0 ? "+" : "−"}{Math.abs(ex.delta_pct.emissions).toFixed(0)}%<small>well-to-wake GHG</small></span>
+              <span className="hero accent">{ex.delta_pct.emissions > 0 ? "+" : "−"}{Math.abs(ex.delta_pct.emissions).toFixed(0)}%<small>well-to-wake GHG</small></span>
               <span className="secondary">fuel {ex.delta_pct.fuel.toFixed(0)}% · cost {ex.delta_pct.cost > 0 ? "+" : ""}{ex.delta_pct.cost.toFixed(0)}% ·
                 {" "}{plan!.fleet.ships} ships · {plan!.feasible ? "all constraints met" : "constraints violated"}</span>
             </>

@@ -13,7 +13,7 @@ const DELIVERABLES = [
 
 export default function About() {
   return (
-    <div className="grid" style={{ gap: 16 }}>
+    <div className="grid page">
       <div className="page-head"><div><span className="kicker">How it works</span><h1>Methodology</h1>
         <p>SIH 2026 problem statement 26138 (Egreen Quanta): quantum-inspired fuel consumption prediction and green fleet optimization.</p></div></div>
       <div className="card">

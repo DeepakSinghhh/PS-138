@@ -27,6 +27,8 @@ class Money:
         return musd * self.rate / 10 if self.inr else musd
 
     def big(self, musd: float) -> str:
+        if musd == 0:                                    # "₹0 crore" reads oddly for a zero penalty
+            return "₹0" if self.inr else "USD 0"
         return f"₹{self.big_value(musd):,.0f} crore" if self.inr else f"USD {musd:,.1f} M"
 
     def per_t(self, usd: float | None) -> str:
@@ -52,7 +54,7 @@ def _bar_svg(items: list[tuple[str, float, str]], unit: str, width: int = 640, b
         y = pad + i * (bar_h + pad)
         w = (width - label_w - 90) * v / vmax
         out.append(f'<text x="{label_w - 8}" y="{y + bar_h * 0.72}" text-anchor="end" font-size="11" fill="#374151">{_e(label)}</text>')
-        out.append(f'<rect x="{label_w}" y="{y}" width="{max(w, 1):.1f}" height="{bar_h}" rx="3" fill="{color}"/>')
+        out.append(f'<rect x="{label_w}" y="{y}" width="{max(w, 1):.1f}" height="{bar_h}" rx="1" fill="{color}"/>')
         out.append(f'<text x="{label_w + w + 6:.1f}" y="{y + bar_h * 0.72}" font-size="11" fill="#111827">{v:,.0f} {unit}</text>')
     out.append("</svg>")
     return "".join(out)
@@ -81,7 +83,7 @@ def render(plan: dict, scenario: dict, explanation: dict | None = None, macc: di
     families = {r["fuel"]: r["fuel_family"] for r in plan["routes"]}
     route_items = sorted(((f"{r['route_id']} {r['name'][:26]}", r["wtw_co2e_t"], FUEL_COLORS.get(r["fuel_family"], "#9ca3af"))
                           for r in plan["routes"]), key=lambda t: -t[1])
-    cost_items = sorted(((f"{r['route_id']} {r['name'][:26]}", money.big_value(sum(r["cost_usd"].values()) / 1e6), "#0b74a8")
+    cost_items = sorted(((f"{r['route_id']} {r['name'][:26]}", money.big_value(sum(r["cost_usd"].values()) / 1e6), "#2a3cf5")
                          for r in plan["routes"]), key=lambda t: -t[1])
     fe = plan["fleet"]["fueleu"]
     rows = "".join(
@@ -120,24 +122,24 @@ def render(plan: dict, scenario: dict, explanation: dict | None = None, macc: di
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Q-GreenFleet decision report</title>
 <style>
-body {{ font: 13px/1.55 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #0b1f33; background: #fff; margin: 0; }}
+body {{ font: 13px/1.55 'Archivo', 'Helvetica Neue', Arial, system-ui, sans-serif; color: #121518; background: #f3f1ec; margin: 0; }}
 main {{ max-width: 980px; margin: 0 auto; padding: 28px 24px 60px; }}
-h1 {{ font-size: 26px; font-weight: 800; line-height: 1.2; letter-spacing: -.02em; margin: 0 0 4px; color: #0a2a5e; }} h2 {{ font-size: 17px; font-weight: 800; line-height: 1.3; margin: 30px 0 10px; border-bottom: 2px solid #e1eaf2; padding-bottom: 6px; color: #0a2a5e; }}
-.brand {{ display: flex; align-items: center; gap: 10px; margin: -28px -24px 22px; padding: 18px 24px; color: #fff; background: linear-gradient(115deg, #0a2a5e 0%, #0b6e99 55%, #17a884 100%); }}
-.bn {{ font-size: 18px; font-weight: 800; line-height: 1.1; }} .bs {{ font-size: 11px; color: #bfeee0; letter-spacing: .08em; text-transform: uppercase; }}
-.muted {{ color: #6b7a83; }} table {{ border-collapse: collapse; width: 100%; font-size: 12px; }}
-th, td {{ border-bottom: 1px solid #e3e9ec; padding: 5px 6px; text-align: left; vertical-align: top; }}
-th {{ background: #f0f3f5; font-weight: 600; color: #4a5c66; }} td.n {{ text-align: right; font-variant-numeric: tabular-nums; }} td.c {{ text-align: center; font-weight: 700; }}
+h1 {{ font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.03em; margin: 18px 0 6px; }} h2 {{ font-size: 18px; font-weight: 700; line-height: 1.3; margin: 34px 0 12px; border-top: 1px solid #121518; padding-top: 10px; }}
+.brand {{ display: flex; align-items: center; gap: 10px; padding-bottom: 14px; border-bottom: 2px solid #121518; }}
+.bn {{ font-size: 17px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; }} .bs {{ font: 10.5px 'IBM Plex Mono', ui-monospace, monospace; color: #6e7279; letter-spacing: .08em; text-transform: uppercase; }}
+.muted {{ color: #6e7279; }} table {{ border-collapse: collapse; width: 100%; font-size: 12px; }}
+th, td {{ border-bottom: 1px solid #dcd8cf; padding: 5px 8px 5px 0; text-align: left; vertical-align: top; }}
+th {{ font: 10.5px 'IBM Plex Mono', ui-monospace, monospace; color: #6e7279; border-bottom-color: #121518; }} td.n {{ text-align: right; font-variant-numeric: tabular-nums; }} td.c {{ text-align: center; font-weight: 700; }}
 .rA {{ color: #047857; }} .rB {{ color: #15803d; }} .rC {{ color: #a16207; }} .rD {{ color: #c2410c; }} .rE {{ color: #b91c1c; }}
-.kpis {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 14px 0; }}
-.kpi {{ border: 1px solid #e1eaf2; border-top: 3px solid #17a884; border-radius: 12px; padding: 10px 12px; }} .kl {{ color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }}
-.kv {{ font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }} .ku {{ color: #6b7280; font-size: 11px; }}
-.delta {{ font-size: 12px; margin-top: 2px; }} .good {{ color: #047857; }} .bad {{ color: #b91c1c; }}
-.note {{ background: #e2f2fa; border-left: 4px solid #0b74a8; border-radius: 0 10px 10px 0; padding: 10px 14px; margin: 12px 0; }}
-.legend span {{ display: inline-block; margin-right: 12px; font-size: 11px; }} .legend i {{ display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }}
+.kpis {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px; margin: 16px 0; }}
+.kpi {{ border-top: 1px solid #121518; padding-top: 8px; }} .kl {{ font: 10px 'IBM Plex Mono', ui-monospace, monospace; color: #6e7279; text-transform: uppercase; letter-spacing: .07em; }}
+.kv {{ font-size: 26px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }} .ku {{ color: #4a4f56; font-size: 11px; }}
+.delta {{ font-size: 12px; margin-top: 2px; }} .good {{ color: #17692d; }} .bad {{ color: #b3261e; }}
+.note {{ border-left: 2px solid #121518; padding: 2px 0 2px 14px; margin: 14px 0; }}
+.legend span {{ display: inline-block; margin-right: 12px; font-size: 11px; }} .legend i {{ display: inline-block; width: 10px; height: 10px; border-radius: 1px; margin-right: 4px; vertical-align: -1px; }}
 @media print {{ main {{ padding: 0; }} h2 {{ break-after: avoid; }} table {{ break-inside: auto; }} tr {{ break-inside: avoid; }} }}
 </style></head><body><main>
-<div class="brand"><svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><mask id="wl"><rect width="64" height="64" fill="#fff"/><path d="M0 34 C8 29 14 29 21 33.5 S33 38 40 33.5 S54 29 64 34" stroke="#000" stroke-width="10.5" fill="none"/></mask><circle cx="32" cy="32" r="18.5" fill="none" stroke="#ffffff" stroke-width="5.2" mask="url(#wl)"/><path d="M5 34 C11.5 30.1 16 30.1 22.2 33.8 S34.4 37.6 40.6 33.8 S52 30.1 59 33.3" stroke="#6ff0c8" stroke-width="4.6" stroke-linecap="round" fill="none"/></svg><div><div class="bn">Q-GreenFleet</div><div class="bs">Decision report</div></div></div>
+<div class="brand"><svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><mask id="wl"><rect width="64" height="64" fill="#fff"/><path d="M0 34 C8 29 14 29 21 33.5 S33 38 40 33.5 S54 29 64 34" stroke="#000" stroke-width="10.5" fill="none"/></mask><circle cx="32" cy="32" r="18.5" fill="none" stroke="#121518" stroke-width="5.2" mask="url(#wl)"/><path d="M5 34 C11.5 30.1 16 30.1 22.2 33.8 S34.4 37.6 40.6 33.8 S52 30.1 59 33.3" stroke="#2a3cf5" stroke-width="4.6" stroke-linecap="round" fill="none"/></svg><div><div class="bn">Q-GreenFleet</div><div class="bs">Decision report</div></div></div>
 <h1>Green fleet deployment plan</h1>
 <div class="muted">{_e(network_name)} · year {scenario.get('year')} · generated {now} by Q-GreenFleet{(' · optimiser: ' + _e(algorithm)) if algorithm else ''}</div>
 <div class="kpis">

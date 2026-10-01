@@ -25,7 +25,7 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
   const families = Array.from(new Set(plan.routes.map((r) => r.fuel_family)));
 
   return (
-    <div className="grid" style={{ gap: 14 }}>
+    <div className="grid sections">
       <div className="card-head" style={{ marginBottom: 0 }}>
         <div>
           <h2>{label}</h2>

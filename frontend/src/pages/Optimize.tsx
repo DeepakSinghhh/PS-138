@@ -109,7 +109,7 @@ export default function Optimize() {
   }] : [];
 
   return (
-    <div className="grid" style={{ gap: 16 }}>
+    <div className="grid page">
       <div className="page-head">
         <div>
           <span className="kicker">Deliverables 2–3 · Optimization</span>

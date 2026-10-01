@@ -27,7 +27,7 @@ export default function Benchmarks() {
   const I = opt?.instances?.[inst];
 
   return (
-    <div className="grid" style={{ gap: 16 }}>
+    <div className="grid page">
       <div className="page-head"><div><span className="kicker">Deliverable 5 · Experimental results</span><h1>Benchmarks</h1>
         <p>The quantum-inspired methods against conventional prediction and optimization methods on accuracy, convergence
           speed, solution quality and scalability, including cases where they do not win.</p></div></div>

@@ -18,7 +18,7 @@ interface Props {
   height?: number;
 }
 
-/** Offline-capable map: vector land (world-atlas) + sea routes coloured by the plan's fuel family. */
+/** Offline-capable map in nautical-chart colours: vector land (world-atlas), sea routes as dashed tracks, coloured by fuel once a plan is chosen. */
 export default function FleetMap({ network, plan, meta, height = 420 }: Props) {
   const t = useTheme();
   const byRoute = useMemo(() => Object.fromEntries((plan?.routes ?? []).map((r) => [r.route_id, r])), [plan]);
@@ -43,10 +43,11 @@ export default function FleetMap({ network, plan, meta, height = 420 }: Props) {
           <GeoJSON data={LAND} style={{ color: t.coast, weight: 0.7, fillColor: t.land, fillOpacity: 1 }} />
           {network.routes.map((r) => {
             const p = byRoute[r.id];
-            const color = p ? familyColor(t, p.fuel_family) : t["text-muted"];
+            const color = p ? familyColor(t, p.fuel_family) : t.ink;
             const line: LatLngExpression[] = r.geometry.map(([lon, lat]) => [lat, lon]);
             return (
-              <Polyline key={r.id} positions={line} pathOptions={{ color, weight: p ? 3 + Math.min(p.ships, 6) * 0.35 : 2, opacity: 0.9, lineCap: "round" }}>
+              <Polyline key={r.id} positions={line} pathOptions={p ? { color, weight: 3 + Math.min(p.ships, 6) * 0.35, opacity: 0.9, lineCap: "round" }
+                : { color, weight: 1.6, opacity: 0.85, dashArray: "6 5", lineCap: "butt" }}>
                 <Tooltip sticky>
                   <b>{r.id} · {r.name}</b><br />
                   {fmt(r.distance_nm)} nm · {r.service} · demand {fmt(r.demand)} {r.cargo === "container" ? "TEU" : r.cargo === "pax" ? "pax" : "t"} {r.demand_unit}

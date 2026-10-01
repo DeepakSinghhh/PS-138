@@ -52,7 +52,7 @@ export default function Lab() {
   maccRows.forEach((m: any) => { maccX.push(cum + m.abatement_t / 2); maccW.push(m.abatement_t); cum += m.abatement_t; });
 
   return (
-    <div className="grid" style={{ gap: 16 }}>
+    <div className="grid page">
       <div className="page-head"><div><span className="kicker">Scenario simulation · 2025–2050</span><h1>Fuel &amp; policy lab</h1>
         <p>Scenario analysis for alternative fuels: how the optimal fleet shifts from 2025 to 2050, what each measure costs
           per tonne abated, how robust a plan is, and how close quantum-inspired annealing gets to the exact optimum.</p></div></div>

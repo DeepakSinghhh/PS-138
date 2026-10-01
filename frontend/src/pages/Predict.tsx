@@ -51,7 +51,7 @@ export default function Predict() {
   const beaufort = Math.round((inp.wind_speed_ms / 0.836) ** (2 / 3));
 
   return (
-    <div className="grid" style={{ gap: 16 }}>
+    <div className="grid page">
       <div className="page-head">
         <div>
           <span className="kicker">Deliverable 1 · Prediction</span>
@@ -90,7 +90,7 @@ export default function Predict() {
         <div className="grid" style={{ alignContent: "start" }}>
           <div className="grid cols-4">
             <Stat label="Predicted fuel" value={res ? fmt(res.fuel_hfo_eq_tpd, 1) : "–"} unit="t HFO-equivalent / day" />
-            <Stat label="90 % prediction interval" value={res ? `${fmt(res.interval_tpd[0], 1)}–${fmt(res.interval_tpd[1], 1)}` : "–"} unit="t / day (split-conformal)" />
+            <Stat label="90 % interval" value={res ? `${fmt(res.interval_tpd[0], 1)}–${fmt(res.interval_tpd[1], 1)}` : "–"} unit="t / day (split-conformal)" />
             <Stat label={`${res?.fuel_label ?? "Fuel"} burned`} value={res ? fmt(Object.values(res.fuel_mass_tpd as Record<string, number>).reduce((a, b) => a + b, 0), 1) : "–"}
               unit={res ? Object.entries(res.fuel_mass_tpd as Record<string, number>).map(([k, v]) => `${k} ${fmt(v, 1)} t`).join(" + ") : ""} />
             <Stat label="Well-to-wake GHG" value={res ? fmt(res.wtw_co2e_tpd, 1) : "–"} unit={res ? `t CO₂e / day · TtW CO₂ ${fmt(res.co2_ttw_tpd, 1)} t` : ""} />

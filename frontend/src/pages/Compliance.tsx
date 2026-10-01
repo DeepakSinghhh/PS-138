@@ -17,7 +17,7 @@ export default function Compliance() {
   const etsTotal = routes.reduce((a, r) => a + r.cost_usd.eu_ets, 0);
 
   return (
-    <div className="grid" style={{ gap: 16 }}>
+    <div className="grid page">
       <div className="page-head"><div><span className="kicker">IMO CII · FuelEU Maritime · EU ETS</span><h1>Regulatory compliance</h1>
         <p>{selected!.label} in {scenario.year}: IMO Carbon Intensity Indicator per ship, FuelEU Maritime pooled GHG intensity and EU ETS exposure.</p></div></div>
 
@@ -43,7 +43,7 @@ export default function Compliance() {
       <div className="card">
         <div className="card-head"><div><h3>CII: attained ÷ required per service</h3><p className="muted small">Below 1.0 beats the required line; rating boundaries follow IMO dd-vectors per ship type (hover for rating).</p></div></div>
         <Plot ariaLabel="CII ratio per route" height={340} data={[{
-          type: "bar", x: routes.map((r) => r.route_id), y: routes.map((r) => r.cii.ratio), width: 0.55,
+          type: "bar", x: routes.map((r) => r.route_id), y: routes.map((r) => r.cii.ratio), width: 0.3,
           marker: { color: routes.map((r) => ({ A: t.good, B: t.good, C: t.warning, D: t.serious, E: t.critical } as Record<string, string>)[r.cii.rating]) },
           text: routes.map((r) => r.cii.rating), textposition: "outside", textfont: { color: t["text-secondary"] }, cliponaxis: false,
           customdata: routes.map((r) => [r.name, r.vessel_label, r.cii.attained.toFixed(2), r.cii.required.toFixed(2)]),

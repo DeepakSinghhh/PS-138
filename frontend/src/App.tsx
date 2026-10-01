@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { NavLink, Route, Routes, useLocation } from "react-router-dom";
-import { IconBook, IconChart, IconGauge, IconHome, IconLeaf, IconShield, IconShip } from "./components/Icons";
 import { Wordmark } from "./components/Logo";
 import Tour, { startTour } from "./components/Tour";
 import { useCurrency } from "./lib/currency";
@@ -14,13 +13,13 @@ import Overview from "./pages/Overview";
 import Predict from "./pages/Predict";
 
 const NAV = [
-  { to: "/", label: "Overview", icon: <IconHome /> },
-  { to: "/optimize", label: "Fleet optimizer", icon: <IconShip /> },
-  { to: "/predict", label: "Fuel prediction", icon: <IconGauge /> },
-  { to: "/lab", label: "Fuel & policy lab", icon: <IconLeaf /> },
-  { to: "/compliance", label: "Compliance", icon: <IconShield /> },
-  { to: "/benchmarks", label: "Benchmarks", icon: <IconChart /> },
-  { to: "/about", label: "Methodology", icon: <IconBook /> },
+  { to: "/", label: "Overview" },
+  { to: "/optimize", label: "Fleet optimizer" },
+  { to: "/predict", label: "Fuel prediction" },
+  { to: "/lab", label: "Fuel & policy lab" },
+  { to: "/compliance", label: "Compliance" },
+  { to: "/benchmarks", label: "Benchmarks" },
+  { to: "/about", label: "Methodology" },
 ];
 
 function ThemeToggle() {
@@ -53,12 +52,14 @@ export default function App() {
   const { error, setError } = useStore();
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);  // each page opens at the top
+  // section number shown before each page's kicker ("02 — …"), matching the numbered navigation
+  const section = `"${String(Math.max(0, NAV.findIndex((n) => n.to === pathname)) + 1).padStart(2, "0")}"`;
   return (
     <div className="app">
       <aside className="sidebar">
         <Wordmark sub="green fleet decisions" />
         <nav className="nav">
-          {NAV.map((n) => <NavLink key={n.to} to={n.to} end={n.to === "/"}>{n.icon}{n.label}</NavLink>)}
+          {NAV.map((n) => <NavLink key={n.to} to={n.to} end={n.to === "/"}>{n.label}</NavLink>)}
         </nav>
         <button className="tour-link" onClick={startTour}>Guided tour (2 min)</button>
         <div className="sidebar-foot">
@@ -67,9 +68,9 @@ export default function App() {
           <ThemeToggle />
         </div>
       </aside>
-      <main className="main">
+      <main className="main" style={{ "--n": section } as React.CSSProperties}>
         {error && (
-          <div className="card" style={{ borderColor: "var(--critical)", marginBottom: 14, display: "flex", justifyContent: "space-between", gap: 12 }}>
+          <div className="card" style={{ borderTopColor: "var(--critical)", marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
             <span className="status"><span className="dot" style={{ background: "var(--critical)" }} />{error}</span>
             <button className="btn" onClick={() => setError(null)}>Dismiss</button>
           </div>
