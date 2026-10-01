@@ -8,3 +8,7 @@ docs/pitch
 tools
 reports/screenshots
 **/*.partial.json
+# downloaded datasets (FuelCast is CC BY-NC-ND: never bake it into an image) and locally built data
+data/raw/*
+!data/raw/README.md
+data/processed/*

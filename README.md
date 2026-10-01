@@ -41,16 +41,23 @@ backgrounds, are in [docs/brand/](docs/brand/).
 
 ## Results at a glance
 
-**Prediction** (held-out test data; physics-informed synthetic fleet, 20 ships, 10 vessel classes):
+**Prediction** (held-out test data; the first three rows use the physics-informed synthetic fleet of 20 ships and 10
+vessel classes, the last row uses real ship data):
 
 | Scenario | Q-PHYS (ours) | Best conventional baseline | Notes |
 |---|---|---|---|
 | Known ships, future period | **3.29 % MAPE** | grey-box physics 3.41 %, LightGBM 5.28 % | Wilcoxon p ≤ 0.001 vs every baseline (better on 17–20 of 20 ships) |
 | Unseen ships of known classes | **5.64 %** | LightGBM 5.98 % | lead over LightGBM not significant (p = 0.35) |
 | Unseen vessel classes | **6.01 %** | physics 7.85 %; LightGBM 34.8 % | physics prior lets the hybrid extrapolate where pure ML fails |
+| **Real ships: FuelCast** (2 cruise ships + 1 offshore vessel, 86,757 samples, future period) | **7.28 %** (Q-PHYS-M); 9.83 % (Q-PHYS) | calibrated physics 9.25 %; polynomial speed 10.1 %; LightGBM 11.6 % | the certified-monotone variant is best on every metric (MAE 4.8 t/day, R² 0.966); the standard variant is about level with physics |
 
 - **Uncertainty**: 90 % conformal intervals cover 0.89 of known-ship data; for brand-new ships they are conservative (0.98–0.998).
 - **Tuning**: at an equal budget, QPSO found the best hyperparameters (validation MAE 1.207, vs PSO 1.211, TPE 1.230, random 1.246). This is a single seed.
+- **Vessel library vs EU MRV** (23,009 real ship-years, 2023–2024): for each class, ships of the same type and cargo size
+  are compared at their median speed. The class model gives 0.57–0.93 × the real median fuel per n mile and lies
+  inside the p10–p90 band for 6 of 10 classes. It is close for the larger classes and clearly low for the smallest
+  (feeder, Handysize, MR tanker), which are the first candidates for recalibration. Details:
+  [reports/mrv_validation.md](reports/mrv_validation.md).
 
 **Fleet optimization** (8,000 plan evaluations per run, 10 seeds; hypervolume, higher is better):
 
@@ -153,9 +160,11 @@ suite, and `make bench-quick` to regenerate the benchmarks.
 - Everything runs on classical hardware. "Quantum-inspired" names the algorithms' mechanics: tensor networks,
   superposition/measurement, tunnelling, annealing. It is not a speed-up claim. The QAOA circuit is simulated exactly
   (state vector) on a classical computer; the exported OpenQASM file is what would run on quantum hardware.
-- The build environment could not reach Hugging Face, Kaggle or EMSA, so prediction results use **physics-informed synthetic
-  telemetry**. Loaders for FuelCast, EU MRV and the Kaggle set pick up real files from `data/raw/` automatically. See
-  [docs/data_card.md](docs/data_card.md).
+- **Real data**: FuelCast (3 ships) is used to evaluate prediction, and EU MRV (2023–2024) to validate the vessel library.
+  FuelCast's licence (CC BY-NC-ND 4.0) allows non-commercial use but not redistribution of derivatives, so its files are
+  not in the repository and the shipped model is trained on the physics-informed synthetic fleet. The optimizer needs
+  that fleet anyway: its vessel classes, alternative fuels and India routes have no public telemetry. See
+  [docs/data_card.md](docs/data_card.md) for download commands.
 - Alternative-fuel prices, bunkering-availability years and e-fuel well-to-tank factors are scenario assumptions (cited
   and editable in `backend/config/`).
 - QMOEA-H was tuned on the India instance. The EU and synthetic networks test generalisation, and the benchmark reports

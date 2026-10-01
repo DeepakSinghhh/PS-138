@@ -37,9 +37,9 @@ export default function About() {
           <h3>Honesty notes</h3>
           <ul>
             <li>Everything runs on classical hardware; "quantum-inspired" names the algorithms' mechanics, not a speed-up claim.</li>
-            <li>Prediction results use physics-informed synthetic telemetry, because the public datasets' hosts are unreachable from the build environment. FuelCast / EU MRV / Kaggle loaders pick up real files from <span className="kbd">data/raw</span>.</li>
+            <li>Real data: prediction is evaluated on FuelCast (sensor logs of three real ships; Q-PHYS-M 7.3 % MAPE vs 9.3 % for calibrated physics) and the vessel library is checked against 23,009 EU MRV ship-years. FuelCast's licence forbids redistributing derivatives, so the shipped model is trained on the physics-informed synthetic fleet, which also covers the alternative-fuel vessels and India routes that have no public telemetry.</li>
             <li>Alternative-fuel prices, bunkering years and e-fuel WtT factors are scenario assumptions, editable in YAML and the UI.</li>
-            <li>QMOEA-H parameters were set on the India instance; the EU and synthetic networks test generalisation. The benchmark reports where classical methods do better.</li>
+            <li>QMOEA-H parameters were set on the India instance; two later operator settings (route-wise merge rate, availability attribution) were also compared on the EU and synthetic networks, as the benchmark report discloses. The report also shows where classical methods or the exact MILP do better.</li>
           </ul>
         </div>
       </div>

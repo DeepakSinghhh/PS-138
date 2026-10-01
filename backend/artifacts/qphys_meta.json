@@ -237,5 +237,5 @@
     },
     "fit_seconds": 137.93616739299978
   },
-  "data_source": "synthetic (physics-informed); FuelCast used when present in data/raw/fuelcast"
+  "data_source": "synthetic (physics-informed); real FuelCast data is used for evaluation only (benchmark scenario D)"
 }

@@ -1,0 +1,210 @@
+{
+ "years": [
+  2023,
+  2024
+ ],
+ "ship_years": 26999,
+ "ship_years_used": 23009,
+ "classes": [
+  {
+   "class": "FEEDER",
+   "label": "Feeder container (1,700 TEU)",
+   "mrv_types": [
+    "Container ship"
+   ],
+   "size_matched": true,
+   "peers": 372,
+   "median_speed_kn": 11.706519944745985,
+   "mrv_p10": 71.97915511168316,
+   "mrv_p50": 95.584600093846,
+   "mrv_p90": 129.92904672489465,
+   "mrv_total_p50": 101.105,
+   "berth_share_median": 0.05007425316178123,
+   "model_kg_per_nm": 54.72801881699661,
+   "model_to_median": 0.5725610481527782,
+   "model_percentile": 1.0752688172043012,
+   "within_p10_p90": false
+  },
+  {
+   "class": "PANAMAX_C",
+   "label": "Panamax container (4,500 TEU)",
+   "mrv_types": [
+    "Container ship"
+   ],
+   "size_matched": true,
+   "peers": 454,
+   "median_speed_kn": 13.436283884123123,
+   "mrv_p10": 114.16507055471853,
+   "mrv_p50": 155.99644459913688,
+   "mrv_p90": 196.59598021286038,
+   "mrv_total_p50": 161.885,
+   "berth_share_median": 0.025959165256913268,
+   "model_kg_per_nm": 118.74620917638562,
+   "model_to_median": 0.761210997350145,
+   "model_percentile": 12.995594713656388,
+   "within_p10_p90": true
+  },
+  {
+   "class": "NEOPANAMAX_C",
+   "label": "Neo-Panamax container (13,000 TEU)",
+   "mrv_types": [
+    "Container ship"
+   ],
+   "size_matched": true,
+   "peers": 523,
+   "median_speed_kn": 14.721825894983823,
+   "mrv_p10": 187.80820983902908,
+   "mrv_p50": 244.77234949784446,
+   "mrv_p90": 289.29891392545426,
+   "mrv_total_p50": 253.04,
+   "berth_share_median": 0.02779886847187766,
+   "model_kg_per_nm": 223.46417196872048,
+   "model_to_median": 0.9129469583764745,
+   "model_percentile": 31.73996175908222,
+   "within_p10_p90": true
+  },
+  {
+   "class": "HANDYSIZE",
+   "label": "Handysize bulk (35,000 DWT)",
+   "mrv_types": [
+    "Bulk carrier"
+   ],
+   "size_matched": true,
+   "peers": 910,
+   "median_speed_kn": 10.474842195321319,
+   "mrv_p10": 55.99623494964162,
+   "mrv_p50": 68.46917766983762,
+   "mrv_p90": 87.78649861725745,
+   "mrv_total_p50": 72.315,
+   "berth_share_median": 0.043469613029525254,
+   "model_kg_per_nm": 49.436286246935786,
+   "model_to_median": 0.722022491424104,
+   "model_percentile": 2.7472527472527473,
+   "within_p10_p90": false
+  },
+  {
+   "class": "SUPRAMAX",
+   "label": "Supramax bulk (58,000 DWT)",
+   "mrv_types": [
+    "Bulk carrier"
+   ],
+   "size_matched": true,
+   "peers": 1777,
+   "median_speed_kn": 10.738054257107176,
+   "mrv_p10": 62.09662147384168,
+   "mrv_p50": 78.7524471973197,
+   "mrv_p90": 98.45690444452303,
+   "mrv_total_p50": 82.28,
+   "berth_share_median": 0.03730414471466895,
+   "model_kg_per_nm": 68.06618040251811,
+   "model_to_median": 0.8643055908087985,
+   "model_percentile": 23.522791221159256,
+   "within_p10_p90": true
+  },
+  {
+   "class": "PANAMAX_B",
+   "label": "Panamax bulk (82,000 DWT)",
+   "mrv_types": [
+    "Bulk carrier"
+   ],
+   "size_matched": true,
+   "peers": 1701,
+   "median_speed_kn": 10.778107882387973,
+   "mrv_p10": 66.3418256006126,
+   "mrv_p50": 84.36215533458392,
+   "mrv_p90": 103.2831432030385,
+   "mrv_total_p50": 87.22,
+   "berth_share_median": 0.0326285876928377,
+   "model_kg_per_nm": 78.62938079759859,
+   "model_to_median": 0.9320456605897645,
+   "model_percentile": 35.56731334509112,
+   "within_p10_p90": true
+  },
+  {
+   "class": "MR_TANKER",
+   "label": "MR product tanker (50,000 DWT)",
+   "mrv_types": [
+    "Oil tanker",
+    "Chemical tanker"
+   ],
+   "size_matched": true,
+   "peers": 1054,
+   "median_speed_kn": 11.40185644124862,
+   "mrv_p10": 69.5178442090836,
+   "mrv_p50": 86.70277402352497,
+   "mrv_p90": 114.30993461253125,
+   "mrv_total_p50": 92.97999999999999,
+   "berth_share_median": 0.06500316181404811,
+   "model_kg_per_nm": 66.76918653404182,
+   "model_to_median": 0.7700928521148056,
+   "model_percentile": 7.020872865275142,
+   "within_p10_p90": false
+  },
+  {
+   "class": "AFRAMAX",
+   "label": "Aframax tanker (110,000 DWT)",
+   "mrv_types": [
+    "Oil tanker",
+    "Chemical tanker"
+   ],
+   "size_matched": true,
+   "peers": 999,
+   "median_speed_kn": 11.033847561322014,
+   "mrv_p10": 85.03005563834738,
+   "mrv_p50": 120.65965717349657,
+   "mrv_p90": 161.73275728073367,
+   "mrv_total_p50": 131.31,
+   "berth_share_median": 0.0693837848475715,
+   "model_kg_per_nm": 97.38318897949583,
+   "model_to_median": 0.8070898862199526,
+   "model_percentile": 18.31831831831832,
+   "within_p10_p90": true
+  },
+  {
+   "class": "ROPAX",
+   "label": "Ro-Pax ferry (1,200 pax)",
+   "mrv_types": [
+    "Ro-pax ship"
+   ],
+   "size_matched": false,
+   "peers": 759,
+   "median_speed_kn": 15.62275287641119,
+   "mrv_p10": 63.619131576920815,
+   "mrv_p50": 141.47520089908173,
+   "mrv_p90": 217.06342340618622,
+   "mrv_total_p50": 150.94,
+   "berth_share_median": 0.06932837905947092,
+   "model_kg_per_nm": 111.24195350393802,
+   "model_to_median": 0.7863000214665895,
+   "model_percentile": 31.0935441370224,
+   "within_p10_p90": true
+  },
+  {
+   "class": "ISLAND_ROPAX",
+   "label": "Island passenger-cargo ship (400 pax)",
+   "mrv_types": [
+    "Ro-pax ship"
+   ],
+   "size_matched": false,
+   "peers": 759,
+   "median_speed_kn": 15.62275287641119,
+   "mrv_p10": 63.619131576920815,
+   "mrv_p50": 141.47520089908173,
+   "mrv_p90": 217.06342340618622,
+   "mrv_total_p50": 150.94,
+   "berth_share_median": 0.06932837905947092,
+   "model_kg_per_nm": 49.78077302908747,
+   "model_to_median": 0.35186925137924,
+   "model_percentile": 6.0606060606060606,
+   "within_p10_p90": false
+  }
+ ],
+ "assumptions": {
+  "carried_dwt_band": [
+   0.3,
+   0.8
+  ],
+  "draft_ratio": 0.85,
+  "beaufort": 4.0
+ }
+}

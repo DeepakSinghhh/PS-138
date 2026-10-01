@@ -50,7 +50,7 @@
      "RMSE": 4.393866367171227,
      "MAPE": 3.2931015121377762,
      "R2": 0.9872364541849876,
-     "seconds": 85.09648153099988
+     "seconds": 181.07601015299997
     },
     {
      "model": "Q-PHYS-M (certified monotone)",
@@ -58,7 +58,7 @@
      "RMSE": 4.288048289686312,
      "MAPE": 3.3306522100292204,
      "R2": 0.9878438237589514,
-     "seconds": 85.09648153099988
+     "seconds": 181.07601015299997
     },
     {
      "model": "Physics (grey-box / calibrated)",
@@ -66,7 +66,7 @@
      "RMSE": 4.507152957644463,
      "MAPE": 3.414125075134495,
      "R2": 0.9865698072249024,
-     "seconds": 0.3889689699999508
+     "seconds": 0.5568881970000348
     },
     {
      "model": "LightGBM (default)",
@@ -74,7 +74,7 @@
      "RMSE": 3.3051336541184697,
      "MAPE": 5.2803739027214185,
      "R2": 0.9927780295761348,
-     "seconds": 0.5308713439999337
+     "seconds": 0.9049174619999576
     },
     {
      "model": "MLP neural net",
@@ -82,7 +82,7 @@
      "RMSE": 3.7865307468341016,
      "MAPE": 6.315919923172228,
      "R2": 0.9905210413616435,
-     "seconds": 3.275912937000612
+     "seconds": 2.635009756000045
     },
     {
      "model": "Random forest",
@@ -90,7 +90,7 @@
      "RMSE": 3.8950060081969258,
      "MAPE": 7.019344625792395,
      "R2": 0.9899701620394373,
-     "seconds": 5.137907672999972
+     "seconds": 4.476562961000013
     },
     {
      "model": "Physics (nominal, IMO GHG4 + Kwon)",
@@ -98,7 +98,7 @@
      "RMSE": 5.250563662958209,
      "MAPE": 9.015146632181764,
      "R2": 0.9817740778796415,
-     "seconds": 0.12084317000062583
+     "seconds": 0.0916434069999923
     },
     {
      "model": "MPS tensor network (stand-alone)",
@@ -106,7 +106,7 @@
      "RMSE": 7.8005552248265335,
      "MAPE": 12.129637633236074,
      "R2": 0.9597719774834408,
-     "seconds": 10.104290502999902
+     "seconds": 9.18913176000001
     },
     {
      "model": "Polynomial speed (baseline)",
@@ -114,7 +114,7 @@
      "RMSE": 6.804613303877398,
      "MAPE": 12.591012636126301,
      "R2": 0.9693885041116942,
-     "seconds": 0.008703225000317616
+     "seconds": 0.3025496520000388
     },
     {
      "model": "Ridge regression",
@@ -122,7 +122,7 @@
      "RMSE": 8.975524430723848,
      "MAPE": 32.18798762283423,
      "R2": 0.9467404712224184,
-     "seconds": 0.0377516349999496
+     "seconds": 0.5688849360000177
     }
    ],
    "conformal": {
@@ -149,7 +149,7 @@
      "Physics (grey-box / calibrated)": 4.540552827018691,
      "Physics (nominal, IMO GHG4 + Kwon)": 7.7209700936665335,
      "Ridge regression": 14.674980992200965,
-     "Random forest": 4.6933334711019326,
+     "Random forest": 4.693333471101932,
      "LightGBM (default)": 4.258624011097852,
      "MLP neural net": 4.806020032102257,
      "MPS tensor network (stand-alone)": 9.623516843781779,
@@ -322,7 +322,7 @@
      "blend_weight_gbm": 1.0,
      "conformal_half_width": 0.13973596748304057
     },
-    "fit_seconds": 85.09526433600058
+    "fit_seconds": 181.07481691299995
    }
   },
   "B_unseen_ships": {
@@ -339,7 +339,7 @@
      "RMSE": 4.413473546753469,
      "MAPE": 5.635697325517206,
      "R2": 0.9870222997086843,
-     "seconds": 92.86988351799937
+     "seconds": 214.99384202199985
     },
     {
      "model": "Q-PHYS-M (certified monotone)",
@@ -347,7 +347,7 @@
      "RMSE": 4.501975918662675,
      "MAPE": 5.943279110370306,
      "R2": 0.9864966035091097,
-     "seconds": 92.86988351799937
+     "seconds": 214.99384202199985
     },
     {
      "model": "LightGBM (default)",
@@ -355,7 +355,7 @@
      "RMSE": 4.606597037670513,
      "MAPE": 5.9811804578143235,
      "R2": 0.985861701960187,
-     "seconds": 0.5843877799998154
+     "seconds": 0.4827535240000316
     },
     {
      "model": "MLP neural net",
@@ -363,7 +363,7 @@
      "RMSE": 4.886642087821605,
      "MAPE": 6.9030065021636595,
      "R2": 0.9840904554571509,
-     "seconds": 3.083301304000088
+     "seconds": 2.465211810000028
     },
     {
      "model": "MPS tensor network (stand-alone)",
@@ -371,15 +371,15 @@
      "RMSE": 8.06547393165912,
      "MAPE": 7.40708479104508,
      "R2": 0.9566592454252861,
-     "seconds": 10.185771737999858
+     "seconds": 47.14888551800004
     },
     {
      "model": "Random forest",
-     "MAE": 3.0962366131291628,
+     "MAE": 3.096236613129163,
      "RMSE": 5.42738030174482,
      "MAPE": 7.654858356111892,
      "R2": 0.9803746598533588,
-     "seconds": 5.2144807479999145
+     "seconds": 4.588916478999977
     },
     {
      "model": "Physics (nominal, IMO GHG4 + Kwon)",
@@ -387,7 +387,7 @@
      "RMSE": 5.00000976206342,
      "MAPE": 8.222173942817651,
      "R2": 0.9833437055750018,
-     "seconds": 0.3170327660000112
+     "seconds": 0.26751837200004047
     },
     {
      "model": "Physics (grey-box / calibrated)",
@@ -395,7 +395,7 @@
      "RMSE": 8.184285073000668,
      "MAPE": 10.44935380361759,
      "R2": 0.9553729498465414,
-     "seconds": 0.5447860440008299
+     "seconds": 0.4632619999999861
     },
     {
      "model": "Ridge regression",
@@ -403,7 +403,7 @@
      "RMSE": 9.0313572862518,
      "MAPE": 21.585522038184536,
      "R2": 0.9456571098926919,
-     "seconds": 0.02502151499993488
+     "seconds": 0.021830231999956595
     },
     {
      "model": "Polynomial speed (baseline)",
@@ -411,7 +411,7 @@
      "RMSE": 18.54325825520156,
      "MAPE": 38.31299566121039,
      "R2": 0.7709086042354294,
-     "seconds": 0.007058596999740985
+     "seconds": 0.0058599750000212225
     }
    ],
    "conformal": {
@@ -438,7 +438,7 @@
      "Physics (grey-box / calibrated)": 10.174063835925885,
      "Physics (nominal, IMO GHG4 + Kwon)": 5.988827722339142,
      "Ridge regression": 21.723947870062112,
-     "Random forest": 8.281978293246794,
+     "Random forest": 8.281978293246796,
      "LightGBM (default)": 6.27218579870726,
      "MLP neural net": 5.9954128249089695,
      "MPS tensor network (stand-alone)": 8.298939662798087,
@@ -450,7 +450,7 @@
      "Physics (grey-box / calibrated)": 13.061375304108761,
      "Physics (nominal, IMO GHG4 + Kwon)": 11.819724534778778,
      "Ridge regression": 31.601966455842078,
-     "Random forest": 9.168040298582495,
+     "Random forest": 9.168040298582497,
      "LightGBM (default)": 8.447223818214674,
      "MLP neural net": 9.395913582301901,
      "MPS tensor network (stand-alone)": 9.572743347591004,
@@ -603,7 +603,7 @@
      "blend_weight_gbm": 0.5,
      "conformal_half_width": 0.2517198814418954
     },
-    "fit_seconds": 92.86840819899953
+    "fit_seconds": 214.9925164670001
    }
   },
   "C_unseen_classes": {
@@ -620,7 +620,7 @@
      "RMSE": 6.2954700771415295,
      "MAPE": 6.006641560919797,
      "R2": 0.9647018771381584,
-     "seconds": 99.04611272500006
+     "seconds": 80.8370066760001
     },
     {
      "model": "Q-PHYS-M (certified monotone)",
@@ -628,7 +628,7 @@
      "RMSE": 6.2954700771415295,
      "MAPE": 6.006641560919797,
      "R2": 0.9647018771381584,
-     "seconds": 99.04611272500006
+     "seconds": 80.8370066760001
     },
     {
      "model": "Physics (grey-box / calibrated)",
@@ -636,7 +636,7 @@
      "RMSE": 4.7054824928174535,
      "MAPE": 7.854204208988011,
      "R2": 0.9802801500428268,
-     "seconds": 0.43863891000000876
+     "seconds": 0.7335265900001104
     },
     {
      "model": "Physics (nominal, IMO GHG4 + Kwon)",
@@ -644,7 +644,7 @@
      "RMSE": 4.7054824928174535,
      "MAPE": 7.854204208988011,
      "R2": 0.9802801500428268,
-     "seconds": 0.20474287900015042
+     "seconds": 0.40671224099992287
     },
     {
      "model": "Random forest",
@@ -652,7 +652,7 @@
      "RMSE": 5.233805138568307,
      "MAPE": 11.347522598139093,
      "R2": 0.9756033396019659,
-     "seconds": 5.142226558999937
+     "seconds": 6.198262650000061
     },
     {
      "model": "MLP neural net",
@@ -660,7 +660,7 @@
      "RMSE": 17.650098782151645,
      "MAPE": 17.661792619292825,
      "R2": 0.7225469118475463,
-     "seconds": 2.5804838559997734
+     "seconds": 2.1670557449999706
     },
     {
      "model": "Ridge regression",
@@ -668,7 +668,7 @@
      "RMSE": 9.108592370099856,
      "MAPE": 20.754285359506493,
      "R2": 0.9261079328783421,
-     "seconds": 0.025479056999756722
+     "seconds": 0.026965548999896782
     },
     {
      "model": "Polynomial speed (baseline)",
@@ -676,7 +676,7 @@
      "RMSE": 17.82942037381668,
      "MAPE": 22.698637749726565,
      "R2": 0.7168805331942145,
-     "seconds": 0.006959005000680918
+     "seconds": 0.007252796999864586
     },
     {
      "model": "LightGBM (default)",
@@ -684,7 +684,7 @@
      "RMSE": 31.7562458010465,
      "MAPE": 34.78425648923367,
      "R2": 0.10184024327481811,
-     "seconds": 0.5407465239995872
+     "seconds": 32.46709553699998
     },
     {
      "model": "MPS tensor network (stand-alone)",
@@ -692,7 +692,7 @@
      "RMSE": 33.2694753205022,
      "MAPE": 39.39547862883067,
      "R2": 0.01420369490541562,
-     "seconds": 13.08585261099961
+     "seconds": 8.315074676999984
     }
    ],
    "conformal": {
@@ -707,7 +707,7 @@
      "Physics (grey-box / calibrated)": 7.718002690125002,
      "Physics (nominal, IMO GHG4 + Kwon)": 7.718002690125002,
      "Ridge regression": 20.533897822510667,
-     "Random forest": 15.465362659407745,
+     "Random forest": 15.465362659407742,
      "LightGBM (default)": 22.72176375690001,
      "MLP neural net": 5.542832122113902,
      "MPS tensor network (stand-alone)": 8.51140191980915,
@@ -719,7 +719,7 @@
      "Physics (grey-box / calibrated)": 6.418192522938866,
      "Physics (nominal, IMO GHG4 + Kwon)": 6.418192522938866,
      "Ridge regression": 13.198227486595467,
-     "Random forest": 9.192469846445487,
+     "Random forest": 9.192469846445489,
      "LightGBM (default)": 66.54392364537277,
      "MLP neural net": 37.57110501357751,
      "MPS tensor network (stand-alone)": 54.89831680685818,
@@ -876,11 +876,212 @@
      "blend_weight_gbm": 1.0,
      "conformal_half_width": 0.18905898736502968
     },
-    "fit_seconds": 99.04438127600042
+    "fit_seconds": 80.83524011400004
    }
   },
   "D_fuelcast": {
-   "skipped": "place FuelCast files in data/raw/fuelcast and run make data"
+   "scenario": "FuelCast (real, 3 ships)",
+   "rows": {
+    "train": 15000,
+    "test": 13015
+   },
+   "ships_in_test": 3,
+   "results": [
+    {
+     "model": "Q-PHYS-M (certified monotone)",
+     "MAE": 4.7778728372868375,
+     "RMSE": 8.445928186216829,
+     "MAPE": 7.282581429446128,
+     "R2": 0.9656353926836694,
+     "seconds": 35.61786125599997
+    },
+    {
+     "model": "Physics (grey-box / calibrated)",
+     "MAE": 7.019809203541496,
+     "RMSE": 10.207424597514837,
+     "MAPE": 9.254233752634185,
+     "R2": 0.9498063269178898,
+     "seconds": 0.016575005000049714
+    },
+    {
+     "model": "Q-PHYS (quantum-inspired hybrid)",
+     "MAE": 7.2052330298563305,
+     "RMSE": 10.117383265532835,
+     "MAPE": 9.827209394182441,
+     "R2": 0.9506879541095115,
+     "seconds": 35.61786125599997
+    },
+    {
+     "model": "Polynomial speed (baseline)",
+     "MAE": 6.844208023251993,
+     "RMSE": 9.945768175974848,
+     "MAPE": 10.129633432797073,
+     "R2": 0.9523466670751785,
+     "seconds": 0.005861615999947389
+    },
+    {
+     "model": "Random forest",
+     "MAE": 6.5105525038503815,
+     "RMSE": 11.151314399735789,
+     "MAPE": 10.688849240135987,
+     "R2": 0.9400942185523451,
+     "seconds": 3.6708436430001257
+    },
+    {
+     "model": "LightGBM (default)",
+     "MAE": 6.451080997594315,
+     "RMSE": 10.512850528694692,
+     "MAPE": 11.64902899675486,
+     "R2": 0.9467576033984435,
+     "seconds": 0.407074104000003
+    },
+    {
+     "model": "Ridge regression",
+     "MAE": 7.311788197370784,
+     "RMSE": 10.109727188580111,
+     "MAPE": 13.537813034830096,
+     "R2": 0.9507625571886581,
+     "seconds": 0.01853522500005056
+    },
+    {
+     "model": "MPS tensor network (stand-alone)",
+     "MAE": 9.867613013214125,
+     "RMSE": 14.656814294942606,
+     "MAPE": 18.502325111729682,
+     "R2": 0.8965106194650332,
+     "seconds": 5.353755801000034
+    },
+    {
+     "model": "MLP neural net",
+     "MAE": 26.917443360572666,
+     "RMSE": 37.34623232508401,
+     "MAPE": 29.27498327670306,
+     "R2": 0.32809139055600756,
+     "seconds": 3.0681674869999824
+    }
+   ],
+   "conformal": {
+    "target_coverage": 0.9,
+    "coverage": 0.8925086438724549,
+    "mean_width": 31.349726614965157,
+    "relative_half_width": 0.1738137123221042
+   },
+   "mape_by_vessel_type": {
+    "cruise": {
+     "Polynomial speed (baseline)": 8.384809401061304,
+     "Physics (grey-box / calibrated)": 8.649033889555275,
+     "Ridge regression": 11.384405785037123,
+     "Random forest": 7.403526743301588,
+     "LightGBM (default)": 9.12564702719506,
+     "MLP neural net": 26.70597856162945,
+     "MPS tensor network (stand-alone)": 14.991305182961808,
+     "Q-PHYS (quantum-inspired hybrid)": 8.332212066307875,
+     "Q-PHYS-M (certified monotone)": 6.428900901210202
+    },
+    "offshore": {
+     "Polynomial speed (baseline)": 30.73607394145601,
+     "Physics (grey-box / calibrated)": 16.401667962362396,
+     "Ridge regression": 38.96963743469806,
+     "Random forest": 49.48863727115565,
+     "LightGBM (default)": 41.45026940300293,
+     "MLP neural net": 59.61503010364033,
+     "MPS tensor network (stand-alone)": 59.96760869960933,
+     "Q-PHYS (quantum-inspired hybrid)": 27.48318669454356,
+     "Q-PHYS-M (certified monotone)": 17.36458207738204
+    }
+   },
+   "wilcoxon_vs_qphys": {},
+   "qphys_report": {
+    "feature_selection": {
+     "selected": [
+      "speed_kn",
+      "load_ratio",
+      "wind_speed_ms",
+      "wave_height_m",
+      "draft_ratio",
+      "trim_m",
+      "current_kn",
+      "ship_CPS_Triton"
+     ],
+     "val_score": 10.830132623324992,
+     "evaluations": 24
+    },
+    "mps_tuning": {
+     "val_mae": 6.376061069971789
+    },
+    "mps": {
+     "best_params": {
+      "bond_dim": 8,
+      "local_dim_idx": 1,
+      "ridge": 5.2254651700473575e-06,
+      "local_dim": 5
+     },
+     "n_params": 1730,
+     "entanglement_entropy": [
+      1.0471082582369486,
+      1.3131110066038314,
+      1.6646131638847288,
+      1.7813186814537152,
+      1.8915317556071976,
+      1.408145256413336,
+      0.4592623629999457
+     ],
+     "bond_features": [
+      "speed_kn | load_ratio",
+      "load_ratio | wind_speed_ms",
+      "wind_speed_ms | wave_height_m",
+      "wave_height_m | draft_ratio",
+      "draft_ratio | trim_m",
+      "trim_m | current_kn",
+      "current_kn | ship_CPS_Triton"
+     ],
+     "sweeps": [
+      {
+       "sweep": 1,
+       "train_rmse": 0.08878222109570628,
+       "val_rmse": 0.12609420404161237
+      },
+      {
+       "sweep": 2,
+       "train_rmse": 0.08759500066147415,
+       "val_rmse": 0.12326152092445088
+      },
+      {
+       "sweep": 3,
+       "train_rmse": 0.08735169323320863,
+       "val_rmse": 0.12362576897369212
+      },
+      {
+       "sweep": 4,
+       "train_rmse": 0.08725821325021893,
+       "val_rmse": 0.12388274878197389
+      }
+     ]
+    },
+    "blend_weight_gbm": 0.0,
+    "fleet_head": {
+     "calibration_ships": [],
+     "blend_weight_gbm": 0.0,
+     "conformal_half_width": 0.20734505694861416
+    },
+    "fit_seconds": 35.616088910000144
+   },
+   "features": [
+    "speed_kn",
+    "load_ratio",
+    "draft_ratio",
+    "trim_m",
+    "days_since_cleaning",
+    "wind_speed_ms",
+    "head_wind_ms",
+    "cross_wind_ms",
+    "wave_height_m",
+    "head_wave_m",
+    "current_kn",
+    "ship_CPS_Poseidon",
+    "ship_CPS_Triton",
+    "ship_OSS_Ceto"
+   ]
   }
  },
  "tuners": {
@@ -904,7 +1105,7 @@
     1.2073728761637272,
     1.2073728761637272
    ],
-   "seconds": 14.910568942000282,
+   "seconds": 12.587801363999915,
    "best_params": {
     "num_leaves": 46,
     "learning_rate": 0.0705352043574666,
@@ -935,7 +1136,7 @@
     1.210833415909492,
     1.210833415909492
    ],
-   "seconds": 11.379029948000607,
+   "seconds": 10.05408896200015,
    "best_params": {
     "num_leaves": 51,
     "learning_rate": 0.08390083300834555,
@@ -966,7 +1167,7 @@
     1.2291254574460555,
     1.2291254574460555
    ],
-   "seconds": 11.043807371000185,
+   "seconds": 9.316404379000005,
    "best_params": {
     "num_leaves": 47,
     "learning_rate": 0.04385889166394462,
@@ -997,7 +1198,7 @@
     1.2296502577787631,
     1.2296502577787631
    ],
-   "seconds": 8.45805855799972,
+   "seconds": 7.39622988799988,
    "best_params": {
     "num_leaves": 13,
     "learning_rate": 0.04371268725946607,
@@ -1028,7 +1229,7 @@
     1.2461822899549253,
     1.2461822899549253
    ],
-   "seconds": 9.724805456000468,
+   "seconds": 8.571798727999976,
    "best_params": {
     "num_leaves": 47,
     "learning_rate": 0.04152635301108488,
@@ -1059,7 +1260,7 @@
     1.249924207757384,
     1.249924207757384
    ],
-   "seconds": 7.273704985999757,
+   "seconds": 6.115235903999974,
    "best_params": {
     "num_leaves": 11,
     "learning_rate": 0.026220388460794997,
@@ -1206,5 +1407,6 @@
    "history": []
   }
  },
- "seconds": 417.0773185709995
+ "seconds": 714.3518211289999,
+ "note": "Scenario D re-run separately (49 s) after giving every model the ship identity."
 }

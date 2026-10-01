@@ -184,6 +184,25 @@ def load_synthetic() -> pd.DataFrame:
     return add_derived(pd.read_parquet(path))
 
 
+def fuelcast_frame(path) -> tuple[pd.DataFrame, list[str]]:
+    """FuelCast as a known-ship forecasting task: every model is told which ship a sample comes from (one-hot ship
+    columns), as the per-ship physics baselines and Q-PHYS's prior already are; otherwise pooled ML models cannot
+    tell a 80 t/day cruise ship from an 18 t/day one."""
+    fc = add_derived(pd.read_parquet(path))
+    ship_cols = []
+    for sid in sorted(fc["ship_id"].unique()):
+        fc[f"ship_{sid}"] = (fc["ship_id"] == sid).astype(float)
+        ship_cols.append(f"ship_{sid}")
+    return fc, feature_columns(fc, include_descriptors=False) + ship_cols
+
+
+def run_fuelcast(path, cfg: BenchConfig) -> dict:
+    fc, feats = fuelcast_frame(path)
+    res = run_scenario("FuelCast (real, 3 ships)", chronological_split(fc), feats, False, cfg)
+    res["features"] = feats
+    return res
+
+
 def run(cfg: BenchConfig | None = None, log=print) -> dict:
     warnings.filterwarnings("ignore")
     cfg = cfg or BenchConfig.quick()
@@ -209,10 +228,7 @@ def run(cfg: BenchConfig | None = None, log=print) -> dict:
     fc_path = DATA_DIR / "processed" / "fuelcast.parquet"
     if fc_path.exists():
         log("[prediction] scenario D: FuelCast (real data)")
-        fc = add_derived(pd.read_parquet(fc_path))
-        fc_feats = feature_columns(fc, include_descriptors=False)
-        out["scenarios"]["D_fuelcast"] = run_scenario("FuelCast (real, 3 ships)", chronological_split(fc),
-                                                      fc_feats, False, cfg)
+        out["scenarios"]["D_fuelcast"] = run_fuelcast(fc_path, cfg)
     else:
         out["scenarios"]["D_fuelcast"] = {"skipped": "place FuelCast files in data/raw/fuelcast and run make data"}
 

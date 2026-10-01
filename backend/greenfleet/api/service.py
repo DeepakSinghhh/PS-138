@@ -371,7 +371,7 @@ def run_qaoa(job, sc: Scenario, weights: dict, services: int, options: int, laye
 
 def benchmarks() -> dict:
     out = {}
-    for name in ("prediction_benchmark", "optimization_benchmark"):
+    for name in ("prediction_benchmark", "optimization_benchmark", "mrv_validation"):
         path = REPORTS_DIR / f"{name}.json"
         if path.exists():
             with open(path) as fh:

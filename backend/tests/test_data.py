@@ -132,3 +132,51 @@ def test_kaggle_loader_canonicalises(tmp_path):
     assert out["vessel_type"].tolist() == ["tanker", "tanker"]
     assert out["weather_level"].tolist() == [2.0, 1.0]
     assert "co2_ref" in out and "fuel" in out
+
+
+def test_fuelcast_schema_units_and_angles(tmp_path):
+    """FuelCast's documented schema: m/s and kg/s become knots and t/day; engine power/rpm are left out."""
+    from greenfleet.data.loaders import load_fuelcast
+
+    n = 50
+    df = pd.DataFrame({
+        "index": np.arange(n, dtype=float), "Ship_SpeedOverGround": np.full(n, 7.0), "Ship_Heading": np.full(n, 90.0),
+        "Consumer_Total_MomentaryFuel": np.full(n, 0.5), "Consumer_MainEngine_ShaftPower": np.full(n, 8e6),
+        "Weather_WindSpeed10M": np.full(n, 10.0), "Weather_WindDirection10M": np.full(n, 90.0),
+        "Weather_WaveHeight": np.full(n, 2.0), "Weather_WaveDirection": np.full(n, 270.0),
+        "Weather_OceanCurrentVelocity": np.full(n, 0.5), "Weather_OceanCurrentDirection": np.full(n, 90.0),
+        "Ship_DraftFore": np.linspace(6, 8, n), "Ship_DraftAft": np.linspace(7, 9, n),
+    })
+    df.loc[3, "index"] = np.nan                                   # gaps in the step index are interpolated
+    df.to_parquet(tmp_path / "CPS_Test.parquet")
+    out = load_fuelcast(tmp_path)
+    assert len(out) == n and out["vessel_type"].iloc[0] == "cruise"
+    assert np.isclose(out["speed_kn"].iloc[0], 7.0 * 1.943844)
+    assert np.isclose(out["fuel_tpd"].iloc[0], 0.5 * 86.4)
+    assert np.isclose(out["wind_rel_deg"].iloc[0], 0.0)           # wind from dead ahead
+    assert np.isclose(out["wave_rel_deg"].iloc[0], 180.0)         # waves from astern
+    assert out["current_kn"].iloc[0] > 0                           # current flowing with the ship
+    assert out["load_ratio"].between(0, 1).all() and out["timestamp"].is_monotonic_increasing
+    assert "Consumer_MainEngine_ShaftPower" in out.attrs["excluded_leakage"]
+
+
+def test_mrv_loader_derives_speed_and_cargo_carried(tmp_path):
+    from greenfleet.data.loaders import load_mrv
+
+    rows = pd.DataFrame({
+        "IMO Number": [1, 2], "Ship type": ["Bulk carrier", "Container ship"], "Reporting Period": [2024, 2024],
+        "Total fuel consumption [m tonnes]": [3000.0, 9000.0], "Total CO₂ emissions [m tonnes]": [9400.0, 28000.0],
+        "CO₂ emissions which occurred within ports under a MS jurisdiction at berth [m tonnes]": [400.0, 1000.0],
+        "Time spent at sea [hours]": [3000.0, 0.0],
+        "Fuel consumption per distance [kg / n mile]": [90.0, 150.0],
+        "Fuel consumption per transport work (mass) [g / m tonnes · n miles]": [3.0, None],
+    })
+    with pd.ExcelWriter(tmp_path / "mrv.xlsx") as xw:            # THETIS exports carry title rows above the header
+        pd.DataFrame([["EU MRV"], [""]]).to_excel(xw, index=False, header=False, startrow=0)
+        rows.to_excel(xw, index=False, startrow=2)
+    m = load_mrv(tmp_path)
+    assert np.isclose(m["distance_nm"].iloc[0], 3000 * 1000 / 90)
+    assert np.isclose(m["avg_speed_kn"].iloc[0], 3000 * 1000 / 90 / 3000)
+    assert np.isnan(m["avg_speed_kn"].iloc[1])                     # no sea time: no speed instead of infinity
+    assert np.isclose(m["cargo_carried_t"].iloc[0], 90 * 1000 / 3.0)
+    assert m["co2_berth_t"].iloc[0] == 400.0

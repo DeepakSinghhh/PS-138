@@ -22,6 +22,7 @@ export default function Benchmarks() {
   if (!data) return <div className="empty">Loading…</div>;
   const pred = data.prediction_benchmark;
   const opt = data.optimization_benchmark;
+  const mrv = data.mrv_validation;
   if (!pred && !opt) return <div className="empty">No benchmark results yet. Run <span className="kbd">make bench-quick</span> (≈ 20 min) or <span className="kbd">make bench-full</span>.</div>;
   const I = opt?.instances?.[inst];
 
@@ -37,15 +38,36 @@ export default function Benchmarks() {
           <div className="grid cols-3">
             {Object.entries(pred.scenarios as Record<string, any>).filter(([, s]) => !s.skipped).map(([k, s]) => (
               <div className="card" key={k}>
-                <div className="card-head"><h3>{prettyClasses(s.scenario)}</h3><span className="muted small">{s.ships_in_test} test ships</span></div>
+                <div className="card-head"><h3>{prettyClasses(s.scenario)}</h3>
+                  {k === "D_fuelcast" ? <span className="chip">real ship data</span> : <span className="muted small">{s.ships_in_test} test ships</span>}</div>
                 <div className="table-wrap"><table><thead><tr><th>Model</th><th className="n">MAPE %</th><th className="n">R²</th></tr></thead>
-                  <tbody>{s.results.filter((r: any) => r.MAPE !== undefined).slice(0, 8).map((r: any) => (
+                  <tbody>{s.results.filter((r: any) => r.MAPE !== undefined).sort((a: any, b: any) => a.MAPE - b.MAPE).slice(0, 8).map((r: any) => (
                     <tr key={r.model} className={r.model.startsWith("Q-PHYS") ? "hl" : ""}><td className="wrap">{r.model}</td><td className="n">{r.MAPE.toFixed(2)}</td><td className="n">{r.R2.toFixed(3)}</td></tr>))}
                   </tbody></table></div>
                 <p className="small muted" style={{ marginTop: 8 }}>90 % interval coverage {(100 * s.conformal.coverage).toFixed(1)}%</p>
               </div>
             ))}
           </div>
+          {mrv?.classes && (
+            <div className="card">
+              <div className="card-head"><div><h3>Vessel library vs EU MRV</h3>
+                <p className="muted small">Real annual reports ({mrv.years.join(", ")}, {fmt(mrv.ship_years_used)} ship-years): fuel per n mile of the
+                  class model against MRV ships of the same type and cargo size, at their median speed. MRV figures exclude fuel
+                  at berth in EU ports but still include anchorage and non-EU port time, so the model should sit somewhat below.</p></div>
+                <span className="chip">real ship data</span></div>
+              <div className="table-wrap"><table>
+                <thead><tr><th>Class</th><th className="n">MRV peers</th><th className="n">speed kn</th><th className="n">MRV p10</th>
+                  <th className="n">MRV median</th><th className="n">MRV p90</th><th className="n">model</th><th className="n">model ÷ median</th></tr></thead>
+                <tbody>{(mrv.classes as any[]).filter((r) => r.model_kg_per_nm !== undefined).map((r) => (
+                  <tr key={r.class}><td className="wrap">{r.label}{r.size_matched ? "" : " (type only)"}</td><td className="n">{fmt(r.peers)}</td>
+                    <td className="n">{r.median_speed_kn.toFixed(1)}</td><td className="n">{r.mrv_p10.toFixed(0)}</td><td className="n">{r.mrv_p50.toFixed(0)}</td>
+                    <td className="n">{r.mrv_p90.toFixed(0)}</td><td className="n">{r.model_kg_per_nm.toFixed(0)}</td>
+                    <td className="n">{r.model_to_median.toFixed(2)}{r.within_p10_p90 ? "" : " ⚑"}</td></tr>))}</tbody>
+              </table></div>
+              <p className="note">kg per nautical mile. ⚑ = outside the MRV p10–p90 band: the smallest classes (feeder, Handysize, MR tanker)
+                under-predict real fuel use and are the first candidates for recalibration.</p>
+            </div>
+          )}
           {pred.tuners && (
             <div className="card">
               <div className="card-head"><div><h3>Hyperparameter search: convergence at equal budget</h3>

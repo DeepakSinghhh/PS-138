@@ -64,7 +64,7 @@ def train(tune_budget: int = 20, select_budget: int = 40, seed: int = 0) -> dict
         "conformal": model.interval_coverage(split.test, y),
         "feature_importance": model.feature_importance(split.test),
         "report": model.report,
-        "data_source": "synthetic (physics-informed); FuelCast used when present in data/raw/fuelcast",
+        "data_source": "synthetic (physics-informed); real FuelCast data is used for evaluation only (benchmark scenario D)",
     }
     ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
     joblib.dump(model, MODEL_PATH)

@@ -254,12 +254,95 @@ def load_telemetry_folder(folder: Path, source: str) -> pd.DataFrame | None:
     return out
 
 
+MS_TO_KN = 1.943844
+FUELCAST_MAP = {   # canonical field <- FuelCast column (dataset card units)
+    "speed_kn": "Ship_SpeedOverGround",            # m/s (the benchmark's speed input)
+    "fuel": "Consumer_Total_MomentaryFuel",        # kg/s, all consumers
+    "heading_deg": "Ship_Heading",                 # falls back to Ship_Bearing
+    "wind_speed_ms": "Weather_WindSpeed10M",       # m/s (the card writes ...10m; the files use ...10M)
+    "wind_dir_deg": "Weather_WindDirection10M",    # deg, 'from'
+    "wave_height_m": "Weather_WaveHeight",         # m
+    "wave_dir_deg": "Weather_WaveDirection",       # deg, 'from'
+    "current_speed": "Weather_OceanCurrentVelocity",   # m/s
+    "current_dir_deg": "Weather_OceanCurrentDirection",  # deg, 'towards' (direction of flow)
+    "draft_fwd": "Ship_DraftFore",                 # m (not recorded on every ship)
+    "draft_aft": "Ship_DraftAft",
+}
+
+
+def canonicalise_fuelcast(df: pd.DataFrame, ship_id: str) -> pd.DataFrame:
+    """FuelCast's documented schema (5-minute samples) to the canonical telemetry columns.
+
+    The column names and units are fixed by the dataset card, so they are mapped explicitly rather than guessed.
+    Shaft power and engine rpm are left out: they are consequences of the fuel burn, not inputs (leakage).
+    """
+    nan = pd.Series(np.nan, index=df.index)
+
+    def col(key: str) -> pd.Series:   # missing columns (not every ship logs every signal) become NaN
+        name = FUELCAST_MAP[key]
+        return pd.to_numeric(df[name], errors="coerce") if name in df else nan
+
+    heading = col("heading_deg")
+    if heading.isna().all() and "Ship_Bearing" in df:
+        heading = pd.to_numeric(df["Ship_Bearing"], errors="coerce")
+    # a few samples have no step index; it is monotonic, so interpolate them
+    step = (df["index"].astype(float).interpolate(limit_direction="both") if "index" in df
+            else pd.Series(np.arange(len(df)), index=df.index, dtype=float))
+    out = pd.DataFrame(index=df.index)
+    out["ship_id"] = ship_id
+    out["vessel_class"] = None
+    out["vessel_type"] = infer_vessel_type(ship_id)
+    out["source"] = "fuelcast"
+    # absolute dates are not published; the 5-minute step index keeps the chronological order
+    out["timestamp"] = pd.Timestamp("2000-01-01") + pd.to_timedelta(step * 5, unit="min")
+    out["speed_kn"] = col("speed_kn") * MS_TO_KN
+    fwd, aft = col("draft_fwd"), col("draft_aft")
+    if (fwd.notna() & aft.notna()).any():
+        draft = (fwd + aft) / 2
+        out["draft_ratio"] = draft / draft.quantile(0.95)
+        lo, hi = draft.quantile(0.02), draft.quantile(0.98)
+        out["load_ratio"] = ((draft - lo) / (hi - lo)).clip(0, 1) if hi > lo else np.nan
+        out["trim_m"] = aft - fwd
+    else:
+        out["draft_ratio"] = out["load_ratio"] = out["trim_m"] = np.nan
+    out["wind_speed_ms"] = col("wind_speed_ms")
+    out["wind_rel_deg"] = _relative_angle(col("wind_dir_deg"), heading)
+    out["wave_height_m"] = col("wave_height_m")
+    out["wave_rel_deg"] = _relative_angle(col("wave_dir_deg"), heading)
+    # current along the ship's heading, positive = pushing the ship ahead
+    out["current_kn"] = col("current_speed") * MS_TO_KN * np.cos(np.deg2rad(col("current_dir_deg") - heading))
+    out["days_since_cleaning"] = (out["timestamp"] - out["timestamp"].min()).dt.total_seconds() / 86400.0
+    out["fuel_tpd"] = col("fuel") * 86.4                     # kg/s -> t/day
+    out = out[(out["speed_kn"] > 3.0) & (out["fuel_tpd"] > 0)]
+    out = out.dropna(subset=["speed_kn", "fuel_tpd"]).reset_index(drop=True)
+    out.attrs["column_map"] = {k: v for k, v in FUELCAST_MAP.items() if v in df}
+    out.attrs["excluded_leakage"] = [c for c in df.columns if "ShaftPower" in c or "RotationSpeed" in c
+                                     or "ShaftTorque" in c or ("MomentaryFuel" in c and c != FUELCAST_MAP["fuel"])]
+    return out
+
+
 def load_fuelcast(folder: Path | None = None) -> pd.DataFrame | None:
-    """FuelCast (huggingface.co/datasets/krohnedigital/FuelCast): one file per ship."""
+    """FuelCast (huggingface.co/datasets/krohnedigital/FuelCast, CC BY-NC-ND 4.0): one parquet file per ship."""
     folder = folder or RAW / "fuelcast"
-    out = load_telemetry_folder(folder, "fuelcast")
-    if out is None:
-        log.info("FuelCast not found in %s - using synthetic data only", folder)
+    files = sorted(folder.glob("*.parquet")) if folder.exists() else []
+    frames, maps, excluded = [], {}, set()
+    for f in files:
+        raw = pd.read_parquet(f)
+        if FUELCAST_MAP["fuel"] not in raw or FUELCAST_MAP["speed_kn"] not in raw:
+            log.warning("skipping %s: not in the FuelCast schema", f.name)
+            continue
+        part = canonicalise_fuelcast(raw, f.stem)
+        maps[f.stem] = part.attrs["column_map"]
+        excluded.update(part.attrs["excluded_leakage"])
+        frames.append(part)
+    if not frames:
+        out = load_telemetry_folder(folder, "fuelcast")     # other telemetry dropped into the folder
+        if out is None:
+            log.info("FuelCast not found in %s - using synthetic data only", folder)
+        return out
+    out = pd.concat(frames, ignore_index=True)
+    out.attrs["column_map"] = maps
+    out.attrs["excluded_leakage"] = sorted(excluded)
     return out
 
 
@@ -277,6 +360,9 @@ MRV_ALIASES = {
     "co2_t": ["total_co_emissions_m_tonnes", "total_co2_emissions_m_tonnes", "total_co2_emissions"],
     "hours_at_sea": ["annual_total_time_spent_at_sea_hours", "time_spent_at_sea"],
     "fuel_per_nm_kg": ["annual_average_fuel_consumption_per_distance_kg_n_mile", "fuel_consumption_per_distance"],
+    "co2_berth_t": ["co_emissions_which_occurred_within_ports_under_a_ms_jurisdiction_at_berth_m_tonnes"],
+    "fuel_per_mass_nm_g": ["fuel_consumption_per_transport_work_mass_g_m_tonnes_n_miles"],
+    "fuel_per_dwt_nm_g": ["fuel_consumption_per_transport_work_dwt_g_dwt_carried_n_miles"],
 }
 
 
@@ -301,13 +387,22 @@ def load_mrv(folder: Path | None = None) -> pd.DataFrame | None:
             continue
         out = pd.DataFrame({k: df[v] for k, v in m.items()})
         out["vessel_type"] = out["ship_type"].map(normalise_vessel_type)
-        for c in ("fuel_t", "co2_t", "hours_at_sea", "fuel_per_nm_kg"):
+        for c in ("fuel_t", "co2_t", "co2_berth_t", "hours_at_sea", "fuel_per_nm_kg", "fuel_per_mass_nm_g",
+                  "fuel_per_dwt_nm_g"):
             if c in out:
                 out[c] = pd.to_numeric(out[c], errors="coerce")
         if "fuel_per_nm_kg" in out and "fuel_t" in out:
             out["distance_nm"] = out["fuel_t"] * 1000 / out["fuel_per_nm_kg"]
             if "hours_at_sea" in out:
-                out["avg_speed_kn"] = out["distance_nm"] / out["hours_at_sea"]
+                out["avg_speed_kn"] = out["distance_nm"] / out["hours_at_sea"].where(out["hours_at_sea"] > 0)
+        # average cargo carried over all legs (laden and ballast) = fuel per n mile / fuel per transport work.
+        # Bulk carriers, tankers and container ships report transport work by cargo mass; some types by deadweight
+        if "fuel_per_nm_kg" in out:
+            carried = pd.Series(np.nan, index=out.index)
+            for c in ("fuel_per_mass_nm_g", "fuel_per_dwt_nm_g"):
+                if c in out:
+                    carried = carried.fillna(out["fuel_per_nm_kg"] * 1000 / out[c].where(out[c] > 0))
+            out["cargo_carried_t"] = carried
         frames.append(out)
     return pd.concat(frames, ignore_index=True) if frames else None
 
