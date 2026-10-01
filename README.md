@@ -117,7 +117,7 @@ Or run everything in one container: `docker compose up --build`, then open http:
 `render.yaml` deploys the Docker image on Render's free plan (no card; about 270 MB of the 512 MB limit is used) and
 redeploys on every push. `.github/workflows/keep-alive.yml` pings it every 10 minutes so it does not sleep.
 
-A narrated walkthrough of the prototype is in [docs/demo/](docs/demo/) (`Q-GreenFleet_walkthrough.mp4`, 4½ min, with subtitles and a narration script).
+A narrated walkthrough of the prototype is in [docs/demo/](docs/demo/) (`Q-GreenFleet_walkthrough.mp4`, 5½ min, with subtitles and a narration script; it covers the guided tour, the QAOA circuit and the real-data results).
 
 A trained model ships in `backend/artifacts/`. Retrain with `make data && make train`. Run `make test` for the test
 suite, and `make bench-quick` to regenerate the benchmarks.

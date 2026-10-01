@@ -124,6 +124,9 @@ const readMs = (text) => Math.max(2800, text.length * 50);
   await moveTo(page.locator(".hero").first(), { steps: 40 });
   await say(K1, "Run the way fleets run today (VLSFO at full schedule speed), it emits about 2.1 Mt CO₂e a year, and 11 of 12 services fail the 2030 CII limit.",
     "Run the way fleets run today, on VLSFO at full schedule speed, this network emits about two point one million tonnes of CO2-equivalent a year, and eleven of the twelve services fail the 2030 carbon-intensity limit.");
+  await moveTo(page.getByRole("button", { name: "Take the 2-minute tour" }), { steps: 40 });
+  await say(K1, "Exploring on your own? The 2-minute guided tour walks through every deliverable, one click from this page.",
+    "Anyone exploring on their own can start the two-minute guided tour from this page. It walks through every deliverable.", -900);
   await hideCaption();
 
   // ---------------------------------------------------------------- optimizer
@@ -265,7 +268,26 @@ const readMs = (text) => Math.max(2800, text.length * 50);
   await moveTo(page.getByText("Gap to exact optimum").locator("xpath=.."), { steps: 35 });
   await say(K5, `Annealed plan: ${gapTxt} from the exact optimum on the same objective, and fully feasible.`,
     `The annealed plan lands ${gapTxt.replace("%", " percent")} from the exact optimum on the same objective, and it is fully feasible.`, -300);
+  // the QAOA card is the last on the page: add room below so it can scroll to the top, clear of the caption
+  await page.evaluate(() => { document.querySelector("main").style.paddingBottom = "560px"; });
+  await scrollTo(page.getByRole("heading", { name: "Gate-model QAOA" }), "start");
+  await click(page.getByRole("button", { name: "Run QAOA" }), { after: 300 });
+  await caption(K5, "Gate-model QAOA: 12 qubits decide four services that compete for scarce ships. The circuit is simulated exactly and trained here.",
+    "And here is a real quantum circuit. Twelve qubits decide four services that compete for scarce ships, and the circuit is simulated exactly and trained right here.");
+  const q0 = now();
+  await hold(3000);
+  let qff = false;
+  if (!(await page.getByText("Best plan measured").isVisible())) { await ff(true); qff = true; }
+  await page.getByText("Best plan measured").waitFor({ timeout: 300000 });
+  if (qff) await ff(false);
+  await hold(Math.max(0, 6500 - (now() - q0) * 1000));
+  const qStat = page.getByText("Best plan measured").locator("xpath=..");
+  const qp = (await textOf(qStat.locator(".value"))).replace(/\s/g, "");
+  await moveTo(qStat, { steps: 35 });
+  await say(K5, `Trained circuit: the best plan in ${qp} of shots (random guess 1.2 %). It downloads as OpenQASM 2.0 for IBM Quantum.`,
+    `After training, ${qp.replace("%", " percent")} of shots return the best plan, against about one percent by guessing, and the circuit downloads as OpenQASM for IBM quantum computers.`, -200);
   await hideCaption();
+  await page.evaluate(() => { document.querySelector("main").style.paddingBottom = ""; });
 
   // ---------------------------------------------------------------- benchmarks
   await card(MARK_CARD("05", "Benchmarked honestly", "Accuracy &middot; convergence &middot; solution quality &middot; scalability"), 800,
@@ -274,13 +296,22 @@ const readMs = (text) => Math.max(2800, text.length * 50);
   await moveTo(page.getByText("Q-PHYS (quantum-inspired hybrid)").first(), { steps: 40 });
   await say(K6, "Prediction: Q-PHYS reaches 3.3 % error on known ships, ahead of LightGBM, random forest and neural networks on the same data.",
     "On prediction, Q-PHYS reaches three point three percent error on known ships, ahead of LightGBM, random forests and neural networks trained on the same data.", -400);
+  const fcCard = page.locator(".card", { has: page.getByRole("heading", { name: /FuelCast/ }) }).first();
+  await scrollTo(fcCard, "center");
+  await moveTo(fcCard.getByText("Q-PHYS-M (certified monotone)"), { steps: 40 });
+  await say(K6, "Real ships (FuelCast: 3 ships, 86,757 sensor samples): Q-PHYS-M is the most accurate model, 7.3 % error vs 9.3 % physics and 11.6 % LightGBM.",
+    "On real sensor data from three ships, the FuelCast benchmark, our monotone Q-PHYS is the most accurate model: seven point three percent error, against nine point three for calibrated physics and eleven point six for LightGBM.", -900);
+  await scrollTo(page.getByRole("heading", { name: "Vessel library vs EU MRV" }), "start");
+  await moveTo(page.getByRole("heading", { name: "Vessel library vs EU MRV" }).locator("xpath=../../.."), { fx: 0.5, fy: 0.45, steps: 40 });
+  await say(K6, "The vessel library is checked against 23,009 real EU MRV ship-years, and the small classes that still run low are flagged.",
+    "And our vessel library is checked against twenty-three thousand real EU ship reports, flagging the small classes where it still runs low.", -700);
   await scrollTo(page.getByRole("heading", { name: "Front quality" }), "start");
   await moveTo(page.getByText("QMOEA-H (ours)").first(), { steps: 40 });
-  await say(K6, "Optimisation: QMOEA-H ranks first against NSGA-II, NSGA-III and MOPSO, and lands within 1–3 % of the exact optimum.",
-    "On optimisation, QMOEA-H ranks first against NSGA-II, NSGA-III and MOPSO, and lands within one to three percent of the exact optimum.", -300);
+  await say(K6, "Optimisation, 10 seeds: QMOEA-H ranks first against NSGA-II, NSGA-III and MOPSO (p < 0.001) and lands within 1 % of the exact optimum.",
+    "On optimisation, over ten seeds, QMOEA-H ranks first against NSGA-II, NSGA-III and MOPSO, and lands within one percent of the exact optimum.", -300);
   await scrollTo(page.getByRole("heading", { name: "Scalability" }), "start");
-  await say(K6, "We also show where classical methods still do better, such as MOPSO on very large, loosely constrained networks.",
-    "And we show where classical methods still do better, such as MOPSO on very large, loosely constrained networks.", -700);
+  await say(K6, "Honest limits: at 200 routes no heuristic, ours included, finds a feasible plan. There, the exact MILP is the tool to use.",
+    "And we say where it falls short: at two hundred routes no heuristic, ours included, finds a feasible plan, and the exact solver is the tool to use.", -700);
   await hideCaption();
 
   // ---------------------------------------------------------------- what-if
@@ -301,8 +332,8 @@ const readMs = (text) => Math.max(2800, text.length * 50);
   // ---------------------------------------------------------------- outro
   await card(`<div class="mark">{MARK}</div><div class="kick">Q-GreenFleet &middot; SIH 2026 &middot; PS 26138</div>
     <h1>Predict every tonne.<br/>Optimise every voyage.</h1>
-    <p>Working prototype &middot; FastAPI + React &middot; 71 automated tests &middot; one-command Docker</p>
-    <div class="foot">github.com/DeepakSinghhh/PS-138</div>`, 4600);
+    <p>Working prototype &middot; FastAPI + React &middot; 88 automated tests &middot; one-command Docker</p>
+    <div class="foot">Live: q-greenfleet.onrender.com &middot; github.com/DeepakSinghhh/PS-138</div>`, 4600);
   events.push({ t: now(), type: "end" });
   await hold(300);
   await client.send("Page.stopScreencast");

@@ -1,7 +1,7 @@
 """Synthesize the voice-over with Kokoro TTS (offline, Apache-2.0) and write narration/manifest.json.
 
 Run with the TTS virtualenv:  <tts-venv>/bin/python narrate.py --model <dir with kokoro-v1.0.onnx + voices-v1.0.bin>
-Numbers that depend on the recorded run ({n}, {g}, {f}, {c}, {gap}) are read from the on-screen captions.
+Numbers that depend on the recorded run ({n}, {g}, {f}, {c}, {gap}, {qp}) are read from the on-screen captions.
 """
 
 import argparse
@@ -24,6 +24,8 @@ def fill(text: str, captions: list[str]) -> str:
         vals.update(g=m.group(1), f=m.group(2), c=m.group(3))
     if m := re.search(r"Annealed plan: ([\d.]+)%", joined):
         vals["gap"] = m.group(1)
+    if m := re.search(r"the best plan in (\d+)% of shots", joined):
+        vals["qp"] = m.group(1)
     return text.format(**vals)
 
 

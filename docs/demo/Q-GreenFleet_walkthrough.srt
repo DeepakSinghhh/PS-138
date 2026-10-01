@@ -11,125 +11,145 @@ Our India case study has twelve real services, from JNPT to Mundra, all the way 
 Run as fleets run today, it emits about 2.1 million tonnes of CO₂-equivalent a year, and eleven of twelve services fail the 2030 carbon-intensity limit.
 
 4
-00:00:30,358 --> 00:00:32,542
-First, optimising the whole fleet.
+00:00:29,555 --> 00:00:36,048
+Anyone exploring on their own can start the two-minute guided tour from this page. It walks through every deliverable.
 
 5
-00:00:34,546 --> 00:00:41,829
-The scenario is India in 2030, with IMO rules, FuelEU and E U carbon trading built in.
+00:00:37,350 --> 00:00:39,534
+First, optimising the whole fleet.
 
 6
-00:00:42,329 --> 00:00:51,724
-Our quantum-inspired optimiser, QMOEA-H, chooses the vessel mix, capacity, speed, fuel and shore power for all twelve routes at once.
+00:00:41,519 --> 00:00:48,802
+The scenario is India in 2030, with IMO rules, FuelEU and E U carbon trading built in.
 
 7
-00:00:52,224 --> 00:00:57,864
-Every dot is a complete fleet plan, streaming in live, far below today's plans in grey.
+00:00:49,302 --> 00:00:58,697
+Our quantum-inspired optimiser, QMOEA-H, chooses the vessel mix, capacity, speed, fuel and shore power for all twelve routes at once.
 
 8
-00:00:58,364 --> 00:01:06,393
-In seconds it evaluates six thousand plans and keeps the 116 best. The recommended plan sits at the knee of the curve.
+00:00:59,197 --> 00:01:04,837
+Every dot is a complete fleet plan, streaming in live, far below today's plans in grey.
 
 9
-00:01:06,893 --> 00:01:17,162
-Compared with today, the recommended plan cuts emissions by 60 percent, fuel by 52 percent and cost by 23 percent, while meeting every constraint.
+00:01:05,337 --> 00:01:12,833
+In seconds it evaluates six thousand plans and keeps the 200 best. The recommended plan sits at the knee of the curve.
 
 10
-00:01:17,662 --> 00:01:25,137
-And it explains itself: which routes switch to LNG or ammonia, where to slow down, and where to plug into shore power.
+00:01:13,333 --> 00:01:23,922
+Compared with today, the recommended plan cuts emissions by 62 percent, fuel by 53 percent and cost by 23 percent, while meeting every constraint.
 
 11
-00:01:25,637 --> 00:01:29,976
-Here is the fleet on the map, next to the emission profile of every service.
+00:01:24,422 --> 00:01:31,897
+And it explains itself: which routes switch to LNG or ammonia, where to slow down, and where to plug into shore power.
 
 12
-00:01:32,703 --> 00:01:39,666
-For each service: the vessel class, number of ships, speed, fuel, shore power and the resulting CII rating.
+00:01:32,397 --> 00:01:36,736
+Here is the fleet on the map, next to the emission profile of every service.
 
 13
-00:01:40,166 --> 00:01:47,534
-One click builds a decision report for managers, with the plan, its compliance, its robustness and its abatement costs.
+00:01:39,357 --> 00:01:46,320
+For each service: the vessel class, number of ships, speed, fuel, shore power and the resulting CII rating.
 
 14
-00:01:49,838 --> 00:01:51,574
-Second, staying compliant.
+00:01:46,820 --> 00:01:54,188
+One click builds a decision report for managers, with the plan, its compliance, its robustness and its abatement costs.
 
 15
-00:01:54,143 --> 00:02:02,322
-For the chosen plan: every service's CII rating, the FuelEU pool against its tightening limit, and the carbon-trading cost.
+00:01:56,117 --> 00:01:57,853
+Second, staying compliant.
 
 16
-00:02:03,625 --> 00:02:05,916
-Third, predicting fuel for any ship.
+00:02:00,425 --> 00:02:08,604
+For the chosen plan: every service's CII rating, the FuelEU pool against its tightening limit, and the carbon-trading cost.
 
 17
-00:02:07,867 --> 00:02:15,683
-Q-PHYS predicts fuel from speed, load, weather and vessel type, combining physics with a quantum-inspired tensor network.
+00:02:09,907 --> 00:02:12,198
+Third, predicting fuel for any ship.
 
 18
-00:02:16,183 --> 00:02:22,484
-Speed up, and fuel climbs steeply. The model is certified never to predict less fuel at a higher speed.
+00:02:14,101 --> 00:02:21,917
+Q-PHYS predicts fuel from speed, load, weather and vessel type, combining physics with a quantum-inspired tensor network.
 
 19
-00:02:23,213 --> 00:02:28,384
-Rougher seas add fuel, and the ninety percent confidence band scales with the prediction.
+00:02:22,417 --> 00:02:28,718
+Speed up, and fuel climbs steeply. The model is certified never to predict less fuel at a higher speed.
 
 20
-00:02:30,410 --> 00:02:35,346
-Switch the fuel to green ammonia, and the fuel mass and emissions update instantly.
+00:02:29,218 --> 00:02:34,389
+Rougher seas add fuel, and the ninety percent confidence band scales with the prediction.
 
 21
-00:02:36,309 --> 00:02:44,339
-Inside the tensor network, entanglement entropy shows which inputs the model links together, an idea borrowed from quantum physics.
+00:02:36,205 --> 00:02:41,141
+Switch the fuel to green ammonia, and the fuel mass and emissions update instantly.
 
 22
-00:02:45,651 --> 00:02:48,773
-Fourth, planning the transition to 2050.
+00:02:42,115 --> 00:02:50,144
+Inside the tensor network, entanglement entropy shows which inputs the model links together, an idea borrowed from quantum physics.
 
 23
-00:02:49,857 --> 00:02:56,755
-Each milestone year to 2050 is optimised under that year's rules, prices and fuel availability.
+00:02:51,446 --> 00:02:54,569
+Fourth, planning the transition to 2050.
 
 24
-00:02:57,256 --> 00:03:02,554
-The fuel mix shifts decade by decade as the targets tighten, while emissions keep falling.
+00:02:55,638 --> 00:03:02,537
+Each milestone year to 2050 is optimised under that year's rules, prices and fuel availability.
 
 25
-00:03:04,405 --> 00:03:10,514
-The abatement cost curve shows which measures save money, and which cost dollars per tonne of carbon avoided.
+00:03:03,037 --> 00:03:08,336
+The fuel mix shifts decade by decade as the targets tighten, while emissions keep falling.
 
 26
-00:03:11,014 --> 00:03:18,147
-An exact mixed-integer program finds the true optimum in about a second. That is our yardstick for every heuristic.
+00:03:10,194 --> 00:03:16,303
+The abatement cost curve shows which measures save money, and which cost dollars per tonne of carbon avoided.
 
 27
-00:03:18,647 --> 00:03:27,508
-The same problem, written as a QUBO, is solved by our own simulated quantum annealer, and runs unchanged on D-Wave quantum hardware.
+00:03:16,803 --> 00:03:23,936
+An exact mixed-integer program finds the true optimum in about a second. That is our yardstick for every heuristic.
 
 28
-00:03:28,008 --> 00:03:32,858
-The annealed plan lands just 1.52 percent from the exact optimum.
+00:03:24,436 --> 00:03:33,297
+The same problem, written as a QUBO, is solved by our own simulated quantum annealer, and runs unchanged on D-Wave quantum hardware.
 
 29
-00:03:34,169 --> 00:03:35,883
-Finally, the benchmarks.
+00:03:33,797 --> 00:03:38,648
+The annealed plan lands just 1.52 percent from the exact optimum.
 
 30
-00:03:39,357 --> 00:03:48,453
-Q-PHYS predicts fuel within 3.3 percent on known ships, ahead of LightGBM, random forests and neural networks on the same data.
+00:03:40,246 --> 00:03:50,174
+And here is a real quantum circuit. Twelve qubits decide four services that compete for scarce ships, and the circuit is simulated exactly and trained right here.
 
 31
-00:03:48,953 --> 00:03:56,150
-Our optimiser ranks first against the classical algorithms, and lands within one to three percent of the exact optimum.
+00:03:50,674 --> 00:04:01,839
+After training, 79 percent of shots return the best plan, against about one percent by guessing, and the circuit downloads as OpenQASM for IBM quantum computers.
 
 32
-00:03:56,650 --> 00:04:02,652
-And we show honestly where classical methods still win: on very large, loosely constrained networks.
+00:04:03,154 --> 00:04:04,869
+Finally, the benchmarks.
 
 33
-00:04:07,889 --> 00:04:17,177
-And what if the Red Sea closes? One click, and the Europe service reroutes around the Cape of Good Hope, adding about four thousand seven hundred nautical miles.
+00:04:08,272 --> 00:04:17,368
+Q-PHYS predicts fuel within 3.3 percent on known ships, ahead of LightGBM, random forests and neural networks on the same data.
 
 34
-00:04:18,744 --> 00:04:23,338
+00:04:17,868 --> 00:04:33,428
+On real sensor data from three ships, the FuelCast benchmark, the monotone version of Q-PHYS is the most accurate model: 7.3 percent error, against 9.3 for calibrated physics and 11.6 for LightGBM.
+
+35
+00:04:33,928 --> 00:04:41,915
+And our vessel library is checked against twenty-three thousand real E U ship reports, flagging the small classes where it still runs low.
+
+36
+00:04:42,415 --> 00:04:50,423
+Over ten seeds, our optimiser ranks first against the classical algorithms, and lands within one percent of the exact optimum.
+
+37
+00:04:50,923 --> 00:05:00,083
+And we say where it falls short: at two hundred routes no heuristic finds a feasible plan, not even ours, and the exact solver is the tool to use.
+
+38
+00:05:05,264 --> 00:05:14,552
+And what if the Red Sea closes? One click, and the Europe service reroutes around the Cape of Good Hope, adding about four thousand seven hundred nautical miles.
+
+39
+00:05:16,147 --> 00:05:20,742
 Q-GreenFleet. Predict every tonne, optimise every voyage. Thank you.
