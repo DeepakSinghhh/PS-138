@@ -5,5 +5,5 @@
     <path d="M0 34 C8 29 14 29 21 33.5 S33 38 40 33.5 S54 29 64 34" stroke="#000" stroke-width="10.5" fill="none"/>
   </mask>
   <circle cx="32" cy="32" r="18.5" fill="none" stroke="#f3f1ec" stroke-width="5.6" mask="url(#w)"/>
-  <path d="M6.5 34 C12.5 30.1 16.5 30.1 22.2 33.8 S34.4 37.6 40.6 33.8 S51.5 30.1 57.5 33.3" stroke="#4fb0e6" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <path d="M6.5 34 C12.5 30.1 16.5 30.1 22.2 33.8 S34.4 37.6 40.6 33.8 S51.5 30.1 57.5 33.3" stroke="#7c86ff" stroke-width="5" stroke-linecap="round" fill="none"/>
 </svg>
