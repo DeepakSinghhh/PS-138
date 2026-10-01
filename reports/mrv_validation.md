@@ -21,4 +21,19 @@ Fuel per n mile in kg; MRV p10/p50/p90 are sea-passage figures (EU at-berth shar
 | Ro-Pax ferry (1,200 pax) | Ro-pax ship | type only | 759 | 15.623 | 7 % | 150.9 | 63.619 | 141.5 | 217.1 | 111.2 | 0.786 | 31 |
 | Island passenger-cargo ship (400 pax) | Ro-pax ship | type only | 759 | 15.623 | 7 % | 150.9 | 63.619 | 141.5 | 217.1 | 49.781 | 0.352 | 6 |
 
+**Robustness.** Model ÷ MRV median when peers are matched more tightly on cargo size:
+
+| class | band 0.30-0.80 × DWT | band 0.40-0.70 × DWT | band 0.45-0.60 × DWT |
+|---|---|---|---|
+| Feeder container (1,700 TEU) | 0.573 | 0.565 | 0.552 |
+| Panamax container (4,500 TEU) | 0.761 | 0.750 | 0.725 |
+| Neo-Panamax container (13,000 TEU) | 0.913 | 0.897 | 0.908 |
+| Handysize bulk (35,000 DWT) | 0.722 | 0.730 | 0.733 |
+| Supramax bulk (58,000 DWT) | 0.864 | 0.858 | 0.873 |
+| Panamax bulk (82,000 DWT) | 0.932 | 0.910 | 0.910 |
+| MR product tanker (50,000 DWT) | 0.770 | 0.781 | 0.786 |
+| Aframax tanker (110,000 DWT) | 0.807 | 0.748 | 0.754 |
+
+The gap barely moves with the band, so it is not an artefact of peer selection. The large classes sit near 0.9 (the remaining ~10 % is fuel at anchor and in non-EU ports, which MRV does not separate). Bringing a class to that level would need about 0.9 ÷ (its ratio) more fuel: roughly ×1.6 for the feeder, ×1.25 for Handysize, ×1.2 for the MR tanker and Panamax container, ×1.1 for the Aframax. A single factor on propulsion power is not physically consistent (the feeder would no longer reach its design speed within its engine power), and a different speed-power exponent cannot explain it either (the feeder and the Neo-Panamax run at similar fractions of design speed but differ by 1.6×). The library is therefore left as it is and the gap is reported here. Plausible causes for small ships, such as reefer and hotel loads and older or fouled hulls, need ship-level data to separate.
+
 ![MRV validation](figures/mrv_validation.png)

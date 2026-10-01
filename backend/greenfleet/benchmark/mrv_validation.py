@@ -77,8 +77,23 @@ def validate(mrv: pd.DataFrame) -> dict:
                      "mrv_total_p50": total50, "berth_share_median": float(peers["berth_share"].median()),
                      "model_kg_per_nm": model, "model_to_median": model / q50, "model_percentile": pct,
                      "within_p10_p90": bool(q10 <= model <= q90)})
+    # robustness: does the result depend on how tightly peers are matched on size?
+    bands = [(0.3, 0.8), (0.4, 0.7), (0.45, 0.6)]
+    robustness = {}
+    for cid, vc in vessel_classes().items():
+        if vc.cargo not in TYPE_MAP or vc.cargo == "pax":
+            continue
+        robustness[cid] = {}
+        for lo, hi in bands:
+            pe = m[m["ship_type"].isin(TYPE_MAP[vc.cargo]) & m["cargo_carried_t"].between(lo * vc.dwt, hi * vc.dwt)]
+            if len(pe) >= 10:
+                robustness[cid][f"{lo:.2f}-{hi:.2f}"] = {
+                    "peers": int(len(pe)),
+                    "model_to_median": model_fuel_per_nm(cid, float(pe["avg_speed_kn"].median()))
+                    / float(pe["sea_fuel_per_nm_kg"].median())}
     years = sorted(int(y) for y in mrv["year"].dropna().unique()) if "year" in mrv else []
     return {"years": years, "ship_years": int(len(mrv)), "ship_years_used": int(len(m)), "classes": rows,
+            "robustness": robustness,
             "assumptions": {"carried_dwt_band": [LO, HI], "draft_ratio": DRAFT_RATIO, "beaufort": BEAUFORT}}
 
 
@@ -142,6 +157,22 @@ def markdown(res: dict, fig: str | None) -> str:
            _table(["class", "MRV type", "size-matched", "peers", "median speed kn", "at-berth CO₂ share",
                    "MRV total p50", "MRV p10", "MRV p50", "MRV p90", "model", "model / MRV p50", "model percentile"],
                   table), ""]
+    rob = res.get("robustness") or {}
+    if rob:
+        bands = sorted({b for v in rob.values() for b in v})
+        md += ["**Robustness.** Model ÷ MRV median when peers are matched more tightly on cargo size:", "",
+               _table(["class"] + [f"band {b} × DWT" for b in bands],
+                      [[vessel_classes()[c].label] + [v.get(b, {}).get("model_to_median") for b in bands]
+                       for c, v in rob.items()]), "",
+               "The gap barely moves with the band, so it is not an artefact of peer selection. The large classes "
+               "sit near 0.9 (the remaining ~10 % is fuel at anchor and in non-EU ports, which MRV does not separate). "
+               "Bringing a class to that level would need about 0.9 ÷ (its ratio) more fuel: roughly ×1.6 for the "
+               "feeder, ×1.25 for Handysize, ×1.2 for the MR tanker and Panamax container, ×1.1 for the Aframax. A single "
+               "factor on propulsion power is not physically consistent (the feeder would no longer reach its design "
+               "speed within its engine power), and a different speed-power exponent cannot explain it either (the "
+               "feeder and the Neo-Panamax run at similar fractions of design speed but differ by 1.6×). The library is "
+               "therefore left as it is and the gap is reported here. Plausible causes for small ships, such as reefer "
+               "and hotel loads and older or fouled hulls, need ship-level data to separate.", ""]
     skipped = [r for r in res["classes"] if "model_kg_per_nm" not in r]
     if skipped:
         md += ["Not compared: " + ", ".join(f"{r['label']} ({r['note']})" for r in skipped), ""]
