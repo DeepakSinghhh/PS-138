@@ -3,6 +3,7 @@ import Plot from "./Plot";
 import Stat from "./Stat";
 import FleetMap from "./FleetMap";
 import { downloadReport } from "../lib/api";
+import { useMoney } from "../lib/currency";
 import { compact, fmt, pct } from "../lib/format";
 import { FAMILY_LABEL, familyColor, useTheme } from "../lib/theme";
 import type { Genes, Meta, NetworkInfo, Plan, Scenario } from "../lib/types";
@@ -14,6 +15,7 @@ interface Props {
 
 export default function PlanDetails({ plan, genes, scenario, network, meta, label, algorithm }: Props) {
   const t = useTheme();
+  const money = useMoney();
   const [busy, setBusy] = useState(false);
   const ex = plan.explanation;
   const d = ex?.delta_pct ?? {};
@@ -32,27 +34,27 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
         </div>
         <button className="btn primary" disabled={busy} onClick={async () => {
           setBusy(true);
-          try { await downloadReport(scenario, genes, algorithm); } finally { setBusy(false); }
+          try { await downloadReport(scenario, genes, algorithm, money.currency); } finally { setBusy(false); }
         }}>{busy ? "Building report…" : "Download decision report"}</button>
       </div>
 
       <div className="grid cols-4">
         <Stat label="Fuel" value={compact(plan.objectives.fuel)} unit="t HFO-eq / yr" delta={d.fuel} />
         <Stat label="Well-to-wake GHG" value={compact(plan.objectives.emissions)} unit="t CO₂e / yr" delta={d.emissions} />
-        <Stat label="Annual cost" value={fmt(plan.objectives.cost, 1)} unit="M USD / yr" delta={d.cost} />
+        <Stat label="Annual cost" value={money.bigSplit(plan.objectives.cost).value} unit={`${money.bigSplit(plan.objectives.cost).unit} / yr`} delta={d.cost} />
         <div className="card stat">
           <span className="label">Compliance</span>
           <span className="value" style={{ fontSize: 20 }}>{ratings.filter((r) => "ABC".includes(r)).length}/{ratings.length} CII ≥ C</span>
           <span className="status">
             <span className="dot" style={{ background: fe.balance_t_co2e >= 0 ? t.good : t.critical }} />
-            FuelEU {fe.in_scope_energy_gj > 0 ? (fe.balance_t_co2e >= 0 ? "compliant (pool surplus)" : `deficit · penalty $${compact(fe.penalty_usd)}`) : "not in scope"}
+            FuelEU {fe.in_scope_energy_gj > 0 ? (fe.balance_t_co2e >= 0 ? "compliant (pool surplus)" : `deficit · penalty ${money.big(fe.penalty_usd / 1e6)}`) : "not in scope"}
           </span>
         </div>
       </div>
 
       {ex && (
         <div className="explain">
-          <ul style={{ margin: 0, paddingLeft: 18 }}>{ex.sentences.map((s, i) => <li key={i}>{s}</li>)}</ul>
+          <ul style={{ margin: 0, paddingLeft: 18 }}>{ex.sentences.map((s, i) => <li key={i}>{money.text(s)}</li>)}</ul>
         </div>
       )}
 
@@ -91,7 +93,7 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
             <thead><tr>
               <th>Route</th><th>Service</th><th>Vessel class</th><th className="n">Ships</th><th className="n">Speed kn</th>
               <th>Fuel</th><th>Shore power</th><th className="n">Fuel t HFO-eq</th><th className="n">WtW t CO₂e</th>
-              <th className="n">Cost M$</th><th>CII</th><th className="n">On time</th>
+              <th className="n">Cost {money.bigUnit}</th><th>CII</th><th className="n">On time</th>
             </tr></thead>
             <tbody>
               {plan.routes.map((r) => (
@@ -105,7 +107,7 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
                   <td>{r.shore_power ? "Yes" : "–"}</td>
                   <td className="n">{fmt(r.fuel_hfo_eq_t)}</td>
                   <td className="n">{fmt(r.wtw_co2e_t)}</td>
-                  <td className="n">{fmt(Object.values(r.cost_usd).reduce((a, b) => a + b, 0) / 1e6, 1)}</td>
+                  <td className="n">{fmt(money.bigValue(Object.values(r.cost_usd).reduce((a, b) => a + b, 0) / 1e6), money.inr ? 0 : 1)}</td>
                   <td><span className={`rating ${r.cii.rating}`} title={`attained/required ${r.cii.ratio.toFixed(2)}`}>{r.cii.rating}</span></td>
                   <td className="n">{(100 * r.on_time_probability).toFixed(0)}%</td>
                 </tr>

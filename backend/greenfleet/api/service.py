@@ -19,6 +19,7 @@ from greenfleet.config import (
     fuel_library,
     load_routes,
     ports,
+    prices,
     regulations,
     vessel_classes,
 )
@@ -117,6 +118,7 @@ def meta() -> dict:
         "fuels": fuels, "vessel_classes": classes, "ports": port_list, "networks": networks,
         "objectives": OBJECTIVE_LABELS, "algorithms": {k: v[0] for k, v in ALGORITHMS.items()},
         "default_scenario": Scenario().to_dict(),
+        "fx": {"usd_to_inr": float(prices().get("usd_to_inr", 88.0)), "eur_to_usd": float(prices().get("eur_to_usd", 1.1))},
         "regulations": {
             "cii_reduction_pct": reg["cii"]["reduction_pct"],
             "fueleu_targets": {int(y): fueleu.target_intensity(int(y)) for y in (2025, 2030, 2035, 2040, 2045, 2050)},

@@ -3,6 +3,7 @@ import { NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { IconBook, IconChart, IconGauge, IconHome, IconLeaf, IconShield, IconShip } from "./components/Icons";
 import { Wordmark } from "./components/Logo";
 import Tour, { startTour } from "./components/Tour";
+import { useCurrency } from "./lib/currency";
 import { useStore } from "./lib/store";
 import About from "./pages/About";
 import Benchmarks from "./pages/Benchmarks";
@@ -38,6 +39,16 @@ function ThemeToggle() {
   );
 }
 
+function CurrencyToggle() {
+  const { currency, setCurrency } = useCurrency();
+  return (
+    <div className="segmented theme-toggle" role="group" aria-label="Currency">
+      {([["INR", "₹ INR"], ["USD", "$ USD"]] as const).map(([k, l]) => (
+        <button key={k} className={currency === k ? "on" : ""} onClick={() => setCurrency(k)}>{l}</button>))}
+    </div>
+  );
+}
+
 export default function App() {
   const { error, setError } = useStore();
   const { pathname } = useLocation();
@@ -51,8 +62,8 @@ export default function App() {
         </nav>
         <button className="tour-link" onClick={startTour}>Guided tour (2 min)</button>
         <div className="sidebar-foot">
-          <b>SIH 2026</b> · PS 26138<br />
-          Egreen Quanta
+          <span className="foot-credit"><b>SIH 2026</b> · PS 26138<br />Egreen Quanta</span>
+          <CurrencyToggle />
           <ThemeToggle />
         </div>
       </aside>

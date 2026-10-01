@@ -59,10 +59,10 @@ export function followJob<T>(id: string, onEvent: (e: JobEvent) => void): Promis
   });
 }
 
-export async function downloadReport(scenario: Scenario, genes: Genes, algorithm?: string) {
+export async function downloadReport(scenario: Scenario, genes: Genes, algorithm?: string, currency = "INR") {
   const res = await fetch("/api/report", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ scenario, genes, algorithm, include_macc: true, include_robustness: true }),
+    body: JSON.stringify({ scenario, genes, algorithm, include_macc: true, include_robustness: true, currency }),
   });
   if (!res.ok) throw new Error("report failed");
   const blob = await res.blob();

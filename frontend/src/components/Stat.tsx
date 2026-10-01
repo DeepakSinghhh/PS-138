@@ -7,7 +7,7 @@ export default function Stat({ label, value, unit, delta, deltaLabel = "vs curre
   return (
     <div className="card stat">
       <span className="label">{label}</span>
-      <span className="value">{value}</span>
+      <span className={value.length >= 9 ? "value long" : "value"}>{value}</span>
       {unit && <span className="unit">{unit}</span>}
       {delta !== undefined && delta !== null && (
         <span className={`delta ${good ? "good" : "bad"}`}>{good ? "▼" : "▲"} {pct(delta)} <span className="muted" style={{ fontWeight: 400 }}>{deltaLabel}</span></span>

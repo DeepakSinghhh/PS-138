@@ -196,6 +196,7 @@ class ReportIn(GenesIn):
     include_macc: bool = True
     include_robustness: bool = True
     algorithm: str | None = None
+    currency: str = Field("USD", pattern="^(USD|INR)$")
 
 
 class CsvIn(BaseModel):
@@ -350,6 +351,7 @@ def post_report(body: ReportIn):
         macc=S.macc(sc) if body.include_macc else None,
         robustness=S.robustness(sc, genes, 300) if body.include_robustness else None,
         algorithm=body.algorithm, network_name=problem.rs.name,
+        currency=body.currency, usd_to_inr=S.meta()["fx"]["usd_to_inr"],
     )
     return HTMLResponse(html, headers={"Content-Disposition": 'inline; filename="qgreenfleet_report.html"'})
 

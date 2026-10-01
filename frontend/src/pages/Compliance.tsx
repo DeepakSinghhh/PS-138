@@ -1,4 +1,5 @@
 import Plot from "../components/Plot";
+import { useMoney } from "../lib/currency";
 import { fmt } from "../lib/format";
 import { useStore } from "../lib/store";
 import { useTheme } from "../lib/theme";
@@ -6,6 +7,7 @@ import { useTheme } from "../lib/theme";
 export default function Compliance() {
   const { selected, meta, network, scenario } = useStore();
   const t = useTheme();
+  const money = useMoney();
   const plan = selected?.plan;
   if (!plan || !meta || !scenario) return <div className="empty">Select a plan in the optimizer first.</div>;
   const fe = plan.fleet.fueleu;
@@ -28,12 +30,12 @@ export default function Compliance() {
         <div className="card stat">
           <span className="label">FuelEU pool intensity</span>
           <span className="value">{fe.in_scope_energy_gj > 0 ? `${fe.intensity_g_per_mj.toFixed(1)}` : "n/a"}</span>
-          <span className="unit">gCO₂e/MJ vs target {fe.target_g_per_mj.toFixed(1)} · balance {fmt(fe.balance_t_co2e)} t · penalty ${fmt(fe.penalty_usd / 1e6, 2)} M</span>
+          <span className="unit">gCO₂e/MJ vs target {fe.target_g_per_mj.toFixed(1)} · balance {fmt(fe.balance_t_co2e)} t · penalty {money.big(fe.penalty_usd / 1e6)}</span>
           <span className="status"><span className="dot" style={{ background: fe.balance_t_co2e >= 0 ? t.good : t.critical }} />{fe.balance_t_co2e >= 0 ? "Compliant" : "Deficit"}</span>
         </div>
         <div className="card stat">
           <span className="label">EU ETS cost</span>
-          <span className="value">${fmt(etsTotal / 1e6, 2)} M</span>
+          <span className="value">{money.big(etsTotal / 1e6)}</span>
           <span className="unit">per year · CH₄ and N₂O included from 2026</span>
         </div>
       </div>

@@ -140,3 +140,13 @@ def test_qaoa_job():
     res = _wait(j["id"])["result"]
     assert res["qubits"] == 6 and res["top_plans"] and res["qasm"].startswith("OPENQASM 2.0;")
     assert client.post("/api/qaoa", json={"scenario": {}, "services": 9}).status_code == 422
+
+
+def test_report_in_rupees():
+    base = {"scenario": {"network": "india", "year": 2030}, "include_robustness": False}
+    inr = client.post("/api/report", json={**base, "currency": "INR"})
+    usd = client.post("/api/report", json=base)
+    assert inr.status_code == 200 and "crore ₹" in inr.text and "₹" in inr.text
+    assert "M USD" in usd.text and "crore" not in usd.text
+    assert client.post("/api/report", json={**base, "currency": "GBP"}).status_code == 422
+    assert client.get("/api/meta").json()["fx"]["usd_to_inr"] > 0

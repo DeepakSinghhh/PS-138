@@ -82,6 +82,7 @@ export interface Meta {
   algorithms: Record<string, string>;
   default_scenario: Scenario;
   regulations: { cii_reduction_pct: Record<string, number>; fueleu_targets: Record<string, number>; fueleu_reference: number; ets_phase_in: Record<string, number> };
+  fx?: { usd_to_inr: number; eur_to_usd: number };
 }
 
 export interface NetworkInfo {

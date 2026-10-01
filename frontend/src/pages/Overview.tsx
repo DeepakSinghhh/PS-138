@@ -2,11 +2,13 @@ import { Link } from "react-router-dom";
 import FleetMap from "../components/FleetMap";
 import Stat from "../components/Stat";
 import { startTour } from "../components/Tour";
+import { useMoney } from "../lib/currency";
 import { fmt } from "../lib/format";
 import { useStore } from "../lib/store";
 
 export default function Overview() {
   const { network, meta, selected, result, scenario } = useStore();
+  const money = useMoney();
   const plan = selected?.plan;
   const ex = plan?.explanation;
   const base = network?.baselines.current_practice;
@@ -38,7 +40,7 @@ export default function Overview() {
             <>
               <span className="kicker">Current practice · well-to-wake emissions</span>
               <span className="hero">{base ? (base.objectives.emissions / 1e6).toFixed(2) : "–"}<small>Mt CO₂e / yr</small></span>
-              <span className="secondary">{base ? fmt(base.objectives.cost, 0) : "–"} M USD a year · {base?.fleet.ships ?? "–"} ships.
+              <span className="secondary">{base ? money.big(base.objectives.cost) : "–"} a year · {base?.fleet.ships ?? "–"} ships.
                 Run the optimizer to find better plans.</span>
             </>
           )}
@@ -47,9 +49,9 @@ export default function Overview() {
           <Stat label="Services" value={String(network?.routes.length ?? "–")} unit={`${fmt(network?.routes.reduce((a, r) => a + r.distance_nm, 0))} nm of sea routes`} />
           <Stat label="FuelEU target" value={network ? network.fueleu_target.toFixed(1) : "–"} unit="gCO₂e / MJ (well-to-wake)" />
           <Stat label="CII reduction" value={network ? `${network.cii_reduction_pct.toFixed(1)}%` : "–"} unit="below the 2019 reference line" />
-          <Stat label="EU ETS price" value={network ? `$${fmt(network.prices.ets_usd_per_t)}` : "–"} unit="per t CO₂e" />
-          <Stat label="VLSFO" value={network ? `$${fmt(network.prices.fuel_usd_per_t.VLSFO)}` : "–"} unit="per tonne" />
-          <Stat label="e-Ammonia" value={network ? `$${fmt(network.prices.fuel_usd_per_t.AMMONIA_E)}` : "–"} unit="per tonne" />
+          <Stat label="EU ETS price" value={network ? money.unit(network.prices.ets_usd_per_t) : "–"} unit="per t CO₂e" />
+          <Stat label="VLSFO" value={network ? money.unit(network.prices.fuel_usd_per_t.VLSFO) : "–"} unit="per tonne" />
+          <Stat label="e-Ammonia" value={network ? money.unit(network.prices.fuel_usd_per_t.AMMONIA_E) : "–"} unit="per tonne" />
         </div>
       </div>
 

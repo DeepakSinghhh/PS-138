@@ -3,6 +3,7 @@ import Plot from "../components/Plot";
 import QaoaCard from "../components/QaoaCard";
 import ScenarioPanel from "../components/ScenarioPanel";
 import { api, followJob } from "../lib/api";
+import { useMoney } from "../lib/currency";
 import { compact, fmt, pct } from "../lib/format";
 import { useStore } from "../lib/store";
 import { FAMILY_LABEL, familyColor, useTheme } from "../lib/theme";
@@ -11,6 +12,7 @@ const FUEL_FAMILY = (meta: any, fid: string) => meta?.fuels.find((f: any) => f.i
 
 export default function Lab() {
   const { scenario, meta, selected, setError } = useStore();
+  const money = useMoney();
   const t = useTheme();
   const [timeline, setTimeline] = useState<any>(null);
   const [tlBusy, setTlBusy] = useState(false);
@@ -81,10 +83,10 @@ export default function Lab() {
                 hovertemplate: "%{x}: %{y:,.0f} kt CO₂e<extra></extra>" }]}
                 layout={{ margin: { l: 56, r: 16, t: 4, b: 24 }, yaxis: { title: { text: "kt CO₂e" }, rangemode: "tozero" }, xaxis: { type: "category" }, showlegend: false }} />
               <Plot ariaLabel="Cost by year" height={155} data={[{
-                type: "scatter", mode: "lines+markers", x: years, y: timeline.rows.map((r: any) => r.objectives.cost),
+                type: "scatter", mode: "lines+markers", x: years, y: timeline.rows.map((r: any) => money.bigValue(r.objectives.cost)),
                 line: { color: t["neutral-series"], width: 2 }, marker: { size: 8, line: { color: t["surface-1"], width: 2 } }, name: "Cost",
-                hovertemplate: "%{x}: %{y:,.0f} M USD<extra></extra>" }]}
-                layout={{ margin: { l: 56, r: 16, t: 4, b: 24 }, yaxis: { title: { text: "M USD" }, rangemode: "tozero" }, xaxis: { type: "category" }, showlegend: false }} />
+                hovertemplate: `%{x}: %{y:,.0f} ${money.bigUnit}<extra></extra>` }]}
+                layout={{ margin: { l: 56, r: 16, t: 4, b: 24 }, yaxis: { title: { text: money.bigUnit }, rangemode: "tozero" }, xaxis: { type: "category" }, showlegend: false }} />
               <p className="small muted">{timeline.rows.map((r: any) => `${r.year}: ${r.feasible ? "compliant" : "infeasible"}`).join(" · ")}</p>
             </div>
           </div>
@@ -98,12 +100,12 @@ export default function Lab() {
           {macc ? (
             <>
               <Plot ariaLabel="Marginal abatement cost curve" height={320} data={[{
-                type: "bar", x: maccX, width: maccW, y: maccRows.map((m: any) => m.usd_per_t),
+                type: "bar", x: maccX, width: maccW, y: maccRows.map((m: any) => money.unitValue(m.usd_per_t)),
                 marker: { color: maccRows.map((m: any) => (m.usd_per_t < 0 ? t["series-3"] : t["series-1"])), line: { color: t["surface-1"], width: 2 } },
                 customdata: maccRows.map((m: any) => [m.measure, m.abatement_t, m.feasible ? "feasible alone" : "needs other measures"]),
-                hovertemplate: "%{customdata[0]}<br>%{y:,.0f} USD/t · %{customdata[1]:,.0f} t/yr<br>%{customdata[2]}<extra></extra>",
+                hovertemplate: `%{customdata[0]}<br>%{y:,.0f} ${money.unitLabel}/t · %{customdata[1]:,.0f} t/yr<br>%{customdata[2]}<extra></extra>`,
                 text: maccRows.map((m: any) => m.measure.split(" (")[0]), textposition: "outside", textfont: { size: 10, color: t["text-secondary"] }, cliponaxis: false,
-              }]} layout={{ xaxis: { title: { text: "cumulative abatement (t CO₂e / yr)" } }, yaxis: { title: { text: "USD per t CO₂e" } }, showlegend: false }} />
+              }]} layout={{ xaxis: { title: { text: "cumulative abatement (t CO₂e / yr)" } }, yaxis: { title: { text: `${money.unitLabel} per t CO₂e` } }, showlegend: false }} />
               <div className="legend"><span><i className="swatch" style={{ background: t["series-3"] }} />saves money</span><span><i className="swatch" style={{ background: t["series-1"] }} />costs money</span></div>
             </>
           ) : <div className="empty">Rank decarbonisation measures by cost-effectiveness.</div>}
@@ -115,12 +117,12 @@ export default function Lab() {
           {robust ? (
             <>
               <Plot ariaLabel="Distribution of annual cost" height={260} data={[{
-                type: "histogram", x: robust.cost.samples, nbinsx: 30, marker: { color: t["series-1"], line: { color: t["surface-1"], width: 1 } },
-                hovertemplate: "%{x:,.0f} M USD: %{y} draws<extra></extra>", name: "cost",
-              }]} layout={{ xaxis: { title: { text: "annual cost (M USD)" } }, yaxis: { title: { text: "draws" } }, bargap: 0.05, showlegend: false,
-                shapes: [["p5", "P5"], ["mean", "mean"], ["p95", "P95"]].map(([k]) => ({ type: "line", x0: robust.cost[k], x1: robust.cost[k], yref: "paper", y0: 0, y1: 1, line: { color: t["text-muted"], width: 1 } })),
-                annotations: [["p5", "P5"], ["mean", "mean"], ["p95", "P95"]].map(([k, l]) => ({ x: robust.cost[k], yref: "paper", y: 1.02, text: l, showarrow: false, font: { size: 10, color: t["text-secondary"] } })) }} />
-              <p className="small">Cost mean <b>{fmt(robust.cost.mean, 1)}</b> M USD · P95 {fmt(robust.cost.p95, 1)} · CVaR95 {fmt(robust.cost.cvar95, 1)} ·
+                type: "histogram", x: robust.cost.samples.map((v: number) => money.bigValue(v)), nbinsx: 30, marker: { color: t["series-1"], line: { color: t["surface-1"], width: 1 } },
+                hovertemplate: `%{x:,.0f} ${money.bigUnit}: %{y} draws<extra></extra>`, name: "cost",
+              }]} layout={{ xaxis: { title: { text: `annual cost (${money.bigUnit})` } }, yaxis: { title: { text: "draws" } }, bargap: 0.05, showlegend: false,
+                shapes: [["p5", "P5"], ["mean", "mean"], ["p95", "P95"]].map(([k]) => ({ type: "line", x0: money.bigValue(robust.cost[k]), x1: money.bigValue(robust.cost[k]), yref: "paper", y0: 0, y1: 1, line: { color: t["text-muted"], width: 1 } })),
+                annotations: [["p5", "P5"], ["mean", "mean"], ["p95", "P95"]].map(([k, l]) => ({ x: money.bigValue(robust.cost[k]), yref: "paper", y: 1.02, text: l, showarrow: false, font: { size: 10, color: t["text-secondary"] } })) }} />
+              <p className="small">Cost mean <b>{money.big(robust.cost.mean)}</b> · P95 {money.big(robust.cost.p95)} · CVaR95 {money.big(robust.cost.cvar95)} ·
                 emissions P95 {compact(robust.emissions.p95)} t CO₂e</p>
             </>
           ) : <div className="empty">Stress-test the plan chosen in the optimizer.</div>}
@@ -136,10 +138,10 @@ export default function Lab() {
           </div>
           {Object.keys(exact).length === 0 ? <div className="empty" style={{ marginTop: 10, minHeight: 120 }}>Solve for an extreme to see the true optimum.</div> : (
           <div className="table-wrap" style={{ marginTop: 10 }}>
-            <table><thead><tr><th>Exact optimum</th><th className="n">Fuel t</th><th className="n">GHG t CO₂e</th><th className="n">Cost M$</th><th className="n">Solve s</th><th className="n">vs selected plan</th></tr></thead>
+            <table><thead><tr><th>Exact optimum</th><th className="n">Fuel t</th><th className="n">GHG t CO₂e</th><th className="n">Cost {money.bigUnit}</th><th className="n">Solve s</th><th className="n">vs selected plan</th></tr></thead>
               <tbody>{Object.entries(exact).map(([o, r]) => (
                 <tr key={o}><td>min {o}</td><td className="n">{fmt(r.objectives?.fuel)}</td><td className="n">{fmt(r.objectives?.emissions)}</td>
-                  <td className="n">{fmt(r.objectives?.cost, 1)}</td><td className="n">{fmt(r.seconds, 2)}</td>
+                  <td className="n">{fmt(money.bigValue(r.objectives?.cost), money.inr ? 0 : 1)}</td><td className="n">{fmt(r.seconds, 2)}</td>
                   <td className="n">{selected ? pct(100 * (selected.plan.objectives[o as "fuel"] - r.objectives[o]) / r.objectives[o]) : "–"}</td></tr>))}
               </tbody></table>
           </div>)}

@@ -3,6 +3,7 @@ import Plot from "../components/Plot";
 import PlanDetails from "../components/PlanDetails";
 import ScenarioPanel from "../components/ScenarioPanel";
 import { api, followJob } from "../lib/api";
+import { useMoney } from "../lib/currency";
 import { fmt, OBJ_SHORT, OBJ_UNITS } from "../lib/format";
 import { useStore } from "../lib/store";
 import { useTheme } from "../lib/theme";
@@ -16,6 +17,7 @@ const PICK_LABEL: Record<string, string> = {
 export default function Optimize() {
   const { scenario, meta, network, result, setResult, selected, setSelected, setError } = useStore();
   const t = useTheme();
+  const money = useMoney();
   const [algorithm, setAlgorithm] = useState("QMOEA-H");
   const [budget, setBudget] = useState(6000);
   const [running, setRunning] = useState(false);
@@ -73,31 +75,34 @@ export default function Optimize() {
   const scatter2d: any[] = hasCost ? [
     {
       type: "scatter", mode: "markers", name: result ? "Pareto-optimal plans (click one)" : "Current front",
-      x: points.map((p) => p[ix("emissions")] / 1000), y: points.map((p) => p[ix("cost")]),
+      x: points.map((p) => p[ix("emissions")] / 1000), y: points.map((p) => money.bigValue(p[ix("cost")])),
       marker: {
         size: 9, line: { color: t["surface-1"], width: 2 },
         color: points.map((p) => p[ix(colorObj)] ?? 0), colorscale: [[0, t["seq-100"]], [0.5, t["seq-300"]], [1, t["seq-700"]]],
         colorbar: { title: { text: OBJ_SHORT[colorObj], font: { size: 11 } }, thickness: 10, len: 0.8, tickfont: { size: 10 } },
       },
       customdata: points.map((p, i) => [i, p[ix(colorObj)] ?? 0]),
-      hovertemplate: `GHG %{x:,.0f} kt · cost %{y:,.1f} M$<br>${OBJ_SHORT[colorObj]} %{customdata[1]:,.0f}<extra></extra>`,
+      hovertemplate: `GHG %{x:,.0f} kt · cost %{y:,.0f} ${money.bigUnit}<br>${OBJ_SHORT[colorObj]} %{customdata[1]:,.0f}<extra></extra>`,
     },
     ...(knee >= 0 ? [{
-      type: "scatter", mode: "markers+text", name: "Recommended (knee)", x: [points[knee][ix("emissions")] / 1000], y: [points[knee][ix("cost")]],
+      type: "scatter", mode: "markers+text", name: "Recommended (knee)", x: [points[knee][ix("emissions")] / 1000], y: [money.bigValue(points[knee][ix("cost")])],
       marker: { size: 16, color: "rgba(0,0,0,0)", line: { color: t.accent, width: 2.5 } },
       text: ["Recommended"], textposition: "top center", textfont: { color: t["text-primary"], size: 11 }, hoverinfo: "skip",
     }] : []),
     ...baselines.map((b) => ({
-      type: "scatter", mode: "markers+text", name: b.name, x: [b.o.emissions / 1000], y: [b.o.cost],
+      type: "scatter", mode: "markers+text", name: b.name, x: [b.o.emissions / 1000], y: [money.bigValue(b.o.cost)],
       marker: { size: 11, symbol: b.symbol, color: t["text-muted"], line: { color: t["surface-1"], width: 1 } },
       text: [b.name], textposition: "bottom center", textfont: { color: t["text-secondary"], size: 11 },
-      hovertemplate: `${b.name}<br>GHG %{x:,.0f} kt · cost %{y:,.1f} M$<extra></extra>`,
+      hovertemplate: `${b.name}<br>GHG %{x:,.0f} kt · cost %{y:,.0f} ${money.bigUnit}<extra></extra>`,
     })),
   ] : [];
 
+  // cost is held in million USD; show it in the display currency
+  const conv = (i: number, v: number) => (objs[i] === "cost" ? money.bigValue(v) : v);
+  const axisLabel = (o: string) => (o === "cost" ? `Cost (${money.bigUnit})` : OBJ_SHORT[o]);
   const scatter3d: any[] = objs.length >= 3 ? [{
     type: "scatter3d", mode: "markers", name: "Pareto front",
-    x: points.map((p) => p[0]), y: points.map((p) => p[1]), z: points.map((p) => p[2]),
+    x: points.map((p) => conv(0, p[0])), y: points.map((p) => conv(1, p[1])), z: points.map((p) => conv(2, p[2])),
     marker: { size: 4, color: t["series-1"], line: { color: t["surface-1"], width: 1 } },
     customdata: points.map((_, i) => [i]),
     hovertemplate: `${OBJ_SHORT[objs[0]]} %{x:,.0f}<br>${OBJ_SHORT[objs[1]]} %{y:,.0f}<br>${OBJ_SHORT[objs[2]]} %{z:,.1f}<extra></extra>`,
@@ -154,12 +159,12 @@ export default function Optimize() {
               const pt = e.points?.[0];
               if (pt && pt.curveNumber === 0 && result) choose(pt.customdata[0], `Plan #${pt.customdata[0] + 1}`);
             }}
-            layout={{ xaxis: { title: { text: "Well-to-wake GHG (kt CO₂e / yr)" } }, yaxis: { title: { text: "Annual cost (M USD)" } }, showlegend: true }} />
+            layout={{ xaxis: { title: { text: "Well-to-wake GHG (kt CO₂e / yr)" } }, yaxis: { title: { text: `Annual cost (${money.bigUnit})` } }, showlegend: true }} />
         ) : (
           <Plot ariaLabel="3-D Pareto front" height={460} data={scatter3d}
             onClick={(e) => { const pt = e.points?.[0]; if (pt && result) choose(pt.customdata[0], `Plan #${pt.customdata[0] + 1}`); }}
             layout={{ margin: { l: 0, r: 0, t: 0, b: 0 }, scene: {
-              xaxis: { title: { text: OBJ_SHORT[objs[0]] } }, yaxis: { title: { text: OBJ_SHORT[objs[1]] } }, zaxis: { title: { text: OBJ_SHORT[objs[2]] } } } }} />
+              xaxis: { title: { text: axisLabel(objs[0]) } }, yaxis: { title: { text: axisLabel(objs[1]) } }, zaxis: { title: { text: axisLabel(objs[2]) } } } }} />
         )}
         {result && (
           <div className="btn-row" style={{ marginTop: 8 }}>

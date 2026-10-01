@@ -4,6 +4,9 @@
 # be overridden from the UI or the API.
 
 eur_to_usd: 1.10
+# Display currency only: the model works in USD (bunker fuel, charter and shipping finance are quoted in USD);
+# the dashboard and the decision report can show rupees at this rate (2026 scenario assumption, editable).
+usd_to_inr: 88.0
 
 fuel_usd_per_t:
   HFO:           {2025: 480,  2050: 480}

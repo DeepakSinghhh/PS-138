@@ -144,7 +144,7 @@ suite, and `make bench-quick` to regenerate the benchmarks.
 
 ## Three-minute demo script
 
-1. **Overview**: the India network on the map. Current practice emits about 2.1 Mt CO₂e a year, fails CII on 11 of 12 services in 2030 and owes about $22 M a year in FuelEU penalties.
+1. **Overview**: the India network on the map. Current practice emits about 2.1 Mt CO₂e a year, fails CII on 11 of 12 services in 2030 and owes about ₹191 crore ($21.7 M) a year in FuelEU penalties.
 2. **Fleet optimizer**: press *Run optimization*. The Pareto front streams in live, far from the grey reference plans. Click
    *Recommended*: roughly −60 % GHG, −50 % fuel and −20 % cost, all constraints satisfied. Read the explanation, hover the map,
    then click *Minimum emissions* to show the ammonia/methanol extreme. Download the decision report.
@@ -157,6 +157,9 @@ suite, and `make bench-quick` to regenerate the benchmarks.
 6. **Benchmarks**: QMOEA-H vs NSGA-II/III, MOPSO and others (hypervolume, convergence, MILP gaps, scalability to 100 routes), including where it loses.
 
 ## Honest notes
+- **Money** is shown in rupees by default, in crore for large amounts, with a ₹ / $ switch in the sidebar. The model itself
+  works in US dollars because bunker fuel, charter rates and shipping finance are quoted in dollars (EU ETS in euros), and
+  converts at an editable rate (`usd_to_inr: 88` in `backend/config/prices.yaml`). The decision report follows the switch.
 - Everything runs on classical hardware. "Quantum-inspired" names the algorithms' mechanics: tensor networks,
   superposition/measurement, tunnelling, annealing. It is not a speed-up claim. The QAOA circuit is simulated exactly
   (state vector) on a classical computer; the exported OpenQASM file is what would run on quantum hardware.
