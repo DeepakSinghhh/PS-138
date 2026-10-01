@@ -36,4 +36,19 @@ Fuel per n mile in kg; MRV p10/p50/p90 are sea-passage figures (EU at-berth shar
 
 The gap barely moves with the band, so it is not an artefact of peer selection. The large classes sit near 0.9 (the remaining ~10 % is fuel at anchor and in non-EU ports, which MRV does not separate). Bringing a class to that level would need about 0.9 ÷ (its ratio) more fuel: roughly ×1.6 for the feeder, ×1.25 for Handysize, ×1.2 for the MR tanker and Panamax container, ×1.1 for the Aframax. A single factor on propulsion power is not physically consistent (the feeder would no longer reach its design speed within its engine power), and a different speed-power exponent cannot explain it either (the feeder and the Neo-Panamax run at similar fractions of design speed but differ by 1.6×). The library is therefore left as it is and the gap is reported here. Plausible causes for small ships, such as reefer and hotel loads and older or fouled hulls, need ship-level data to separate.
 
+**By speed.** Model ÷ MRV median for each quartile of annual-average speed (median speed in kn), and the constant extra power that would close the gap in that band:
+
+| class | modelled aux kW | band 1 | band 2 | band 3 | band 4 |
+|---|---|---|---|---|---|
+| Feeder container (1,700 TEU) | 800 | 8.8 kn: 0.45 (+2,242 kW) | 10.9 kn: 0.57 (+2,046 kW) | 12.6 kn: 0.67 (+1,778 kW) | 14.1 kn: 0.59 (+3,148 kW) |
+| Panamax container (4,500 TEU) | 1500 | 11.0 kn: 0.67 (+2,470 kW) | 12.9 kn: 0.76 (+2,220 kW) | 14.0 kn: 0.74 (+2,941 kW) | 15.4 kn: 0.82 (+2,316 kW) |
+| Neo-Panamax container (13,000 TEU) | 2600 | 13.1 kn: 0.83 (+2,457 kW) | 14.3 kn: 0.88 (+2,133 kW) | 15.1 kn: 0.94 (+1,032 kW) | 16.4 kn: 1.02 (-322 kW) |
+| Handysize bulk (35,000 DWT) | 450 | 8.8 kn: 0.57 (+1,310 kW) | 10.2 kn: 0.69 (+1,074 kW) | 10.8 kn: 0.76 (+841 kW) | 11.6 kn: 0.84 (+602 kW) |
+| Supramax bulk (58,000 DWT) | 550 | 9.4 kn: 0.69 (+1,181 kW) | 10.4 kn: 0.85 (+605 kW) | 11.0 kn: 0.90 (+407 kW) | 11.8 kn: 0.99 (+66 kW) |
+| Panamax bulk (82,000 DWT) | 600 | 9.4 kn: 0.75 (+1,038 kW) | 10.5 kn: 0.90 (+449 kW) | 11.1 kn: 0.99 (+63 kW) | 11.7 kn: 1.08 (-361 kW) |
+| MR product tanker (50,000 DWT) | 700 | 9.3 kn: 0.57 (+1,833 kW) | 11.0 kn: 0.72 (+1,319 kW) | 11.7 kn: 0.83 (+810 kW) | 12.4 kn: 0.89 (+548 kW) |
+| Aframax tanker (110,000 DWT) | 900 | 8.8 kn: 0.56 (+2,578 kW) | 10.5 kn: 0.75 (+1,585 kW) | 11.4 kn: 0.88 (+743 kW) | 12.1 kn: 1.00 (-26 kW) |
+
+For the bulk carriers, tankers and the Neo-Panamax the gap shrinks steeply with speed and is small at the speeds ships actually steam (0.84–1.08 in the fastest quartile). A missing constant load cannot explain that pattern (it would need the same extra power in every band); it is what idling and manoeuvring time, counted by MRV as time at sea, does to a low annual average speed. The feeder and Panamax container classes are different: they are short by a roughly constant 1.8–3.1 MW and 2.2–2.9 MW in every band, the signature of a speed-independent load. Reefer containers and hotel load are the likely cause (container ships carry hundreds of reefer plugs), but MRV cannot separate them from engine and hull condition, so the library is left unchanged rather than tuned to fit. Ship-level noon reports (speed, load, reefer count and fuel per day) would settle it.
+
 ![MRV validation](figures/mrv_validation.png)

@@ -55,9 +55,10 @@ vessel classes, the last row uses real ship data):
 - **Tuning**: at an equal budget, QPSO found the best hyperparameters (validation MAE 1.207, vs PSO 1.211, TPE 1.230, random 1.246). This is a single seed.
 - **Vessel library vs EU MRV** (23,009 real ship-years, 2023–2024): for each class, ships of the same type and cargo size
   are compared at their median speed. The class model gives 0.57–0.93 × the real median fuel per n mile and lies
-  inside the p10–p90 band for 6 of 10 classes. It is close for the larger classes and clearly low for the smallest
-  (feeder, Handysize, MR tanker), which are the first candidates for recalibration. Details:
-  [reports/mrv_validation.md](reports/mrv_validation.md).
+  inside the p10–p90 band for 6 of 10 classes. Split by speed, bulk carriers and tankers come within 0.84–1.08 at the
+  speeds ships actually steam; the low medians come from slow annual averages that include idling time. Feeder and
+  Panamax container ships are short by a near-constant 2–3 MW at every speed, the signature of a reefer/hotel load the
+  library does not carry; it is reported rather than tuned away. Details: [reports/mrv_validation.md](reports/mrv_validation.md).
 
 **Fleet optimization** (8,000 plan evaluations per run, 10 seeds; hypervolume, higher is better):
 

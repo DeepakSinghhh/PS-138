@@ -313,6 +313,248 @@
    }
   }
  },
+ "speed_bands": {
+  "FEEDER": {
+   "label": "Feeder container (1,700 TEU)",
+   "aux_sea_kw": 800,
+   "bands": [
+    {
+     "speed_kn": 8.780372896460909,
+     "ships": 93,
+     "model_to_median": 0.44938273046473465,
+     "extra_constant_kw": 2242.0220273432915
+    },
+    {
+     "speed_kn": 10.89938553268537,
+     "ships": 93,
+     "model_to_median": 0.5700684955403049,
+     "extra_constant_kw": 2046.215199405773
+    },
+    {
+     "speed_kn": 12.636184998263595,
+     "ships": 93,
+     "model_to_median": 0.6728754733092025,
+     "extra_constant_kw": 1777.8780842341853
+    },
+    {
+     "speed_kn": 14.054759576756634,
+     "ships": 93,
+     "model_to_median": 0.5926510184639043,
+     "extra_constant_kw": 3147.878721196653
+    }
+   ]
+  },
+  "PANAMAX_C": {
+   "label": "Panamax container (4,500 TEU)",
+   "aux_sea_kw": 1500,
+   "bands": [
+    {
+     "speed_kn": 10.992761590313961,
+     "ships": 114,
+     "model_to_median": 0.6733145149526589,
+     "extra_constant_kw": 2469.7299335898592
+    },
+    {
+     "speed_kn": 12.903770844290865,
+     "ships": 113,
+     "model_to_median": 0.7624425131451785,
+     "extra_constant_kw": 2220.313007154063
+    },
+    {
+     "speed_kn": 13.97023119128809,
+     "ships": 113,
+     "model_to_median": 0.7426406177392171,
+     "extra_constant_kw": 2941.104181237498
+    },
+    {
+     "speed_kn": 15.42600453069025,
+     "ships": 114,
+     "model_to_median": 0.8207575800976038,
+     "extra_constant_kw": 2316.014667679222
+    }
+   ]
+  },
+  "NEOPANAMAX_C": {
+   "label": "Neo-Panamax container (13,000 TEU)",
+   "aux_sea_kw": 2600,
+   "bands": [
+    {
+     "speed_kn": 13.061023969415443,
+     "ships": 131,
+     "model_to_median": 0.8337887803759227,
+     "extra_constant_kw": 2457.380775704475
+    },
+    {
+     "speed_kn": 14.2928927113319,
+     "ships": 131,
+     "model_to_median": 0.875720644648407,
+     "extra_constant_kw": 2132.672705883239
+    },
+    {
+     "speed_kn": 15.145801806771683,
+     "ships": 130,
+     "model_to_median": 0.9431095611467235,
+     "extra_constant_kw": 1032.0331843980832
+    },
+    {
+     "speed_kn": 16.37969860066302,
+     "ships": 131,
+     "model_to_median": 1.0160173669969925,
+     "extra_constant_kw": -322.0150376591615
+    }
+   ]
+  },
+  "HANDYSIZE": {
+   "label": "Handysize bulk (35,000 DWT)",
+   "aux_sea_kw": 450,
+   "bands": [
+    {
+     "speed_kn": 8.780786550577524,
+     "ships": 228,
+     "model_to_median": 0.5733588862567132,
+     "extra_constant_kw": 1309.6027747351877
+    },
+    {
+     "speed_kn": 10.161668820685737,
+     "ships": 227,
+     "model_to_median": 0.688194414347797,
+     "extra_constant_kw": 1074.2996766869583
+    },
+    {
+     "speed_kn": 10.802050690271443,
+     "ships": 227,
+     "model_to_median": 0.762230414232955,
+     "extra_constant_kw": 841.1002847053624
+    },
+    {
+     "speed_kn": 11.592435087972891,
+     "ships": 228,
+     "model_to_median": 0.838993056883612,
+     "extra_constant_kw": 601.9385104312287
+    }
+   ]
+  },
+  "SUPRAMAX": {
+   "label": "Supramax bulk (58,000 DWT)",
+   "aux_sea_kw": 550,
+   "bands": [
+    {
+     "speed_kn": 9.35575921189732,
+     "ships": 445,
+     "model_to_median": 0.6922414930743188,
+     "extra_constant_kw": 1181.0254320985455
+    },
+    {
+     "speed_kn": 10.396778863904842,
+     "ships": 444,
+     "model_to_median": 0.8461622518610572,
+     "extra_constant_kw": 604.6035355839065
+    },
+    {
+     "speed_kn": 11.016699006927212,
+     "ships": 444,
+     "model_to_median": 0.9026287640994878,
+     "extra_constant_kw": 406.8346988300366
+    },
+    {
+     "speed_kn": 11.764260086897885,
+     "ships": 444,
+     "model_to_median": 0.9850725807052718,
+     "extra_constant_kw": 66.07442443774592
+    }
+   ]
+  },
+  "PANAMAX_B": {
+   "label": "Panamax bulk (82,000 DWT)",
+   "aux_sea_kw": 600,
+   "bands": [
+    {
+     "speed_kn": 9.427293527338628,
+     "ships": 426,
+     "model_to_median": 0.7487396102139816,
+     "extra_constant_kw": 1037.602563142958
+    },
+    {
+     "speed_kn": 10.46637162780028,
+     "ships": 425,
+     "model_to_median": 0.896234434860587,
+     "extra_constant_kw": 448.88162791852244
+    },
+    {
+     "speed_kn": 11.075780626114371,
+     "ships": 425,
+     "model_to_median": 0.9858479591954765,
+     "extra_constant_kw": 63.04957209943328
+    },
+    {
+     "speed_kn": 11.745374236323066,
+     "ships": 425,
+     "model_to_median": 1.077636109729602,
+     "extra_constant_kw": -360.86929014680896
+    }
+   ]
+  },
+  "MR_TANKER": {
+   "label": "MR product tanker (50,000 DWT)",
+   "aux_sea_kw": 700,
+   "bands": [
+    {
+     "speed_kn": 9.26247766640955,
+     "ships": 264,
+     "model_to_median": 0.5726580956935936,
+     "extra_constant_kw": 1833.0099222939612
+    },
+    {
+     "speed_kn": 10.982817973655784,
+     "ships": 263,
+     "model_to_median": 0.7228116090550377,
+     "extra_constant_kw": 1319.1728335440205
+    },
+    {
+     "speed_kn": 11.69312337746646,
+     "ships": 263,
+     "model_to_median": 0.8286115881436362,
+     "extra_constant_kw": 809.6404251866328
+    },
+    {
+     "speed_kn": 12.439118709991893,
+     "ships": 264,
+     "model_to_median": 0.8905789772157078,
+     "extra_constant_kw": 548.0682416743367
+    }
+   ]
+  },
+  "AFRAMAX": {
+   "label": "Aframax tanker (110,000 DWT)",
+   "aux_sea_kw": 900,
+   "bands": [
+    {
+     "speed_kn": 8.781669033754529,
+     "ships": 250,
+     "model_to_median": 0.5593090549373922,
+     "extra_constant_kw": 2578.413289701217
+    },
+    {
+     "speed_kn": 10.539640207364354,
+     "ships": 250,
+     "model_to_median": 0.7500959816646952,
+     "extra_constant_kw": 1584.5846868246017
+    },
+    {
+     "speed_kn": 11.398530004579724,
+     "ships": 249,
+     "model_to_median": 0.883336071137493,
+     "extra_constant_kw": 742.6211270540424
+    },
+    {
+     "speed_kn": 12.140261019210074,
+     "ships": 250,
+     "model_to_median": 1.004070858218978,
+     "extra_constant_kw": -26.162211953488907
+    }
+   ]
+  }
+ },
  "assumptions": {
   "carried_dwt_band": [
    0.3,

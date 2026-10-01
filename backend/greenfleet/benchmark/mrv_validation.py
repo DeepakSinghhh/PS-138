@@ -27,7 +27,7 @@ import pandas as pd
 from greenfleet.benchmark.report import FIG_DIR, _plt, _table, write
 from greenfleet.config import REPORTS_DIR, vessel_classes
 from greenfleet.data.loaders import load_mrv
-from greenfleet.prediction.physics_model import NominalPhysics
+from greenfleet.prediction.physics_model import AUX_BSEC, HFO_LCV, NominalPhysics
 
 TYPE_MAP = {"container": ["Container ship"], "bulk": ["Bulk carrier"], "tanker": ["Oil tanker", "Chemical tanker"],
             "pax": ["Ro-pax ship"]}
@@ -93,8 +93,35 @@ def validate(mrv: pd.DataFrame) -> dict:
                     / float(pe["sea_fuel_per_nm_kg"].median())}
     years = sorted(int(y) for y in mrv["year"].dropna().unique()) if "year" in mrv else []
     return {"years": years, "ship_years": int(len(mrv)), "ship_years_used": int(len(m)), "classes": rows,
-            "robustness": robustness,
+            "robustness": robustness, "speed_bands": speed_bands(m),
             "assumptions": {"carried_dwt_band": [LO, HI], "draft_ratio": DRAFT_RATIO, "beaufort": BEAUFORT}}
+
+
+def speed_bands(m: pd.DataFrame) -> dict:
+    """Model vs MRV by annual-average speed quartile, and the constant power that would close each gap.
+
+    A missing speed-independent load (hotel, reefers, boiler) adds fuel per n mile in proportion to 1/speed, so it
+    would need the same extra power in every band; a propulsion error would grow steeply with speed. Low annual
+    averages also contain idling and manoeuvring time that MRV counts as time at sea.
+    """
+    g_per_kwh = AUX_BSEC / HFO_LCV                  # MJ/kWh ÷ MJ/g = g/kWh (≈ 205)
+    out = {}
+    for cid, vc in vessel_classes().items():
+        if vc.cargo not in TYPE_MAP or vc.cargo == "pax":
+            continue
+        pe = m[m["ship_type"].isin(TYPE_MAP[vc.cargo]) & m["cargo_carried_t"].between(LO * vc.dwt, HI * vc.dwt)].copy()
+        if len(pe) < 40:
+            continue
+        pe["band"] = pd.qcut(pe["avg_speed_kn"], 4, labels=False, duplicates="drop")
+        rows = []
+        for _, g in pe.groupby("band"):
+            v = float(g["avg_speed_kn"].median())
+            mrv_kg = float(g["sea_fuel_per_nm_kg"].median())
+            mod = model_fuel_per_nm(cid, v)
+            rows.append({"speed_kn": v, "ships": int(len(g)), "model_to_median": mod / mrv_kg,
+                         "extra_constant_kw": (mrv_kg - mod) * v * 1000 / g_per_kwh})
+        out[cid] = {"label": vc.label, "aux_sea_kw": vc.aux_sea_kw, "bands": rows}
+    return out
 
 
 def figure(res: dict) -> str | None:
@@ -173,6 +200,23 @@ def markdown(res: dict, fig: str | None) -> str:
                "feeder and the Neo-Panamax run at similar fractions of design speed but differ by 1.6×). The library is "
                "therefore left as it is and the gap is reported here. Plausible causes for small ships, such as reefer "
                "and hotel loads and older or fouled hulls, need ship-level data to separate.", ""]
+    sb = res.get("speed_bands") or {}
+    if sb:
+        md += ["**By speed.** Model ÷ MRV median for each quartile of annual-average speed (median speed in kn), and the "
+               "constant extra power that would close the gap in that band:", "",
+               _table(["class", "modelled aux kW"] + [f"band {i + 1}" for i in range(4)],
+                      [[v["label"], v["aux_sea_kw"]] + [f"{b['speed_kn']:.1f} kn: {b['model_to_median']:.2f} "
+                                                         f"({b['extra_constant_kw']:+,.0f} kW)" for b in v["bands"]]
+                       for v in sb.values()]), "",
+               "For the bulk carriers, tankers and the Neo-Panamax the gap shrinks steeply with speed and is small at "
+               "the speeds ships actually steam (0.84–1.08 in the fastest quartile). A missing constant load cannot "
+               "explain that pattern (it would need the same extra power in every band); it is what idling and "
+               "manoeuvring time, counted by MRV as time at sea, does to a low annual average speed. The feeder and "
+               "Panamax container classes are different: they are short by a roughly constant 1.8–3.1 MW and "
+               "2.2–2.9 MW in every band, the signature of a speed-independent load. Reefer containers and hotel load "
+               "are the likely cause (container ships carry hundreds of reefer plugs), but MRV cannot separate them "
+               "from engine and hull condition, so the library is left unchanged rather than tuned to fit. Ship-level "
+               "noon reports (speed, load, reefer count and fuel per day) would settle it.", ""]
     skipped = [r for r in res["classes"] if "model_kg_per_nm" not in r]
     if skipped:
         md += ["Not compared: " + ", ".join(f"{r['label']} ({r['note']})" for r in skipped), ""]
