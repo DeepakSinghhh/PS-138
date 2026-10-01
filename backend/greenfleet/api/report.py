@@ -83,7 +83,7 @@ def render(plan: dict, scenario: dict, explanation: dict | None = None, macc: di
     families = {r["fuel"]: r["fuel_family"] for r in plan["routes"]}
     route_items = sorted(((f"{r['route_id']} {r['name'][:26]}", r["wtw_co2e_t"], FUEL_COLORS.get(r["fuel_family"], "#9ca3af"))
                           for r in plan["routes"]), key=lambda t: -t[1])
-    cost_items = sorted(((f"{r['route_id']} {r['name'][:26]}", money.big_value(sum(r["cost_usd"].values()) / 1e6), "#2a3cf5")
+    cost_items = sorted(((f"{r['route_id']} {r['name'][:26]}", money.big_value(sum(r["cost_usd"].values()) / 1e6), "#0a6aa6")
                          for r in plan["routes"]), key=lambda t: -t[1])
     fe = plan["fleet"]["fueleu"]
     rows = "".join(
@@ -139,7 +139,7 @@ th {{ font: 10.5px 'IBM Plex Mono', ui-monospace, monospace; color: #6e7279; bor
 .legend span {{ display: inline-block; margin-right: 12px; font-size: 11px; }} .legend i {{ display: inline-block; width: 10px; height: 10px; border-radius: 1px; margin-right: 4px; vertical-align: -1px; }}
 @media print {{ main {{ padding: 0; }} h2 {{ break-after: avoid; }} table {{ break-inside: auto; }} tr {{ break-inside: avoid; }} }}
 </style></head><body><main>
-<div class="brand"><svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><mask id="wl"><rect width="64" height="64" fill="#fff"/><path d="M0 34 C8 29 14 29 21 33.5 S33 38 40 33.5 S54 29 64 34" stroke="#000" stroke-width="10.5" fill="none"/></mask><circle cx="32" cy="32" r="18.5" fill="none" stroke="#121518" stroke-width="5.2" mask="url(#wl)"/><path d="M5 34 C11.5 30.1 16 30.1 22.2 33.8 S34.4 37.6 40.6 33.8 S52 30.1 59 33.3" stroke="#2a3cf5" stroke-width="4.6" stroke-linecap="round" fill="none"/></svg><div><div class="bn">Q-GreenFleet</div><div class="bs">Decision report</div></div></div>
+<div class="brand"><svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><mask id="wl"><rect width="64" height="64" fill="#fff"/><path d="M0 34 C8 29 14 29 21 33.5 S33 38 40 33.5 S54 29 64 34" stroke="#000" stroke-width="10.5" fill="none"/></mask><circle cx="32" cy="32" r="18.5" fill="none" stroke="#121518" stroke-width="5.2" mask="url(#wl)"/><path d="M5 34 C11.5 30.1 16 30.1 22.2 33.8 S34.4 37.6 40.6 33.8 S52 30.1 59 33.3" stroke="#0a6aa6" stroke-width="4.6" stroke-linecap="round" fill="none"/></svg><div><div class="bn">Q-GreenFleet</div><div class="bs">Decision report</div></div></div>
 <h1>Green fleet deployment plan</h1>
 <div class="muted">{_e(network_name)} · year {scenario.get('year')} · generated {now} by Q-GreenFleet{(' · optimiser: ' + _e(algorithm)) if algorithm else ''}</div>
 <div class="kpis">
