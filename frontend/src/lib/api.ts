@@ -59,13 +59,37 @@ export function followJob<T>(id: string, onEvent: (e: JobEvent) => void): Promis
   });
 }
 
-export async function downloadReport(scenario: Scenario, genes: Genes, algorithm?: string, currency = "INR") {
+async function fetchReport(scenario: Scenario, genes: Genes, algorithm?: string, currency = "INR"): Promise<Blob> {
   const res = await fetch("/api/report", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ scenario, genes, algorithm, include_macc: true, include_robustness: true, currency }),
   });
   if (!res.ok) throw new Error("report failed");
-  const blob = await res.blob();
+  return res.blob();
+}
+
+/**
+ * Open the decision report in a new tab and start the browser's print dialog, where "Save as PDF" writes the file.
+ * The tab is opened before the request (still inside the click) so pop-up blockers allow it.
+ */
+export async function printReport(scenario: Scenario, genes: Genes, algorithm?: string, currency = "INR") {
+  const w = window.open("", "_blank");
+  if (!w) throw new Error("Allow pop-ups for this site to save the report as PDF");
+  w.document.write("<p style=\"font:14px system-ui;padding:24px\">Preparing the report…</p>");
+  try {
+    const html = await (await fetchReport(scenario, genes, algorithm, currency)).text();
+    const auto = "<script>window.addEventListener('load',function(){setTimeout(function(){window.print()},400)})</script>";
+    w.document.open();
+    w.document.write(html.includes("</body>") ? html.replace("</body>", `${auto}</body>`) : html + auto);
+    w.document.close();
+  } catch (e) {
+    w.close();
+    throw e;
+  }
+}
+
+export async function downloadReport(scenario: Scenario, genes: Genes, algorithm?: string, currency = "INR") {
+  const blob = await fetchReport(scenario, genes, algorithm, currency);
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

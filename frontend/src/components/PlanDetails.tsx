@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import Plot from "./Plot";
 import Stat from "./Stat";
 import FleetMap from "./FleetMap";
-import { downloadReport } from "../lib/api";
+import { downloadReport, printReport } from "../lib/api";
+import { useStore } from "../lib/store";
 import { useMoney } from "../lib/currency";
 import { useSaved } from "../lib/saved";
 import { compact, fmt, pct } from "../lib/format";
@@ -20,6 +21,7 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
   const money = useMoney();
   const [busy, setBusy] = useState(false);
   const { save } = useSaved();
+  const { setError } = useStore();
   const [savedAs, setSavedAs] = useState<string | null>(null);
   useEffect(() => setSavedAs(null), [genes]);   // a different plan has not been saved yet
   const ex = plan.explanation;
@@ -44,6 +46,9 @@ export default function PlanDetails({ plan, genes, scenario, network, meta, labe
             setSavedAs(name);
           }}>{savedAs ? "Saved ✓" : "Save plan"}</button>
           {savedAs && <Link className="btn" to="/compare">Compare plans</Link>}
+          <button className="btn" disabled={busy} title="Opens the report with your browser's print dialog; choose Save as PDF"
+            onClick={() => { printReport(scenario, genes, algorithm, money.currency).catch((e) => setError((e as Error).message)); }}>
+            Save as PDF</button>
           <button className="btn primary" disabled={busy} onClick={async () => {
             setBusy(true);
             try { await downloadReport(scenario, genes, algorithm, money.currency); } finally { setBusy(false); }

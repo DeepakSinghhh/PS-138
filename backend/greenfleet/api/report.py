@@ -66,8 +66,9 @@ def _stack_svg(shares: dict[str, float], families: dict[str, str], width: int = 
         w = width * s
         color = FUEL_COLORS.get(families.get(fid, "conventional"), "#9ca3af")
         out.append(f'<rect x="{x:.1f}" y="0" width="{w:.1f}" height="22" fill="{color}" stroke="#fff"/>')
-        if w > 45:
-            out.append(f'<text x="{x + 4:.1f}" y="38" font-size="10" fill="#374151">{_e(fid)} {100 * s:.0f}%</text>')
+        label = f"{fid} {100 * s:.0f}%"
+        if w > 5.8 * len(label) + 8:                     # label only segments wide enough to hold it
+            out.append(f'<text x="{x + 4:.1f}" y="38" font-size="10" fill="#374151">{_e(label)}</text>')
         x += w
     out.append("</svg>")
     return "".join(out)
@@ -120,7 +121,7 @@ def render(plan: dict, scenario: dict, explanation: dict | None = None, macc: di
     now = dt.datetime.now().strftime("%Y-%m-%d %H:%M")
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Q-GreenFleet decision report</title>
+<title>Q-GreenFleet decision report · {_e(network_name or scenario.get("network", ""))} {scenario.get("year", "")}</title>
 <style>
 body {{ font: 13px/1.55 'Archivo', 'Helvetica Neue', Arial, system-ui, sans-serif; color: #121518; background: #f3f1ec; margin: 0; }}
 main {{ max-width: 980px; margin: 0 auto; padding: 28px 24px 60px; }}
@@ -137,7 +138,14 @@ th {{ font: 10.5px 'IBM Plex Mono', ui-monospace, monospace; color: #63676e; bor
 .delta {{ font-size: 12px; margin-top: 2px; }} .good {{ color: #17692d; }} .bad {{ color: #b3261e; }}
 .note {{ border-left: 2px solid #121518; padding: 2px 0 2px 14px; margin: 14px 0; }}
 .legend span {{ display: inline-block; margin-right: 12px; font-size: 11px; }} .legend i {{ display: inline-block; width: 10px; height: 10px; border-radius: 1px; margin-right: 4px; vertical-align: -1px; }}
-@media print {{ main {{ padding: 0; }} h2 {{ break-after: avoid; }} table {{ break-inside: auto; }} tr {{ break-inside: avoid; }} }}
+@page {{ size: A4; margin: 14mm 12mm; }}
+@media print {{
+  body {{ background: #fff; font-size: 11px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
+  main {{ max-width: none; padding: 0; }}
+  .kpis {{ grid-template-columns: repeat(4, 1fr); }} .kv {{ font-size: 21px; }}
+  h2 {{ break-after: avoid; margin-top: 22px; }} table {{ font-size: 9.5px; break-inside: auto; }} tr {{ break-inside: avoid; }}
+  svg {{ max-width: 100%; height: auto; }} .note, .kpi {{ break-inside: avoid; }}
+}}
 </style></head><body><main>
 <div class="brand"><svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><mask id="wl"><rect width="64" height="64" fill="#fff"/><path d="M0 34 C8 29 14 29 21 33.5 S33 38 40 33.5 S54 29 64 34" stroke="#000" stroke-width="10.5" fill="none"/></mask><circle cx="32" cy="32" r="18.5" fill="none" stroke="#121518" stroke-width="5.2" mask="url(#wl)"/><path d="M5 34 C11.5 30.1 16 30.1 22.2 33.8 S34.4 37.6 40.6 33.8 S52 30.1 59 33.3" stroke="#2a3cf5" stroke-width="4.6" stroke-linecap="round" fill="none"/></svg><div><div class="bn">Q-GreenFleet</div><div class="bs">Decision report</div></div></div>
 <h1>Green fleet deployment plan</h1>
